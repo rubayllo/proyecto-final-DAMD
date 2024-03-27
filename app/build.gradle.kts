@@ -74,4 +74,15 @@ dependencies {
     // FireBase
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
+
+    //Google maps
+            //Mirar luego con que version ma mejor
+    //implementation ("com.google.maps.android:maps-compose:2.11.4")
+    implementation ("com.google.maps.android:maps-compose:1.1.0")
+
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:20.0.0")
+    implementation("com.google.maps.android:android-maps-utils:0.5")
+
+
 }
