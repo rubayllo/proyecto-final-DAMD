@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.registerScreen
+package com.fedeyruben.proyectofinaldamd.register.registerScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,15 +13,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,6 +35,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.ButtonStyle
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.OutlineTextFieldStyle
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.textFieldColors
@@ -66,6 +71,19 @@ fun Body(
     navController: NavHostController,
     registerViewModel: RegisterViewModel
 ) {
+
+    val dialogOpen = remember { mutableStateOf(false) }
+    val enableButton: Boolean by registerViewModel.enableButton.observeAsState(false)
+
+    if (dialogOpen.value) {
+        OpenDialog(
+            dialogOpen,
+            phone = registerViewModel.phone.value,
+            codePhone = registerViewModel.codePhone.value,
+            navController
+        )
+    }
+
     Text(
         modifier = modifier.fillMaxWidth(),
         text = "Ingresa tu número de teléfono",
@@ -101,20 +119,61 @@ fun Body(
 
     ButtonStyle(
         textButton = "Continuar",
-        loginEnable = false,
+        loginEnable = enableButton,
         modifier = modifier,
-        onClickAction = {
-            navController.navigate("registerScreen2")
-        }
+        onClickAction = { dialogOpen.value = true }
     )
+
+
     Spacer(modifier = Modifier.size(18.dp))
 }
+
+@Composable
+private fun OpenDialog(dialogOpen: MutableState<Boolean>, phone: String?, codePhone: String?, navController: NavHostController) {
+    AlertDialog(
+        modifier = Modifier
+            .fillMaxWidth(),
+        onDismissRequest = { dialogOpen.value = false },
+        title = {
+            Text(
+                text = "Vamos a verificar el número de teléfono",
+                textAlign = TextAlign.Center, // Alinea el texto al centro
+            )
+        },
+        text = {
+            Text(
+                text = "+$codePhone $phone \n ¿Es correcto o quieres modificarlo?",
+                textAlign = TextAlign.Center, // Alinea el texto al centro
+            )
+
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    // Realiza acciones de confirmación si es necesario
+                    dialogOpen.value = false // Cierra el diálogo
+                    RegisterViewModel().onRegister(navController)
+                }
+            ) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = { dialogOpen.value = false }
+            ) {
+                Text("EDITAR")
+            }
+        }
+    )
+}
+
 
 @Composable
 fun UserPhoneNumber(modifier: Modifier, registerViewModel: RegisterViewModel) {
 
     val numberPhone: String by registerViewModel.phone.observeAsState("")
-    val selectedCodePhone: Int by registerViewModel.codePhone.observeAsState(0)
+    val selectedCodePhone: String by registerViewModel.codePhone.observeAsState("__")
     val selectedCountry: String by registerViewModel.country.observeAsState("")
 
     Row(
@@ -139,7 +198,7 @@ fun UserPhoneNumber(modifier: Modifier, registerViewModel: RegisterViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
-                value = "+ $selectedCodePhone",
+                value = "+$selectedCodePhone",
                 onValueChange = {},
                 enabled = false,
                 colors = textFieldColors()
@@ -161,7 +220,7 @@ fun UserPhoneNumber(modifier: Modifier, registerViewModel: RegisterViewModel) {
 }
 
 @Composable
-fun NumberPhone(numberPhone: String, onValueChange: (numberPhone: String)-> Unit) {
+fun NumberPhone(numberPhone: String, onValueChange: (numberPhone: String) -> Unit) {
     OutlinedTextField(
         value = numberPhone,
         onValueChange = { onValueChange(it) },
@@ -171,7 +230,8 @@ fun NumberPhone(numberPhone: String, onValueChange: (numberPhone: String)-> Unit
                 text = "Número de teléfono"
             )
         }
-    )}
+    )
+}
 
 @Composable
 fun SelectCountry(selectedCountry: String, onValueChange: (country: CountriesModel) -> Unit) {

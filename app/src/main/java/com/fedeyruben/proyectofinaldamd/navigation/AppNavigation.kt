@@ -5,7 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.fedeyruben.proyectofinaldamd.registerScreen.RegisterScreenInit
+import com.fedeyruben.proyectofinaldamd.register.registerScreen.RegisterScreenInit
+import com.fedeyruben.proyectofinaldamd.register.registerVerifyScreen.RegisterVerifyScreenInit
 
 @Composable
 fun AppNavigation() {
@@ -24,9 +25,14 @@ fun AppNavigation() {
 //        }
         composable(AppScreensRoutes.RegisterScreen.route) {
             RegisterScreenInit(navController)
-            Log.d("Flujo: Navigation", "RegisterScreenInit")
         }
+        composable(AppScreensRoutes.RegisterVerifyScreen.route) {
+            RegisterVerifyScreenInit(navController)
+        }
+
     }
 
 }
+
+
 
