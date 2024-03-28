@@ -74,4 +74,8 @@ dependencies {
     // FireBase
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
+
+    // LiveData
+    implementation(libs.androidx.runtime.livedata)
+
 }

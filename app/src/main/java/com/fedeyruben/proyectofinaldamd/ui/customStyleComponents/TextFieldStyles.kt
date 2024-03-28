@@ -1,7 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.ui.customStyleComponents
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
@@ -18,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,35 +38,33 @@ fun OutlineTextFieldStyle(
     modifier: Modifier,
     value: String,
     label: String,
-    leadingIcon: ImageVector? = null,
     keyboardType: KeyboardType,
-    onValueChange: (String) -> Unit
+    onValueChange: ((String) -> Unit)?,
+    enabled: Boolean,
+    readOnly: Boolean
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = { onValueChange(it) },
+        onValueChange = {
+            if (onValueChange != null) {
+                onValueChange(it)
+            }
+        },
         modifier = modifier,
-        enabled = true,
+        enabled = enabled,
+        readOnly = readOnly,
         textStyle = TextStyle(
             color = BlueColorStyle,
             fontSize = 18.sp,
         ),
         label = { Text(text = label) },
 
-        leadingIcon = {
-            if (leadingIcon != null) {
-                Icon(
-                    imageVector = leadingIcon,
-                    tint = BlueColorStyle,
-                    contentDescription = "email"
-                )
-            }
-        },
+
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = true,
         maxLines = 1,
         minLines = 1,
-        shape = CircleShape,
+        shape = RectangleShape,
         colors = textFieldColors()
     )
 }
@@ -128,14 +126,14 @@ fun OutlineTextFieldPasswordStyle(
         singleLine = true,
         maxLines = 1,
         minLines = 1,
-        shape = CircleShape,
+        shape = RectangleShape,
         colors = textFieldColors()
     )
 }
 
 
 @Composable
-private fun textFieldColors() = TextFieldDefaults.colors(
+fun textFieldColors() = TextFieldDefaults.colors(
     focusedContainerColor = Color.Transparent,
     unfocusedContainerColor = Color.Transparent,
     disabledContainerColor = Color.Transparent,
@@ -145,5 +143,6 @@ private fun textFieldColors() = TextFieldDefaults.colors(
     focusedLabelColor = BlueColorStyle,
     unfocusedLabelColor = BlueColorStyle,
     disabledLabelColor = BlueColorStyle,
-    cursorColor = BlueColorStyle
+    cursorColor = BlueColorStyle,
+    disabledTextColor = BlueColorStyle
 )
