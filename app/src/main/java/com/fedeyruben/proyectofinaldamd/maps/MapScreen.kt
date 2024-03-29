@@ -22,6 +22,8 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 
@@ -30,6 +32,12 @@ fun GetMapScreen(userLocation: LatLng) {
     Log.d("UBI", "ExploraGo() called with userLocation: $userLocation")
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
+        properties = MapProperties(isMyLocationEnabled = true),
+        uiSettings = MapUiSettings(
+            myLocationButtonEnabled = true,
+            rotationGesturesEnabled = true,
+            scrollGesturesEnabled = true
+        ),
         cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(userLocation, 10f)
         }
@@ -83,11 +91,11 @@ fun MapScreenInit(navController: NavHostController) {
         ) {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { location ->
-                    /** TODO LLEGA NULL la Ubi **/
                     if (location != null) {
                         val latitude = location.latitude
                         val longitude = location.longitude
                         Log.d("Location", "Latitude: $latitude, Longitude: $longitude")
+                        /** TODO Ubicacion actual del dispositivo enviar a otros..*/
                         userLocation = LatLng(latitude, longitude)
                         cameraPositionState.position =
                             CameraPosition.fromLatLngZoom(userLocation!!, 15f)
@@ -109,14 +117,9 @@ fun MapScreenInit(navController: NavHostController) {
         getCurrentLocation(context)
     }
 
-    /** Prueba el mapa funciona */
-    // GetMapScreen(LatLng(40.7128, -74.0060))
-
     // Le pasa la ubi a la funcion para crear el mapa
     userLocation?.let {
         Log.d("UBI", "User location obtained: $it")
         GetMapScreen(it)
     }
 }
-
-
