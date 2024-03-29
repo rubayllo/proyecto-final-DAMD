@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "768608805358",
+    "project_id": "proyectofinaldamd-5ca59",
+    "storage_bucket": "proyectofinaldamd-5ca59.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768608805358:android:1090f7427a37fbc5fbaeff",
+        "android_client_info": {
+          "package_name": "com.fedeyruben.proyectofinaldamd"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZIzvIn0_FX5IWZ3NAinoQevDrpudw7LE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

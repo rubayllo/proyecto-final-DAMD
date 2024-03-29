@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -61,6 +62,8 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.messaging.ktx)
+    implementation(libs.firebase.database)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -86,6 +89,13 @@ dependencies {
     implementation("com.google.maps.android:android-maps-utils:0.5")
 
     // LiveData
-    implementation("libs.androidx.runtime.livedata")
+    implementation(libs.androidx.runtime.livedata)
+
+    //Firebase
+    var firebase_version = "32.2.3"
+    implementation(platform("com.google.firebase:firebase-bom:$firebase_version"))
+
+    //RealtimeDB
+    implementation("com.google.firebase:firebase-database-ktx")
 
 }
