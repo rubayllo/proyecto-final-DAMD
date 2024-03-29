@@ -5,9 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+<<<<<<< HEAD
 import com.fedeyruben.proyectofinaldamd.launchScreen.LaunchScreenInit
 import com.fedeyruben.proyectofinaldamd.maps.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.registerScreen.RegisterScreenInit
+=======
+import com.fedeyruben.proyectofinaldamd.register.registerScreen.RegisterScreenInit
+import com.fedeyruben.proyectofinaldamd.register.registerVerifyScreen.RegisterVerifyScreenInit
+>>>>>>> origin/ruben
 
 @Composable
 fun AppNavigation() {
@@ -26,14 +31,22 @@ fun AppNavigation() {
 //        }
         composable(AppScreensRoutes.RegisterScreen.route) {
             RegisterScreenInit(navController)
-            Log.d("Flujo: Navigation", "RegisterScreenInit")
         }
+<<<<<<< HEAD
 
         composable(AppScreensRoutes.MapScreen.route) {
             MapScreenInit(navController)
             Log.d("Flujo: Navigation", "MapScreenInit")
         }
+=======
+        composable(AppScreensRoutes.RegisterVerifyScreen.route) {
+            RegisterVerifyScreenInit(navController)
+        }
+
+>>>>>>> origin/ruben
     }
 
 }
+
+
 
