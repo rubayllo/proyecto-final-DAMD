@@ -6,5 +6,6 @@ sealed class AppScreensRoutes (val route: String){
     object RegisterScreen : AppScreensRoutes("register_screen")
     object MapScreen : AppScreensRoutes("map_screen")
     object RegisterVerifyScreen : AppScreensRoutes("register_verify")
+   // object BottomNavigate : AppScreensRoutes("bottom_navigate")
 
 }

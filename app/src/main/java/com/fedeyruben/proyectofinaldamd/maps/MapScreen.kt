@@ -117,6 +117,7 @@ fun MapScreenInit(navController: NavHostController) {
         getCurrentLocation(context)
     }
 
+
     // Le pasa la ubi a la funcion para crear el mapa
     userLocation?.let {
         Log.d("UBI", "User location obtained: $it")
