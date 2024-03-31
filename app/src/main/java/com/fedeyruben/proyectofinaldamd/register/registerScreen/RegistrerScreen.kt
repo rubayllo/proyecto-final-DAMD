@@ -61,12 +61,12 @@ fun RegisterScreen(navController: NavHostController, registerViewModel: Register
 
         Spacer(modifier = Modifier.size(18.dp))
 
-        Body(modifier = Modifier, navController = navController, registerViewModel)
+        BodyRegisterScreen(modifier = Modifier, navController = navController, registerViewModel)
     }
 }
 
 @Composable
-fun Body(
+fun BodyRegisterScreen(
     modifier: Modifier,
     navController: NavHostController,
     registerViewModel: RegisterViewModel
@@ -152,7 +152,7 @@ private fun OpenDialog(dialogOpen: MutableState<Boolean>, phone: String?, codePh
                 onClick = {
                     // Realiza acciones de confirmación si es necesario
                     dialogOpen.value = false // Cierra el diálogo
-                    RegisterViewModel().onRegister(navController)
+                    RegisterViewModel().onRegister(navController, phone = true, verify = false)
                 }
             ) {
                 Text("OK")

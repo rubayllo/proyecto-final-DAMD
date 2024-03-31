@@ -25,6 +25,9 @@ class RegisterViewModel : ViewModel() {
     private val _enableButton = MutableLiveData<Boolean>()
     val enableButton: LiveData<Boolean> = _enableButton
 
+    private val _verifyCode = MutableLiveData<String>()
+    val verifyCode: LiveData<String> = _verifyCode
+
 
     fun onCountryChange(country: CountriesModel) {
         _country.value = country.country
@@ -41,9 +44,23 @@ class RegisterViewModel : ViewModel() {
         _enableButton.value = phone.isNotEmpty() && _country.value != null
     }
 
-    fun onRegister(navController: NavHostController) {
-        navController.popBackStack()
-        navController.navigate(AppScreensRoutes.RegisterVerifyScreen.route)
+    fun onRegister(navController: NavHostController, phone: Boolean, verify: Boolean) {
+        if(phone) {
+            navController.navigate(AppScreensRoutes.RegisterVerifyScreen.route)
+        }
+        if(verify) {
+            navController.popBackStack()
+            navController.navigate(AppScreensRoutes.MapScreen.route)
+        }
+    }
+
+    fun onVerifyCodeChange(verifyCode: String) {
+        if ( (verifyCode.matches( Regex("^[0-9]*\$")) || verifyCode.isEmpty()) && verifyCode.length <= 6) {
+            _verifyCode.value = verifyCode
+        }
+        if (verifyCode.length == 6) {
+            _enableButton.value = true
+        }
     }
 
 }

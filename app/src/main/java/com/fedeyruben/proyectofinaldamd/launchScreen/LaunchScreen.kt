@@ -34,7 +34,7 @@ fun LaunchScreenInit(navController: NavHostController) {
     LaunchedEffect(key1 = true) {
         delay(5000)
         navController.popBackStack()
-        navController.navigate(AppScreensRoutes.MapScreen.route)
+        navController.navigate(AppScreensRoutes.RegisterScreen.route)
     }
     LaunchScreen()
 }

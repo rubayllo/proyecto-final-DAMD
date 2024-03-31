@@ -15,7 +15,7 @@ val Pink40 = Color(0xFF7D5260)
 
 val BlueColorStyle = Color(0xFF4D79AB)
 val BlueColorStyleLink = Color(0xFF4EA8E9)
-val GreenColorStyle = Color(0xFFBFE1A3)
+val GreenColorStyle = Color(0xFF0F6605)
 val DisabledButtonColorStyle = Color(0xFF797979)
 
 val BackGroundColorStyle = Color(0xFFEAECEF)
