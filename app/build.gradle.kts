@@ -98,4 +98,8 @@ dependencies {
     //RealtimeDB
     implementation("com.google.firebase:firebase-database-ktx")
 
+    // Agrega esto para Accompanist Permissions
+    implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
+
+
 }
