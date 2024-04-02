@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.fedeyruben.proyectofinaldamd.bottomNavigation.HomeScreenInit
+import com.fedeyruben.proyectofinaldamd.maps.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.theme.ProyectoFinalDAMDTheme
 
@@ -23,7 +24,6 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                   // AppNavigation()
                     HomeScreenInit()
                 }
             }
