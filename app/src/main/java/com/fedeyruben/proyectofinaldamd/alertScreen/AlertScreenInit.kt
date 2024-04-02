@@ -66,7 +66,7 @@ fun AlertButton(text: String, icon: ImageVector) {
             .aspectRatio(1f)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .clickable { /* Manejar clic aquí */ },
+            .clickable { /* TODO MANEJAR ALERTAS */ },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
