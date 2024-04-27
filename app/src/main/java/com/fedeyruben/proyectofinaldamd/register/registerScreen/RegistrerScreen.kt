@@ -1,5 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.register.registerScreen
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -130,6 +131,7 @@ fun BodyRegisterScreen(
 
 @Composable
 private fun OpenDialog(dialogOpen: MutableState<Boolean>, phone: String?, codePhone: String?, navController: NavHostController) {
+    Log.d("PHONE1", "Phone number1: +$codePhone$phone")
     AlertDialog(
         modifier = Modifier
             .fillMaxWidth(),
@@ -152,7 +154,11 @@ private fun OpenDialog(dialogOpen: MutableState<Boolean>, phone: String?, codePh
                 onClick = {
                     // Realiza acciones de confirmación si es necesario
                     dialogOpen.value = false // Cierra el diálogo
-                    RegisterViewModel().onRegister(navController, phone = true, verify = false)
+                    RegisterViewModel().onRegister(
+                        navController,
+                        phone = true,
+                        phoneNumber = "+$codePhone$phone"
+                    )
                 }
             ) {
                 Text("OK")

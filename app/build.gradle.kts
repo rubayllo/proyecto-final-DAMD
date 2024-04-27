@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.fedeyruben.proyectofinaldamd"
-        minSdk = 31
+        minSdk = 29
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -82,20 +82,23 @@ dependencies {
     //Google maps
             //Mirar luego con que version ma mejor
     //implementation ("com.google.maps.android:maps-compose:2.11.4")
-    implementation ("com.google.maps.android:maps-compose:1.1.0")
+    implementation (libs.maps.compose)
 
-    implementation("com.google.android.gms:play-services-maps:18.1.0")
-    implementation("com.google.android.gms:play-services-location:20.0.0")
-    implementation("com.google.maps.android:android-maps-utils:0.5")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation(libs.android.maps.utils)
 
     // LiveData
     implementation(libs.androidx.runtime.livedata)
 
     //Firebase
-    var firebase_version = "32.2.3"
-    implementation(platform("com.google.firebase:firebase-bom:$firebase_version"))
+    implementation(libs.firebase.bom.v3223)
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(libs.play.services.safetynet)
 
     //RealtimeDB
     implementation("com.google.firebase:firebase-database-ktx")
+    implementation(libs.com.firebase.auth)
+
 
 }

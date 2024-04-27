@@ -2,13 +2,11 @@ package com.fedeyruben.proyectofinaldamd.register.registerVerifyScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -25,11 +23,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.fedeyruben.proyectofinaldamd.register.registerScreen.NumberPhone
-import com.fedeyruben.proyectofinaldamd.register.registerScreen.SelectCountry
 import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.ButtonStyle
-import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.textFieldColors
 import com.fedeyruben.proyectofinaldamd.ui.header.Header
 
 @Composable
@@ -71,6 +66,7 @@ fun BodyRegisterScreenVerify(
 ) {
     val enableButton: Boolean by registerVerifyViewModel.enableButton.observeAsState(false)
 
+
     TitleAndInfoRegisterScreenVerify(modifier)
 
     Spacer(modifier = Modifier.size(18.dp))
@@ -83,10 +79,12 @@ fun BodyRegisterScreenVerify(
         textButton = "Continuar",
         loginEnable = enableButton,
         modifier = modifier,
-        onClickAction = { RegisterViewModel().onRegister(navController,
-            phone = false,
-            verify = true
-        ) }
+        onClickAction = {
+            RegisterViewModel().onVerifyCodeAuth(
+                navController,
+                verify = true
+            )
+        }
     )
 
 }
