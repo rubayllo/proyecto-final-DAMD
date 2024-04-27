@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.ButtonStyle
-import com.fedeyruben.proyectofinaldamd.ui.header.Header
+import com.fedeyruben.proyectofinaldamd.ui.header.HeaderRegisterScreen
 
 @Composable
 fun RegisterVerifyScreenInit(navController: NavHostController) {
@@ -46,7 +46,7 @@ fun RegisterScreenVerify(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Header(modifier = Modifier)
+        HeaderRegisterScreen(modifier = Modifier)
 
         Spacer(modifier = Modifier.size(18.dp))
 
@@ -80,10 +80,13 @@ fun BodyRegisterScreenVerify(
         loginEnable = enableButton,
         modifier = modifier,
         onClickAction = {
-            RegisterViewModel().onVerifyCodeAuth(
-                navController,
-                verify = true
-            )
+            registerVerifyViewModel.verifyCode.value?.let {
+                RegisterViewModel().onVerifyCodeAuth(
+                    navController,
+                    verify = true,
+                    code = it
+                )
+            }
         }
     )
 

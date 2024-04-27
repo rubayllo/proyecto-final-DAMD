@@ -8,32 +8,38 @@ import androidx.navigation.NavHostController
 import com.fedeyruben.proyectofinaldamd.navigation.AppScreensRoutes
 import com.fedeyruben.proyectofinaldamd.register.registerScreen.CountriesModel
 import com.google.firebase.FirebaseException
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.PhoneAuthOptions
 import java.util.concurrent.TimeUnit
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 
 class RegisterViewModel : ViewModel() {
 
-    /********* Country *********/
+    /********* País *********/
     private val _country = MutableLiveData<String>()
     val country: LiveData<String> = _country
 
-    /********* Phone *********/
+    /********* Teléfono *********/
     private val _phone = MutableLiveData<String>()
     val phone: LiveData<String> = _phone
 
-    /********* Code Phone *********/
+    /********* Código de Teléfono *********/
     private val _codePhone = MutableLiveData<String>()
     val codePhone: LiveData<String> = _codePhone
 
-    /********* Enable Button *********/
+    /********* Habilitar Botón *********/
     private val _enableButton = MutableLiveData<Boolean>()
     val enableButton: LiveData<Boolean> = _enableButton
 
     private val _verifyCode = MutableLiveData<String>()
     val verifyCode: LiveData<String> = _verifyCode
+
+    private var storedVerificationId: String? = null
+    private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
 
 
     fun onCountryChange(country: CountriesModel) {
@@ -58,49 +64,99 @@ class RegisterViewModel : ViewModel() {
     ) {
         val auth: FirebaseAuth = FirebaseAuth.getInstance()
         val callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            override fun onVerificationCompleted(p0: PhoneAuthCredential) {
-                Log.d("PHONE1", "onVerificationCompleted")
+            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                // Esta devolución de llamada se invocará en dos situaciones:
+                // 1 - Verificación instantánea. En algunos casos, el número de teléfono puede ser verificado instantáneamente
+                //     sin necesidad de enviar o introducir un código de verificación.
+                // 2 - Autoretirada. En algunos dispositivos, los servicios de Google Play pueden detectar automáticamente
+                //     el SMS de verificación entrante y realizar la verificación sin acción del usuario.
+                Log.d("PHONE1", "onVerificationCompleted:$credential")
+                signInWithPhoneAuthCredential(credential)
             }
 
-            override fun onVerificationFailed(p0: FirebaseException) {
-                Log.d("PHONE1", "onVerificationFailed")
+            override fun onVerificationFailed(e: FirebaseException) {
+                // Esta devolución de llamada se invoca cuando se realiza una solicitud de verificación no válida,
+                // por ejemplo, si el formato del número de teléfono no es válido.
+                Log.w("PHONE1", "onVerificationFailed", e)
+
+                if (e is FirebaseAuthInvalidCredentialsException) {
+                    // Solicitud no válida
+                } else if (e is FirebaseTooManyRequestsException) {
+                    // Se ha excedido la cuota de SMS para el proyecto
+                } else if (e is FirebaseAuthMissingActivityForRecaptchaException) {
+                    // Intento de verificación de reCAPTCHA con Actividad nula
+                }
+
+                // Muestra un mensaje y actualiza la interfaz de usuario
             }
 
-            override fun onCodeSent(p0: String, p1: PhoneAuthProvider.ForceResendingToken) {
-                Log.d("PHONE1", "onCodeSent")
-                Log.d("PHONE1", "Code: ${p0}")
-                Log.d("PHONE1", "Token: ${p1.hashCode()}")
+            override fun onCodeSent(
+                verificationId: String,
+                token: PhoneAuthProvider.ForceResendingToken,
+            ) {
+                // El código de verificación SMS ha sido enviado al número de teléfono proporcionado, ahora
+                // necesitamos pedir al usuario que ingrese el código y luego construir un credencial
+                // combinando el código con un ID de verificación.
+
+                Log.d("PHONE1", "onCodeSent:$verificationId  Token: ${token.hashCode()}")
+
+                // Guarda el ID de verificación y el token de reenvío para poder usarlos más tarde
+                storedVerificationId = verificationId
+                resendToken = token
+                Log.d("PHONE1", "ID de verificación: $storedVerificationId")
+
+                createCredential("123456")
+
             }
         }
 
-        Log.d("PHONE1", "Phone number2: $phoneNumber")
+        Log.d("PHONE1", "Número de teléfono2: $phoneNumber")
         if(phone) {
             val options = PhoneAuthOptions.newBuilder(auth)
-                .setPhoneNumber(phoneNumber) // Phone number to verify
-                .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+                .setPhoneNumber(phoneNumber) // Número de teléfono a verificar
+                .setTimeout(60L, TimeUnit.SECONDS) // Tiempo de espera y unidad
                 .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
                 .build()
             PhoneAuthProvider.verifyPhoneNumber(options)
             navController.navigate(AppScreensRoutes.RegisterVerifyScreen.route)
         }
-
     }
-    fun onVerifyCodeAuth(navController: NavHostController, verify: Boolean) {
-        if(verify) {
-            navController.popBackStack()
-            navController.navigate(AppScreensRoutes.MapScreen.route)
-        }
+
+    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
+        val auth: FirebaseAuth = FirebaseAuth.getInstance()
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("PHONE1", "signInWithCredential:success")
+                    val user = task.result?.user
+                } else {
+                    Log.w("PHONE1", "signInWithCredential:failure", task.exception)
+                    if (task.exception is FirebaseAuthInvalidCredentialsException) {
+                        // El código de verificación ingresado no era válido
+                    }
+                }
+            }
+    }
+
+    fun createCredential(code: String) {
+        val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
+        signInWithPhoneAuthCredential(credential)
+    }
+
+
+    fun onVerifyCodeAuth(navController: NavHostController, verify: Boolean, code: String) {
+        Log.d("PHONE1", "Código de verificación: $code")
+        Log.d("PHONE1", "ID de verificación: $storedVerificationId")
+        val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
+        signInWithPhoneAuthCredential(credential)
     }
 
     fun onVerifyCodeChange(verifyCode: String) {
-        if ( (verifyCode.matches( Regex("^[0-9]*\$")) || verifyCode.isEmpty()) && verifyCode.length <= 6) {
+        if ( (verifyCode.matches(Regex("^[0-9]*\$")) || verifyCode.isEmpty()) && verifyCode.length <= 6) {
             _verifyCode.value = verifyCode
         }
         if (verifyCode.length == 6) {
             _enableButton.value = true
         }
     }
-
-
-
 }

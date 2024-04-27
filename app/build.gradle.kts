@@ -75,24 +75,21 @@ dependencies {
     // ICONOS
     implementation(libs.androidx.material.icons.extended)
 
-    // FireBase
-    implementation(platform(libs.firebase.bom))
-    implementation("com.google.firebase:firebase-auth")
-
     //Google maps
             //Mirar luego con que version ma mejor
     //implementation ("com.google.maps.android:maps-compose:2.11.4")
     implementation (libs.maps.compose)
 
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
-    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
     implementation(libs.android.maps.utils)
 
     // LiveData
     implementation(libs.androidx.runtime.livedata)
 
     //Firebase
-    implementation(libs.firebase.bom.v3223)
+    implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation(libs.play.services.safetynet)
 

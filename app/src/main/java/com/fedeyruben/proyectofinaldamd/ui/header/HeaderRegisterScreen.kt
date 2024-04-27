@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.LogoSmall
 
 @Composable
-fun Header(modifier: Modifier) {
+fun HeaderRegisterScreen(modifier: Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
         LogoSmall(modifier = Modifier.align(Alignment.CenterHorizontally))
     }

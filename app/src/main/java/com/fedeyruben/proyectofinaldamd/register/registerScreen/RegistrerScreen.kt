@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +41,7 @@ import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.ButtonStyle
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.OutlineTextFieldStyle
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.textFieldColors
-import com.fedeyruben.proyectofinaldamd.ui.header.Header
+import com.fedeyruben.proyectofinaldamd.ui.header.HeaderRegisterScreen
 
 
 @Composable
@@ -58,7 +59,7 @@ fun RegisterScreen(navController: NavHostController, registerViewModel: Register
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Header(modifier = Modifier)
+        HeaderRegisterScreen(modifier = Modifier)
 
         Spacer(modifier = Modifier.size(18.dp))
 
@@ -187,18 +188,6 @@ fun UserPhoneNumber(modifier: Modifier, registerViewModel: RegisterViewModel) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom,
     ) {
-        SelectCountry(selectedCountry) {
-            registerViewModel.onCountryChange(it)
-        }
-    }
-
-    Spacer(modifier = Modifier.size(16.dp))
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Bottom,
-    ) {
         Column(
             modifier = modifier.width(80.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -217,10 +206,21 @@ fun UserPhoneNumber(modifier: Modifier, registerViewModel: RegisterViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            NumberPhone(numberPhone) {
-                registerViewModel.onPhoneChange(it)
+            SelectCountry(selectedCountry) {
+                registerViewModel.onCountryChange(it)
             }
+        }
+    }
 
+    Spacer(modifier = Modifier.size(16.dp))
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        NumberPhone(numberPhone) {
+            registerViewModel.onPhoneChange(it)
         }
     }
 }
@@ -228,6 +228,8 @@ fun UserPhoneNumber(modifier: Modifier, registerViewModel: RegisterViewModel) {
 @Composable
 fun NumberPhone(numberPhone: String, onValueChange: (numberPhone: String) -> Unit) {
     OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth(),
         value = numberPhone,
         onValueChange = { onValueChange(it) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),

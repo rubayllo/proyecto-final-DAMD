@@ -16,7 +16,7 @@ fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = AppScreensRoutes.LaunchScreen.route
+        startDestination = AppScreensRoutes.RegisterScreen.route
     ) {
         composable(AppScreensRoutes.LaunchScreen.route) {
             LaunchScreenInit(navController)
