@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.fedeyruben.proyectofinaldamd.navigation.AppScreensRoutes
 import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.DialogVerifyCode
 import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.OpenConfirmPhoneDialog
 import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
@@ -42,6 +43,7 @@ import com.fedeyruben.proyectofinaldamd.ui.header.HeaderRegisterScreen
 
 
 @Composable
+
 fun RegisterScreenInit(navController: NavHostController) {
     RegisterScreen(navController, RegisterViewModel())
 }
@@ -60,19 +62,25 @@ fun RegisterScreen(navController: NavHostController, registerViewModel: Register
 
         Spacer(modifier = Modifier.size(18.dp))
 
-        BodyRegisterScreen(modifier = Modifier, registerViewModel)
+        BodyRegisterScreen(modifier = Modifier,navController, registerViewModel)
     }
 }
 
 @Composable
 fun BodyRegisterScreen(
     modifier: Modifier,
+    navController : NavHostController,
     registerViewModel: RegisterViewModel
 ) {
 
     val dialogConfirmPhone = remember { mutableStateOf(false) }
     val enableButton: Boolean by registerViewModel.enableButton.observeAsState(false)
     val dialogCodeOpen: Boolean by registerViewModel.dialogCodeOpen.observeAsState(false)
+    val succesLogin : Boolean by registerViewModel.sucessLogin.observeAsState(false)
+
+    if(succesLogin){
+        navController.navigate(AppScreensRoutes.HomeScreen.route)
+    }
 
     if (dialogConfirmPhone.value) {
         OpenConfirmPhoneDialog(
@@ -127,8 +135,6 @@ fun BodyRegisterScreen(
         onClickAction = { dialogConfirmPhone.value = true }
     )
 }
-
-
 
 
 @Composable

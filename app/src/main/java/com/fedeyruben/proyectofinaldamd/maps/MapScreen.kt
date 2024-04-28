@@ -1,5 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.maps
 
+
 import android.Manifest
 import android.app.Activity
 import android.content.Context
@@ -53,7 +54,7 @@ fun GetMapScreen(userLocation: LatLng) {
 }
 
 @Composable
-fun MapScreenInit(navController: NavHostController) {
+fun MapScreenInit() {
     val context = LocalContext.current
     val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
@@ -117,6 +118,7 @@ fun MapScreenInit(navController: NavHostController) {
         getCurrentLocation(context)
     }
 
+    GetMapScreen( LatLng(36.582245 , -4.534661))
 
     // Le pasa la ubi a la funcion para crear el mapa
     userLocation?.let {

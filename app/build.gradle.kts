@@ -76,9 +76,9 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
 
     //Google maps
-            //Mirar luego con que version ma mejor
+    //Mirar luego con que version ma mejor
     //implementation ("com.google.maps.android:maps-compose:2.11.4")
-    implementation (libs.maps.compose)
+    implementation(libs.maps.compose)
 
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
@@ -96,6 +96,10 @@ dependencies {
     //RealtimeDB
     implementation("com.google.firebase:firebase-database-ktx")
     implementation(libs.com.firebase.auth)
+
+
+    // Agrega esto para Accompanist Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 
 
 }
