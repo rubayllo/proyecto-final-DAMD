@@ -61,3 +61,27 @@ fun DialogVerifyCode(registerViewModel: RegisterViewModel) {
         }
     )
 }
+
+
+@Composable
+fun DialogIncorrectCode(registerViewModel: RegisterViewModel) {
+    AlertDialog(
+        modifier = Modifier
+            .fillMaxWidth(),
+        onDismissRequest = {
+        },
+        title = {
+            Text("Código incorrecto, vuelva a intentarlo")
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    registerViewModel.showDialogIncorrectCode(false)
+                    registerViewModel.cleanVerifyCode()
+                }
+            ) {
+                Text("OK")
+            }
+        },
+    )
+}

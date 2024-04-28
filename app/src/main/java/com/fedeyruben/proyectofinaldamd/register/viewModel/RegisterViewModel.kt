@@ -48,6 +48,10 @@ class RegisterViewModel : ViewModel() {
     private val _dialogCodeOpen = MutableLiveData<Boolean>()
     val dialogCodeOpen: LiveData<Boolean> = _dialogCodeOpen
 
+    /********* Código de Verificación *********/
+    private val _verifyIncorrectCode = MutableLiveData<Boolean>()
+    val verifyIncorrectCode: LiveData<Boolean> = _verifyIncorrectCode
+
 
     fun onCountryChange(country: CountriesModel) {
         _country.value = country.country
@@ -62,6 +66,10 @@ class RegisterViewModel : ViewModel() {
             _phone.value = phone
         }
         _enableButton.value = phone.isNotEmpty() && _country.value != null
+    }
+
+    fun showDialogIncorrectCode(showDialog : Boolean){
+        _verifyIncorrectCode.postValue(showDialog)
     }
 
     fun onConfirmPhone(phoneNumber: String, phone: Boolean) {
@@ -133,6 +141,7 @@ class RegisterViewModel : ViewModel() {
                     Log.d("PHONE1", "User: $user")
                     _sucessLogin.value = true
                 } else {
+                    showDialogIncorrectCode(true)
                     Log.w("PHONE1", "signInWithCredential:failure", task.exception)
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
                         // El código de verificación ingresado no era válido
@@ -159,4 +168,8 @@ class RegisterViewModel : ViewModel() {
     fun dialogCodeOpen(visibility: Boolean) {
         _dialogCodeOpen.value = visibility
     }
+
+   fun cleanVerifyCode(){
+       _verifyCode.value = ""
+   }
 }

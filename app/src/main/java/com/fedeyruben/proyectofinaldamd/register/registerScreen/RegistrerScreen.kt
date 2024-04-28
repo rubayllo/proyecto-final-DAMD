@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fedeyruben.proyectofinaldamd.navigation.AppScreensRoutes
+import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.DialogIncorrectCode
 import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.DialogVerifyCode
 import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.OpenConfirmPhoneDialog
 import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
@@ -77,6 +78,7 @@ fun BodyRegisterScreen(
     val enableButton: Boolean by registerViewModel.enableButton.observeAsState(false)
     val dialogCodeOpen: Boolean by registerViewModel.dialogCodeOpen.observeAsState(false)
     val succesLogin : Boolean by registerViewModel.sucessLogin.observeAsState(false)
+    val verifyIncorrectCode : Boolean by registerViewModel.verifyIncorrectCode.observeAsState(false)
 
     if(succesLogin){
         navController.navigate(AppScreensRoutes.HomeScreen.route)
@@ -95,6 +97,9 @@ fun BodyRegisterScreen(
         DialogVerifyCode(registerViewModel)
     }
 
+    if(verifyIncorrectCode){
+        DialogIncorrectCode(registerViewModel)
+    }
     Text(
         modifier = modifier.fillMaxWidth(),
         text = "Ingresa tu número de teléfono",
