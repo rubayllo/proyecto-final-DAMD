@@ -102,7 +102,8 @@ fun VerifyCode(modifier: Modifier, registerViewModel: RegisterViewModel) {
     ) {
         OutlinedTextField(
             value = verifyCode,
-            onValueChange = { registerViewModel.onVerifyCodeChange(it) },
+            onValueChange = {registerViewModel.verifyPhoneNumberWithCode(it)},
+            //onValueChange = { registerViewModel.onVerifyCodeChange(it) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             label = {
                 Text(

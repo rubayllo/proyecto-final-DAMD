@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.fedeyruben.proyectofinaldamd"
-        minSdk = 31
+        minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.database)
     implementation(libs.firebase.messaging)
+    implementation(libs.play.services.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -94,12 +95,16 @@ dependencies {
     //Firebase
     var firebase_version = "32.2.3"
     implementation(platform("com.google.firebase:firebase-bom:$firebase_version"))
-
+    //Firebase Auth
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.airbnb.android:lottie:4.1.0")
     //RealtimeDB
     implementation("com.google.firebase:firebase-database-ktx")
 
     // Agrega esto para Accompanist Permissions
     implementation ("com.google.accompanist:accompanist-permissions:0.32.0")
+
+
 
 
 }

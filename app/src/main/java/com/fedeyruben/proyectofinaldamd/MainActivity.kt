@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HomeScreenInit()
+                    AppNavigation()
                 }
             }
         }
@@ -38,3 +38,4 @@ fun DefaultPreview() {
         AppNavigation()
     }
 }
+

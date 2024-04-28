@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +44,7 @@ import com.fedeyruben.proyectofinaldamd.ui.header.Header
 
 
 @Composable
+
 fun RegisterScreenInit(navController: NavHostController) {
     RegisterScreen(navController, RegisterViewModel())
 }
@@ -130,6 +132,7 @@ fun BodyRegisterScreen(
 
 @Composable
 private fun OpenDialog(dialogOpen: MutableState<Boolean>, phone: String?, codePhone: String?, navController: NavHostController) {
+    val context= LocalContext.current
     AlertDialog(
         modifier = Modifier
             .fillMaxWidth(),
@@ -148,11 +151,14 @@ private fun OpenDialog(dialogOpen: MutableState<Boolean>, phone: String?, codePh
 
         },
         confirmButton = {
+            val completePhone = "+$codePhone$phone"
             TextButton(
                 onClick = {
+
                     // Realiza acciones de confirmación si es necesario
                     dialogOpen.value = false // Cierra el diálogo
                     RegisterViewModel().onRegister(navController, phone = true, verify = false)
+                    RegisterViewModel().startPhoneNumberVerification(completePhone!!,context)
                 }
             ) {
                 Text("OK")
