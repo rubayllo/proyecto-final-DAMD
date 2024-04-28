@@ -1,6 +1,5 @@
 package com.fedeyruben.proyectofinaldamd.register.registerScreen
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,16 +13,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +32,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.DialogVerifyCode
+import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.OpenConfirmPhoneDialog
 import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.ButtonStyle
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.OutlineTextFieldStyle
@@ -63,27 +60,31 @@ fun RegisterScreen(navController: NavHostController, registerViewModel: Register
 
         Spacer(modifier = Modifier.size(18.dp))
 
-        BodyRegisterScreen(modifier = Modifier, navController = navController, registerViewModel)
+        BodyRegisterScreen(modifier = Modifier, registerViewModel)
     }
 }
 
 @Composable
 fun BodyRegisterScreen(
     modifier: Modifier,
-    navController: NavHostController,
     registerViewModel: RegisterViewModel
 ) {
 
-    val dialogOpen = remember { mutableStateOf(false) }
+    val dialogConfirmPhone = remember { mutableStateOf(false) }
     val enableButton: Boolean by registerViewModel.enableButton.observeAsState(false)
+    val dialogCodeOpen: Boolean by registerViewModel.dialogCodeOpen.observeAsState(false)
 
-    if (dialogOpen.value) {
-        OpenDialog(
-            dialogOpen,
+    if (dialogConfirmPhone.value) {
+        OpenConfirmPhoneDialog(
+            dialogConfirmPhone,
             phone = registerViewModel.phone.value,
             codePhone = registerViewModel.codePhone.value,
-            navController
+            registerViewModel
         )
+    }
+
+    if (dialogCodeOpen) {
+        DialogVerifyCode(registerViewModel)
     }
 
     Text(
@@ -123,57 +124,11 @@ fun BodyRegisterScreen(
         textButton = "Continuar",
         loginEnable = enableButton,
         modifier = modifier,
-        onClickAction = { dialogOpen.value = true }
-    )
-
-
-    Spacer(modifier = Modifier.size(18.dp))
-}
-
-@Composable
-private fun OpenDialog(dialogOpen: MutableState<Boolean>, phone: String?, codePhone: String?, navController: NavHostController) {
-    Log.d("PHONE1", "Phone number1: +$codePhone$phone")
-    AlertDialog(
-        modifier = Modifier
-            .fillMaxWidth(),
-        onDismissRequest = { dialogOpen.value = false },
-        title = {
-            Text(
-                text = "Vamos a verificar el número de teléfono",
-                textAlign = TextAlign.Center, // Alinea el texto al centro
-            )
-        },
-        text = {
-            Text(
-                text = "+$codePhone $phone \n ¿Es correcto o quieres modificarlo?",
-                textAlign = TextAlign.Center, // Alinea el texto al centro
-            )
-
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    // Realiza acciones de confirmación si es necesario
-                    dialogOpen.value = false // Cierra el diálogo
-                    RegisterViewModel().onRegister(
-                        navController,
-                        phone = true,
-                        phoneNumber = "+$codePhone$phone"
-                    )
-                }
-            ) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = { dialogOpen.value = false }
-            ) {
-                Text("EDITAR")
-            }
-        }
+        onClickAction = { dialogConfirmPhone.value = true }
     )
 }
+
+
 
 
 @Composable

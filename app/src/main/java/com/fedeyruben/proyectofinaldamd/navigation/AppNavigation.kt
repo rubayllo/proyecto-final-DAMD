@@ -8,7 +8,6 @@ import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.launchScreen.LaunchScreenInit
 import com.fedeyruben.proyectofinaldamd.maps.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.register.registerScreen.RegisterScreenInit
-import com.fedeyruben.proyectofinaldamd.register.registerVerifyScreen.RegisterVerifyScreenInit
 
 
 @Composable
@@ -39,9 +38,7 @@ fun AppNavigation() {
             Log.d("Flujo: Navigation", "MapScreenInit")
         }
 
-        composable(AppScreensRoutes.RegisterVerifyScreen.route) {
-            RegisterVerifyScreenInit(navController)
-        }
+
 
 
     }

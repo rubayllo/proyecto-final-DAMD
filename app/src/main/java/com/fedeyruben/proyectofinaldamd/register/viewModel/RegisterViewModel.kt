@@ -35,11 +35,16 @@ class RegisterViewModel : ViewModel() {
     private val _enableButton = MutableLiveData<Boolean>()
     val enableButton: LiveData<Boolean> = _enableButton
 
+    /********* Código de Verificación *********/
     private val _verifyCode = MutableLiveData<String>()
     val verifyCode: LiveData<String> = _verifyCode
 
     private var storedVerificationId: String? = null
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
+
+    /********* Activar dialogo verificación *********/
+    private val _dialogCodeOpen = MutableLiveData<Boolean>()
+    val dialogCodeOpen: LiveData<Boolean> = _dialogCodeOpen
 
 
     fun onCountryChange(country: CountriesModel) {
@@ -57,11 +62,7 @@ class RegisterViewModel : ViewModel() {
         _enableButton.value = phone.isNotEmpty() && _country.value != null
     }
 
-    fun onRegister(
-        navController: NavHostController,
-        phone: Boolean,
-        phoneNumber: String
-    ) {
+    fun onConfirmPhone(phoneNumber: String, phone: Boolean) {
         val auth: FirebaseAuth = FirebaseAuth.getInstance()
         val callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
@@ -105,12 +106,10 @@ class RegisterViewModel : ViewModel() {
                 resendToken = token
                 Log.d("PHONE1", "ID de verificación: $storedVerificationId")
 
-                createCredential("123456")
-
+                _dialogCodeOpen.value = true
             }
         }
 
-        Log.d("PHONE1", "Número de teléfono2: $phoneNumber")
         if(phone) {
             val options = PhoneAuthOptions.newBuilder(auth)
                 .setPhoneNumber(phoneNumber) // Número de teléfono a verificar
@@ -118,7 +117,6 @@ class RegisterViewModel : ViewModel() {
                 .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
                 .build()
             PhoneAuthProvider.verifyPhoneNumber(options)
-            navController.navigate(AppScreensRoutes.RegisterVerifyScreen.route)
         }
     }
 
@@ -138,18 +136,13 @@ class RegisterViewModel : ViewModel() {
             }
     }
 
-    fun createCredential(code: String) {
+    fun signInCode(code: String) {
         val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
         signInWithPhoneAuthCredential(credential)
     }
 
 
-    fun onVerifyCodeAuth(navController: NavHostController, verify: Boolean, code: String) {
-        Log.d("PHONE1", "Código de verificación: $code")
-        Log.d("PHONE1", "ID de verificación: $storedVerificationId")
-        val credential = PhoneAuthProvider.getCredential(storedVerificationId!!, code)
-        signInWithPhoneAuthCredential(credential)
-    }
+
 
     fun onVerifyCodeChange(verifyCode: String) {
         if ( (verifyCode.matches(Regex("^[0-9]*\$")) || verifyCode.isEmpty()) && verifyCode.length <= 6) {
@@ -158,5 +151,9 @@ class RegisterViewModel : ViewModel() {
         if (verifyCode.length == 6) {
             _enableButton.value = true
         }
+    }
+
+    fun dialogCodeOpen(visibility: Boolean) {
+        _dialogCodeOpen.value = visibility
     }
 }
