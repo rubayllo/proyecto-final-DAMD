@@ -37,12 +37,7 @@ fun AppNavigation() {
             MapScreenInit(navController)
             Log.d("Flujo: Navigation", "MapScreenInit")
         }
-
-
-
-
     }
-
 }
 
 

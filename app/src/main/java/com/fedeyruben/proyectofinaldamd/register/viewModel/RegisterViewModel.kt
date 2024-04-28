@@ -127,6 +127,7 @@ class RegisterViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     Log.d("PHONE1", "signInWithCredential:success")
                     val user = task.result?.user
+                    Log.d("PHONE1", "User: $user")
                 } else {
                     Log.w("PHONE1", "signInWithCredential:failure", task.exception)
                     if (task.exception is FirebaseAuthInvalidCredentialsException) {
