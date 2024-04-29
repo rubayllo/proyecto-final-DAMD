@@ -97,9 +97,9 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx")
     implementation(libs.com.firebase.auth)
 
-
     // Agrega esto para Accompanist Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
 
+    implementation ("io.coil-kt:coil-compose:2.1.0")
 
 }

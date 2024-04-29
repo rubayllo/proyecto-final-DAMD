@@ -1,6 +1,7 @@
 package com.fedeyruben.proyectofinaldamd.bottomNavigation
 
 import android.annotation.SuppressLint
+import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -19,6 +20,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,20 +29,35 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.alertScreen.AlertScreenInit
 import com.fedeyruben.proyectofinaldamd.friends.FriendsScreenInit
+import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.maps.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.settings.SettingsScreenInit
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreenInit() {
+fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, friendsViewModel: FriendsViewModel) {
+
+    /** Permisos agenda luego gestionar que si cancela dos veces lo mande a las settings*/
+    val permissionsState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            android.Manifest.permission.READ_CONTACTS,
+            android.Manifest.permission.WRITE_CONTACTS
+        )
+    )
+
     // Definir los ítems de la barra de navegación
     val alertTab = TabBarItem(
         title = "Alert",
@@ -70,11 +87,44 @@ fun HomeScreenInit() {
     // Estado para mostrar el FloatingActionButton en la pantalla de amigos
     val showFab = remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+/*
+    val amigos = listOf(
+        Friend(1, "Fede", "González", "Amante del cine y la tecnología", R.drawable.fede),
+        Friend(2, "Ruben", "Díaz", "Viajero y fotógrafo", R.drawable.fede),
+        Friend(3, "Pamela", "Martínez", "Estudiante de arte"),
+        Friend(4, "Cintia", "Rodríguez", "Emprendedora digital"),
+        Friend(5, "Claudia", "Pérez", "Chef y blogger", R.drawable.fede),
+        Friend(6, "Mario", "Núñez", "Aficionado a la tecnología"),
+        Friend(7, "Luisa", "Morales", "Entusiasta del yoga"),
+        Friend(8, "Jorge", "Cabrera", "Amante de los libros"),
+        Friend(9, "Sara", "Jiménez", "Cineasta independiente", R.drawable.fede),
+        Friend(10, "Carlos", "Vega", "Músico de jazz"),
+        Friend(11, "Mónica", "Lara", "Fotógrafa profesional"),
+        Friend(12, "Esteban", "Quiroz", "Desarrollador de software", R.drawable.fede),
+        Friend(13, "Daniela", "Espinoza", "Profesora de historia"),
+        Friend(14, "Manuel", "Ortega", "Entrenador personal"),
+        Friend(15, "Gabriela", "Santos", "Bióloga marina", R.drawable.fede)
+    )
+*/
+    // Escucha cambios en la pantalla actual y actualiza showFab
+    LaunchedEffect(navController.currentBackStackEntry) {
+        showFab.value = (navController.currentDestination?.route == "Friends")
+    }
+
+
+
     Scaffold(
         bottomBar = { TabView(tabBarItems, navController) },
         floatingActionButton = {
             if (showFab.value) {
-                FloatingActionButton(onClick = { /* TODO AÑADIR AMIGO */ }) {
+                FloatingActionButton(onClick = {
+                    if (!permissionsState.allPermissionsGranted) {
+                        permissionsState.launchMultiplePermissionRequest()
+                    } else {
+                        pickContactResultLauncher.launch(null)
+                    }
+                    }) {
                     Icon(Icons.Filled.Add, contentDescription = "Agregar amigo")
                 }
             }
@@ -87,7 +137,7 @@ fun HomeScreenInit() {
             }
             composable(friendsTab.title) {
                 showFab.value = true
-                FriendsScreenInit()
+                FriendsScreenInit(friendsViewModel)
             }
             composable(mapsTab.title) {
                 showFab.value = false
@@ -146,7 +196,6 @@ fun TabBarIconView(
         contentDescription = title
     )
 }
-
 
 data class TabBarItem(
     val title: String,
