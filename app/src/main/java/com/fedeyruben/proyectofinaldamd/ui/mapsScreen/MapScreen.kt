@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.maps
+package com.fedeyruben.proyectofinaldamd.ui.mapsScreen
 
 
 import android.Manifest
@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.navigation.NavHostController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition

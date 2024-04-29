@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.register.registerScreen
+package com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen
 
 class ListOfCountries {
     companion object {

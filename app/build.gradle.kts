@@ -1,7 +1,10 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.daggersHiltAndroid)
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
+
 }
 
 android {
@@ -53,7 +56,6 @@ android {
 dependencies {
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -76,10 +78,9 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
 
     //Google maps
-    //Mirar luego con que version ma mejor
+    //Mirar luego con que version va mejor
     //implementation ("com.google.maps.android:maps-compose:2.11.4")
     implementation(libs.maps.compose)
-
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.android.maps.utils)
@@ -99,7 +100,23 @@ dependencies {
 
 
     // Agrega esto para Accompanist Permissions
-    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation(libs.accompanist.permissions)
 
+    //Corrutinas
+    implementation (libs.androidx.lifecycle.runtime.ktx)
+
+    //DataStore
+    implementation (libs.androidx.datastore.preferences)
+
+    // Dagger Hilt
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    kapt(libs.androidx.hilt.compiler)
+    kapt(libs.hilt.android.compiler)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
 
 }

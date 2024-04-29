@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.launchScreen
+package com.fedeyruben.proyectofinaldamd.ui.launchScreen
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fedeyruben.proyectofinaldamd.R
-import com.fedeyruben.proyectofinaldamd.navigation.AppScreensRoutes
+import com.fedeyruben.proyectofinaldamd.ui.navigation.AppScreensRoutes
 import kotlinx.coroutines.delay
 
 

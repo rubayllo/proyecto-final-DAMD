@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.register.registerScreen
+package com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,15 +32,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.fedeyruben.proyectofinaldamd.navigation.AppScreensRoutes
-import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.DialogIncorrectCode
-import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.DialogVerifyCode
-import com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs.OpenConfirmPhoneDialog
-import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
+import com.fedeyruben.proyectofinaldamd.ui.navigation.AppScreensRoutes
+import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs.DialogIncorrectCode
+import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs.DialogVerifyCode
+import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs.OpenConfirmPhoneDialog
+import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.ButtonStyle
+import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.LogoSmall
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.OutlineTextFieldStyle
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.textFieldColors
-import com.fedeyruben.proyectofinaldamd.ui.header.HeaderRegisterScreen
 
 
 @Composable
@@ -66,6 +66,14 @@ fun RegisterScreen(navController: NavHostController, registerViewModel: Register
         BodyRegisterScreen(modifier = Modifier,navController, registerViewModel)
     }
 }
+
+@Composable
+fun HeaderRegisterScreen(modifier: Modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        LogoSmall(modifier = Modifier.align(Alignment.CenterHorizontally))
+    }
+}
+
 
 @Composable
 fun BodyRegisterScreen(

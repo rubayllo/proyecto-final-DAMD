@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.alertScreen
+package com.fedeyruben.proyectofinaldamd.ui.alertScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.navigation
+package com.fedeyruben.proyectofinaldamd.ui.navigation
 
 sealed class AppScreensRoutes(val route: String) {
     object LaunchScreen : AppScreensRoutes("launch_screen")

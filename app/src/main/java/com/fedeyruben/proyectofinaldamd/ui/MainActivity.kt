@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd
+package com.fedeyruben.proyectofinaldamd.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,9 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.fedeyruben.proyectofinaldamd.bottomNavigation.HomeScreenInit
-import com.fedeyruben.proyectofinaldamd.maps.MapScreenInit
-import com.fedeyruben.proyectofinaldamd.navigation.AppNavigation
+import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.theme.ProyectoFinalDAMDTheme
 
 class MainActivity : ComponentActivity() {

@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs
+package com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
+import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 
 @Composable
 fun DialogVerifyCode(registerViewModel: RegisterViewModel) {

@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.settings
+package com.fedeyruben.proyectofinaldamd.ui.settingsScreen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -12,31 +12,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ColorLens
-import androidx.compose.material.icons.filled.Contacts
-import androidx.compose.material.icons.filled.Devices
-import androidx.compose.material.icons.filled.DevicesOther
 import androidx.compose.material.icons.filled.DoNotDisturbOn
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Fence
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.HistoryToggleOff
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocalHospital
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.NightsStay
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PeopleAlt
 import androidx.compose.material.icons.filled.SettingsApplications
-import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.VpnKey

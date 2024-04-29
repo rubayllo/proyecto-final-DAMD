@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.bottomNavigation
+package com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.size
@@ -32,10 +32,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.fedeyruben.proyectofinaldamd.alertScreen.AlertScreenInit
-import com.fedeyruben.proyectofinaldamd.friends.FriendsScreenInit
-import com.fedeyruben.proyectofinaldamd.maps.MapScreenInit
-import com.fedeyruben.proyectofinaldamd.settings.SettingsScreenInit
+import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertScreenInit
+import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsScreenInit
+import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapScreenInit
+import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsScreenInit
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.register.registerScreen.ComposableDialogs
+package com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs
 
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import com.fedeyruben.proyectofinaldamd.register.viewModel.RegisterViewModel
+import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 
 @Composable
 fun OpenConfirmPhoneDialog(

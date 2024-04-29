@@ -1,10 +1,10 @@
-package com.fedeyruben.proyectofinaldamd.register.viewModel
+package com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.fedeyruben.proyectofinaldamd.register.registerScreen.CountriesModel
+import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.CountriesModel
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
