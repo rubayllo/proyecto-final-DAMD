@@ -20,26 +20,24 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.fedeyruben.proyectofinaldamd.R
+import com.fedeyruben.proyectofinaldamd.data.dataStore.model.Friend
+import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
+import coil.compose.rememberImagePainter
 
-data class Friend(val id: Int, val nombre: String, val apellido: String)
 
 @Composable
-fun ListaAmigosScreen() {
-    // Luego vendrá de la Base de datos
-    val amigos = listOf(
-        Friend(1, "Fede", "González"),
-        Friend(2, "Ruben", "Díaz"),
-        Friend(3, "Pamela", "Martínez"),
-        Friend(4, "Cintia", "Rodríguez"),
-        Friend(5, "Claudia", "Pérez")
-    )
+fun ListaAmigosScreen(friendsViewModel: FriendsViewModel) {
+
+    val amigos = friendsViewModel.friends.observeAsState(initial = emptyList()).value
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -58,6 +56,7 @@ fun AmigoListItem(amigo: Friend) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0)),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -67,29 +66,32 @@ fun AmigoListItem(amigo: Friend) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Usando Image en lugar de Icon
+            // Usar Coil para cargar la imagen desde una Uri
             Image(
-                painter = painterResource(id = R.drawable.person),
+                painter = if (amigo.imageResId != null) rememberImagePainter(amigo.imageResId) else painterResource(
+                    id = R.drawable.person
+                ),
                 contentDescription = "Imagen de perfil de ${amigo.nombre}",
                 modifier = Modifier
-                    .size(48.dp) // Ajusta el tamaño según necesites
-                    .clip(CircleShape), // Hace que la imagen sea circular
-                contentScale = ContentScale.Crop // Asegura que la imagen se recorte para ajustarse
+                    .size(64.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = "${amigo.nombre} ${amigo.apellido}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black
                 )
             }
         }
     }
 }
 
-
 @Composable
-fun FriendsScreenInit() {
-    ListaAmigosScreen()
+fun FriendsScreenInit(friendsViewModel: FriendsViewModel) {
+    ListaAmigosScreen(friendsViewModel)
 }

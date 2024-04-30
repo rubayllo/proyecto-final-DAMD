@@ -98,7 +98,6 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx")
     implementation(libs.com.firebase.auth)
 
-
     // Agrega esto para Accompanist Permissions
     implementation(libs.accompanist.permissions)
 
@@ -118,5 +117,8 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
+
+    // Cargar imagen UI Friends
+    implementation ("io.coil-kt:coil-compose:2.1.0")
 
 }
