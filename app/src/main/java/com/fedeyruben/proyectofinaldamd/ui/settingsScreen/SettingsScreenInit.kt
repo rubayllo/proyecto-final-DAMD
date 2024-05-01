@@ -41,18 +41,18 @@ fun SettingsScreenInit() {
     val settingsList = remember {
         mutableStateListOf(
             "Configuración personal:" to listOf(
-                SettingsItem("Cambiar Fotografía", Icons.Default.PhotoCamera, null),
-                SettingsItem("Cambiar Nombre de Usuario", Icons.Default.AccountCircle, null)
+                SettingsItem("Cambiar Fotografía", null, Icons.Default.PhotoCamera, null),
+                SettingsItem("Cambiar Nombre de Usuario", null, Icons.Default.AccountCircle, null)
             ),
             "Configura tus guardianes:" to listOf(
-                SettingsItem("Modo Siempre en Alerta", Icons.Default.Warning, true),
-                SettingsItem("Nivel de Alerta Bajo", Icons.Default.AddAlert, null),
-                SettingsItem("Nivel de Alerta Medio", Icons.Default.AddAlert, null),
-                SettingsItem("Nivel de Alerta Alto", Icons.Default.AddAlert, null),
-                SettingsItem("Nivel de Alerta Máximo", Icons.Default.AddAlert, null)
+                SettingsItem("Modo Siempre en Alerta", null, Icons.Default.Warning, true),
+                SettingsItem("Nivel de Alerta Bajo","LowGuardian", Icons.Default.AddAlert, null),
+                SettingsItem("Nivel de Alerta Medio","MidGuardian", Icons.Default.AddAlert, null),
+                SettingsItem("Nivel de Alerta Alto", "HighGuardian", Icons.Default.AddAlert, null),
+                SettingsItem("Nivel de Alerta Máximo","MaxGuardian", Icons.Default.AddAlert, null)
             ),
             "Acepta ser protector de:" to listOf(
-                SettingsItem("Solicitud de Protección", Icons.Default.PersonAdd, null)
+                SettingsItem("Solicitud de Protección", "ProtectTo", Icons.Default.PersonAdd, null)
             )
         )
     }
@@ -81,7 +81,6 @@ fun SettingsScreenInit() {
     }
 }
 
-
 @Composable
 fun SettingsOption(item: SettingsItem) {
     var dropdownExpanded by remember { mutableStateOf(false) }
@@ -91,7 +90,7 @@ fun SettingsOption(item: SettingsItem) {
             .fillMaxWidth()
             .clickable(onClick = {
                 dropdownExpanded = !dropdownExpanded
-            }) // Agrega la capacidad de hacer clic
+            })
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -106,10 +105,19 @@ fun SettingsOption(item: SettingsItem) {
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(Modifier.weight(1f))
+
+        var additionalSwitchState by remember { mutableStateOf(false) }
         if (item.switchState != null) {
             Switch(
-                checked = item.switchState,
-                onCheckedChange = { /* TODO: Manejar cambio de estado */ }
+                checked = additionalSwitchState,
+                onCheckedChange = { newState ->
+                    additionalSwitchState = newState
+                }
+
+//                onCheckedChange = { newState ->
+//                    // Actualizar el estado del interruptor al pulsarlo
+//                    item.switchState = !newState
+//                }
             )
         } else {
             Icon(
@@ -120,42 +128,93 @@ fun SettingsOption(item: SettingsItem) {
         }
     }
     if (dropdownExpanded) {
-        AddProtegido(item.title)
+        DropDown(item.type)
     }
 }
 
 @Composable
-private fun AddProtegido(title: String) {
+private fun DropDown(type: String?) {
+
     // Lista de contactos que te han solicitado protección (simulada)
     val solicitudProteccionList = listOf(
-        "Contacto 1",
-        "Contacto 2",
-        "Contacto 3"
+        "Proteger contacto 1",
+        "Proteger contacto 2",
+        "Proteger contacto 3"
     )
 
-    if (true) {
+    val lowGuardianList = listOf(
+        "Contacto 1 nivel bajo",
+        "Contacto 2 nivel bajo",
+        "Contacto 3 nivel bajo"
+    )
+    val midGuardianList = listOf(
+        "Contacto 1 nivel medio",
+        "Contacto 2 nivel medio",
+        "Contacto 3 nivel medio"
+    )
+    val highGuardianList = listOf(
+        "Contacto 1 nivel alto",
+        "Contacto 2 nivel alto",
+        "Contacto 3 nivel alto"
+    )
+    val maxGuardianList = listOf(
+        "Contacto 1 nivel máximo",
+        "Contacto 2 nivel máximo",
+        "Contacto 3 nivel máximo"
+    )
 
-        solicitudProteccionList.forEach { contact ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = {})
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(contact)
-                Log.d("SettingsScreen", "Contacto: $contact")
+    when (type) {
+        "ProtectTo" -> {
+            solicitudProteccionList.forEach { contact ->
+                ExpandMenu(contact)
             }
         }
+        "LowGuardian" -> {
+            lowGuardianList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+        "MidGuardian" -> {
+            midGuardianList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+        "HighGuardian" -> {
+            highGuardianList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+        "MaxGuardian" -> {
+            maxGuardianList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+
     }
 
 }
 
+@Composable
+private fun ExpandMenu(contact: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = {})
+            .padding(start = 56.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(contact)
+        Log.d("SettingsScreen", "Contacto: $contact")
+    }
+}
+
 data class SettingsItem(
     val title: String,
+    val type: String? = null,
     val icon: ImageVector,
-    val switchState: Boolean?
+    var switchState: Boolean?
 )
+
 
 
 
