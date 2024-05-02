@@ -1,7 +1,8 @@
 package com.fedeyruben.proyectofinaldamd.ui.settingsScreen
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,21 +13,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.ColorLens
-import androidx.compose.material.icons.filled.DoNotDisturbOn
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Fence
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.filled.NightsStay
-import androidx.compose.material.icons.filled.PeopleAlt
-import androidx.compose.material.icons.filled.SettingsApplications
-import androidx.compose.material.icons.filled.TextFields
-import androidx.compose.material.icons.filled.Update
-import androidx.compose.material.icons.filled.VpnKey
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -34,62 +25,55 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsScreenInit() {
-    val settingsList = listOf(
-        "Location Privacy" to listOf(
-            SettingsItem("Share Location", Icons.Default.LocationOn, true),
-            SettingsItem("Update Frequency", Icons.Default.Update, null),
-            SettingsItem("Geofencing", Icons.Default.Fence, null)
-        ),
-        "Alerts" to listOf(
-            SettingsItem("Emergency Alerts", Icons.Default.Warning, true),
-            SettingsItem("Alert Type", Icons.Default.AddAlert, null),
-            SettingsItem("Alert Level", Icons.Default.ErrorOutline, null)
-        ),
-        "Modes" to listOf(
-            SettingsItem("Night Mode", Icons.Default.NightsStay, true),
-            SettingsItem("Silent Mode", Icons.Default.DoNotDisturbOn, true)
-        ),
-        "Interface Customization" to listOf(
-            SettingsItem("App Theme", Icons.Default.ColorLens, null),
-            SettingsItem("Text Size", Icons.Default.TextFields, null)
-        ),
-        "Connections & Permissions" to listOf(
-            SettingsItem("Manage Contacts", Icons.Default.PeopleAlt, null),
-            SettingsItem("App Permissions", Icons.Default.SettingsApplications, null)
-        ),
-        "Advanced Notifications" to listOf(
-            SettingsItem("Custom Notification Sound", Icons.Default.MusicNote, null),
-            SettingsItem("Location-Based Alerts", Icons.Default.MyLocation, null)
-        ),
-        "Other Settings" to listOf(
-            SettingsItem("Password", Icons.Default.VpnKey, null)
+
+    val settingsList = remember {
+        mutableStateListOf(
+            "Configuración personal:" to listOf(
+                SettingsItem("Cambiar Fotografía", null, Icons.Default.PhotoCamera, null),
+                SettingsItem("Cambiar Nombre de Usuario", null, Icons.Default.AccountCircle, null)
+            ),
+            "Configura tus guardianes:" to listOf(
+                SettingsItem("Modo Siempre en Alerta", null, Icons.Default.Warning, true),
+                SettingsItem("Nivel de Alerta Bajo","LowGuardian", Icons.Default.AddAlert, null),
+                SettingsItem("Nivel de Alerta Medio","MidGuardian", Icons.Default.AddAlert, null),
+                SettingsItem("Nivel de Alerta Alto", "HighGuardian", Icons.Default.AddAlert, null),
+                SettingsItem("Nivel de Alerta Máximo","MaxGuardian", Icons.Default.AddAlert, null)
+            ),
+            "Acepta ser protector de:" to listOf(
+                SettingsItem("Solicitud de Protección", "ProtectTo", Icons.Default.PersonAdd, null)
+            )
         )
-    )
+    }
+
     // Ajusta esto a la altura de tu BottomNavigation
-    val bottomBarHeight = 80.dp
+    val bottomBarHeight = 120.dp
+
     LazyColumn(
         contentPadding = PaddingValues(bottom = bottomBarHeight)
     ) {
-        settingsList.forEach { (category, items) ->
-            stickyHeader {
-                Text(
-                    text = category,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .background(MaterialTheme.colorScheme.background)
-                )
-            }
-            items(items) { item ->
+        items(settingsList) { (category, items) ->
+            Text(
+                text = category,
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp, top = 46.dp, start = 16.dp, end = 16.dp)
+                    .background(MaterialTheme.colorScheme.background)
+            )
+
+            items.forEach { item ->
                 SettingsOption(item)
                 Divider()
             }
@@ -99,9 +83,14 @@ fun SettingsScreenInit() {
 
 @Composable
 fun SettingsOption(item: SettingsItem) {
+    var dropdownExpanded by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = {
+                dropdownExpanded = !dropdownExpanded
+            })
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -116,10 +105,19 @@ fun SettingsOption(item: SettingsItem) {
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(Modifier.weight(1f))
+
+        var additionalSwitchState by remember { mutableStateOf(false) }
         if (item.switchState != null) {
             Switch(
-                checked = item.switchState,
-                onCheckedChange = { /* TODO: Manejar cambio de estado */ }
+                checked = additionalSwitchState,
+                onCheckedChange = { newState ->
+                    additionalSwitchState = newState
+                }
+
+//                onCheckedChange = { newState ->
+//                    // Actualizar el estado del interruptor al pulsarlo
+//                    item.switchState = !newState
+//                }
             )
         } else {
             Icon(
@@ -129,10 +127,94 @@ fun SettingsOption(item: SettingsItem) {
             )
         }
     }
+    if (dropdownExpanded) {
+        DropDown(item.type)
+    }
+}
+
+@Composable
+private fun DropDown(type: String?) {
+
+    // Lista de contactos que te han solicitado protección (simulada)
+    val solicitudProteccionList = listOf(
+        "Proteger contacto 1",
+        "Proteger contacto 2",
+        "Proteger contacto 3"
+    )
+
+    val lowGuardianList = listOf(
+        "Contacto 1 nivel bajo",
+        "Contacto 2 nivel bajo",
+        "Contacto 3 nivel bajo"
+    )
+    val midGuardianList = listOf(
+        "Contacto 1 nivel medio",
+        "Contacto 2 nivel medio",
+        "Contacto 3 nivel medio"
+    )
+    val highGuardianList = listOf(
+        "Contacto 1 nivel alto",
+        "Contacto 2 nivel alto",
+        "Contacto 3 nivel alto"
+    )
+    val maxGuardianList = listOf(
+        "Contacto 1 nivel máximo",
+        "Contacto 2 nivel máximo",
+        "Contacto 3 nivel máximo"
+    )
+
+    when (type) {
+        "ProtectTo" -> {
+            solicitudProteccionList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+        "LowGuardian" -> {
+            lowGuardianList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+        "MidGuardian" -> {
+            midGuardianList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+        "HighGuardian" -> {
+            highGuardianList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+        "MaxGuardian" -> {
+            maxGuardianList.forEach { contact ->
+                ExpandMenu(contact)
+            }
+        }
+
+    }
+
+}
+
+@Composable
+private fun ExpandMenu(contact: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = {})
+            .padding(start = 56.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(contact)
+        Log.d("SettingsScreen", "Contacto: $contact")
+    }
 }
 
 data class SettingsItem(
     val title: String,
+    val type: String? = null,
     val icon: ImageVector,
-    val switchState: Boolean?
+    var switchState: Boolean?
 )
+
+
+
+

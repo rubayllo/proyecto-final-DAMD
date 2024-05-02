@@ -18,7 +18,7 @@ fun AppNavigation(pickContactResultLauncher: ActivityResultLauncher<Void?>, frie
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = AppScreensRoutes.LaunchScreen.route
+        startDestination = AppScreensRoutes.HomeScreen.route
 
     ) {
         composable(AppScreensRoutes.LaunchScreen.route) {
