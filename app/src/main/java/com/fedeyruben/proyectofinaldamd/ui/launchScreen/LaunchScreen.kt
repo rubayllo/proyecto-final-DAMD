@@ -40,7 +40,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun LaunchScreenInit(navController: NavHostController) {
     LaunchedEffect(key1 = true) {
-        delay(8000)
+        delay(88000)
         navController.popBackStack()
         navController.navigate(AppScreensRoutes.RegisterScreen.route)
     }
@@ -151,20 +151,21 @@ private fun FlippingImage() {
             val centerY = screenHeightDp / 2
 
             // Ajusta los puntos para que la línea comience y termine cerca del centro en Dp
-            // Aquí utilizamos el método minus y plus para Dp, para evitar errores de tipo.
             val personCenterXDp = centerX - 50.dp // Restar 50.dp al centro X
-            val personCenterYDp = centerY - 300.dp // Centro Y
+            val personCenterYDp = centerY - 300.dp + 25.dp // Centro Y
             val alertCenterXDp = centerX + 50.dp // Sumar 50.dp al centro X
-            val alertCenterYDp = centerY - 250.dp
+            val alertCenterYDp = centerY - 250.dp + 25.dp
+
+            // Incrementa el valor de endYDp para terminar justo debajo de la alarma
+            val adjustedEndYDp = alertCenterYDp + 20.dp // Sumar 10.dp para bajar la línea justo debajo de la alarma
 
             DottedLine(
                 startXDp = personCenterXDp,
                 startYDp = personCenterYDp,
-                endXDp = alertCenterXDp,
-                endYDp = alertCenterYDp
+                endXDp = alertCenterXDp ,
+                endYDp = adjustedEndYDp// Usa el nuevo valor ajustado
             )
         }
-
     }
 }
 
