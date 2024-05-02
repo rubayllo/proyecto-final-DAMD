@@ -29,7 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.fedeyruben.proyectofinaldamd.R
-import com.fedeyruben.proyectofinaldamd.data.dataStore.model.Friend
+import com.fedeyruben.proyectofinaldamd.data.Friend
 import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
 import coil.compose.rememberImagePainter
 

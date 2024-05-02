@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.data.dataStore.model
+package com.fedeyruben.proyectofinaldamd.data
 
 import android.net.Uri
 data class Friend(

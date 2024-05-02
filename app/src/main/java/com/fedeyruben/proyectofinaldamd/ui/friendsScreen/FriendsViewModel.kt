@@ -8,7 +8,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.fedeyruben.proyectofinaldamd.data.dataStore.model.Friend
+import com.fedeyruben.proyectofinaldamd.data.Friend
 
 class FriendsViewModel : ViewModel() {
 
