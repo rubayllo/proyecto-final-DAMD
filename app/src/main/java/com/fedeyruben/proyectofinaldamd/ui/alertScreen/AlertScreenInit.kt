@@ -151,14 +151,13 @@ fun CountdownDialog(onDismiss: () -> Unit) {
             onDismiss() // Cierra el diálogo después de mostrar "ALERTA ENVIADA"
         }
     }
-
     if (showAlertSent) {
         AlertSentDialog(onDismiss)
     } else {
         AlertDialog(
             onDismissRequest = {},
             title = { Text("Enviando Alerta") },
-            text = { Text("¡¡¡ESTÁ ENVIANDO UNA ALERTA!!!\nCerrando en $countdown segundos.") },
+            text = { Text("¡¡¡ESTÁ ENVIANDO UNA ALERTA!!!\nEnviando en $countdown segundos.") },
             confirmButton = {
                 Button(onClick = {
                     showAlertSent = true // Asegura que no se muestre el diálogo de alerta enviada si se cancela
