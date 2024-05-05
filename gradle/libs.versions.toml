@@ -2,37 +2,42 @@
 accompanistPermissions = "0.34.0"
 agp = "8.3.2"
 androidMapsUtils = "0.5"
+coilCompose = "2.6.0"
 converterGson = "2.9.0"
-datastorePreferences = "1.1.0"
-firebaseAuthVersion = "22.3.1"
-firebaseBom = "32.8.0"
-firebaseBomVersion = "32.2.3"
+datastorePreferences = "1.1.1"
+firebaseAuthVersion = "23.0.0"
+firebaseBom = "33.0.0"
 hiltAndroid = "2.50"
 hiltNavigationCompose = "1.2.0"
 kotlin = "1.9.0"
-coreKtx = "1.12.0"
+coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.7.0"
-activityCompose = "1.8.2"
-composeBom = "2023.08.00"
+activityCompose = "1.9.0"
+composeBom = "2024.05.00"
 loggingInterceptor = "4.12.0"
 mapsCompose = "1.1.0"
-materialIconsExtended = "1.6.4"
+materialIconsExtended = "1.6.7"
 navigationCompose = "2.7.7"
-firebaseMessagingKtx = "23.4.1"
+firebaseMessagingKtx = "24.0.0"
 playServicesLocation = "21.2.0"
 playServicesMaps = "18.2.0"
 playServicesSafetynet = "18.0.1"
 retrofit = "2.9.0"
-runtimeLivedata = "1.6.4"
+roomKtx = "2.6.1"
+runtimeLivedata = "1.6.7"
 googleServices = "4.4.1"
-firebaseDatabase = "20.3.1"
-firebaseMessaging = "23.4.1"
+firebaseDatabase = "21.0.0"
+firebaseMessaging = "24.0.0"
+swipe = "1.1.1"
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomKtx" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomKtx" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 com-firebase-auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuthVersion" }
 android-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "androidMapsUtils" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +50,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 hilt-android-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hiltAndroid" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -70,6 +76,7 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 play-services-safetynet = { module = "com.google.android.gms:play-services-safetynet", version.ref = "playServicesSafetynet" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+swipe = { module = "me.saket.swipe:swipe", version.ref = "swipe" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

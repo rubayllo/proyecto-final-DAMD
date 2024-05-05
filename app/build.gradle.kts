@@ -37,6 +37,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
+
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -62,7 +65,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.database)
     implementation(libs.firebase.messaging)
@@ -110,8 +112,10 @@ dependencies {
     // Dagger Hilt
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
-    kapt(libs.androidx.hilt.compiler)
-    kapt(libs.hilt.android.compiler)
+//    kapt(libs.androidx.hilt.compiler)
+//    kapt(libs.hilt.android.compiler)
+    kapt (libs.hilt.compiler)
+
 
     // Retrofit
     implementation(libs.retrofit)
@@ -119,6 +123,18 @@ dependencies {
     implementation(libs.logging.interceptor)
 
     // Cargar imagen UI Friends
-    implementation ("io.coil-kt:coil-compose:2.1.0")
+    implementation (libs.coil.compose)
+
+    // Room
+    implementation (libs.androidx.room.ktx)
+    kapt (libs.androidx.room.compiler)
+
+
+    //Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Swipe sirve para hacer swipe en la pantalla hacia la izquierda o derecha
+    implementation (libs.swipe)
+
 
 }
