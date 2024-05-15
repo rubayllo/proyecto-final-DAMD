@@ -14,7 +14,9 @@ import androidx.compose.ui.Modifier
 import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.theme.ProyectoFinalDAMDTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val friendsViewModel : FriendsViewModel by viewModels()
