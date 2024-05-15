@@ -1,7 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.ui.launchScreen
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -35,30 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppScreensRoutes
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 
 @Composable
 fun LaunchScreenInit(navController: NavHostController) {
-    // Inicializa Firebase Auth
-    val auth = FirebaseAuth.getInstance()
-    // Verifica si el usuario ya está autenticado
-    val currentUser = auth.currentUser
-
-
     LaunchedEffect(key1 = true) {
         delay(8000)
         navController.popBackStack()
-        if (currentUser != null) {
-            Log.d("Flujo: Navigation", "Usuario ya está autenticado")
-            // Usuario ya está autenticado, navega a la pantalla principal
-            navController.navigate(AppScreensRoutes.HomeScreen.route)
-        } else {
-            Log.d("Flujo: Navigation", "Usuario no está autenticado")
-            // Usuario no está autenticado, navega a la pantalla de inicio de sesión
-            navController.navigate(AppScreensRoutes.RegisterScreen.route)
-        }
+        navController.navigate(AppScreensRoutes.RegisterScreen.route)
     }
     LaunchScreen()
 }
