@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,15 +22,19 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.database.FirebaseDatabase
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.Polygon
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun GetMapScreen(userLocation: LatLng) {
     Log.d("UBI", "ExploraGo() called with userLocation: $userLocation")
+    val startPoint = LatLng(36.6021273, -4.5322362)   // Puedes ajustar este punto como prefieras
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         properties = MapProperties(isMyLocationEnabled = true),
@@ -48,6 +53,18 @@ fun GetMapScreen(userLocation: LatLng) {
                 title = "Your Location",
                 snippet = "Marker at Your Location"
             )
+
+            /** Aqui deberia crear la linea de viaje */
+            // Dibuja una línea desde el punto ficticio hasta la ubicación actual del usuario
+            Polyline(
+                points = listOf(
+                    startPoint,  // Punto inicial
+                    userLocation  // Ubicación actual del usuario
+                ),
+                color = Color.Blue,  // Color de la línea
+                width = 5f  // Grosor de la línea
+            )
+
         }
     }
 }
@@ -59,6 +76,7 @@ fun MapScreenInit() {
         LocationServices.getFusedLocationProviderClient(context)
     val cameraPositionState = rememberCameraPositionState()
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
+
 
     // Function to request location permission
     fun requestLocationPermission() {
@@ -100,6 +118,11 @@ fun MapScreenInit() {
                         cameraPositionState.position =
                             CameraPosition.fromLatLngZoom(userLocation!!, 15f)
                         Log.d("Location", "User location set: $userLocation")
+                        /** TODO
+                         * Actualizar ubicacion en FireBase*/
+                        val userLocation = UserLocation(location.latitude, location.longitude)
+                        val databaseReference = FirebaseDatabase.getInstance().getReference("locations")
+                        databaseReference.child("userId").setValue(userLocation)
                     } else {
                         Log.e("Location", "Location is null")
                     }
