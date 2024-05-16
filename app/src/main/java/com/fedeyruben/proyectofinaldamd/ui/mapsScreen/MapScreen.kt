@@ -18,23 +18,93 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.fedeyruben.proyectofinaldamd.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.database.FirebaseDatabase
+import com.google.maps.DirectionsApi
+import com.google.maps.GeoApiContext
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.model.DirectionsResult
+import com.google.maps.model.TravelMode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
-fun GetMapScreen(userLocation: LatLng) {
-    Log.d("UBI", "ExploraGo() called with userLocation: $userLocation")
-    val startPoint = LatLng(36.6021273, -4.5322362)   // Puedes ajustar este punto como prefieras
+fun MapScreenInit() {
+    val context = LocalContext.current
+    val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    val cameraPositionState = rememberCameraPositionState()
+    var userLocation by remember { mutableStateOf<LatLng?>(null) }
+    var pathPoints by remember { mutableStateOf(listOf<LatLng>()) }
+
+    // Punto final ficticio, reemplaza estas coordenadas con las de cualquier otro destino si es necesario
+    val endPoint = LatLng(36.58929, -4.5814)  // Stupa en Benalmádena
+
+    // Function to request location permission
+    fun requestLocationPermission() {
+        val REQUEST_LOCATION_PERMISSION_CODE = 1001
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION_CODE)
+        }
+    }
+
+    // Obtener la ubicación actual y la ruta
+    LaunchedEffect(key1 = true) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                location?.let {
+                    val currentLatLng = LatLng(it.latitude, it.longitude)
+                    userLocation = currentLatLng
+                    cameraPositionState.position = CameraPosition.fromLatLngZoom(currentLatLng, 12f)
+
+                    // Función para obtener direcciones y actualizar la ruta
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val directionsResult = getDirections(currentLatLng, endPoint, context)
+                        pathPoints = directionsResult?.routes?.firstOrNull()?.overviewPolyline?.decodePath()?.map {
+                            LatLng(it.lat, it.lng)
+                        } ?: listOf()
+                    }
+                }
+            }
+        } else {
+            requestLocationPermission()
+        }
+    }
+
+    // Dibujar el mapa y la ruta
+    userLocation?.let {
+        GetMapScreen(it, pathPoints)
+    }
+}
+
+suspend fun getDirections(start: LatLng, end: LatLng, context: Context): DirectionsResult? {
+    val apiKey = context.getString(R.string.google_maps_api_key)
+    val geoApiContext = GeoApiContext.Builder().apiKey(apiKey).build()
+
+    return try {
+        DirectionsApi.newRequest(geoApiContext)
+            .mode(TravelMode.DRIVING)
+            .origin(com.google.maps.model.LatLng(start.latitude, start.longitude))
+            .destination(com.google.maps.model.LatLng(end.latitude, end.longitude))
+            .await()
+    } catch (e: Exception) {
+        Log.e("GoogleMapsDirections", "Failed to fetch directions", e)
+        null
+    }
+}
+
+
+@Composable
+fun GetMapScreen(userLocation: LatLng, pathPoints: List<LatLng>) {
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         properties = MapProperties(isMyLocationEnabled = true),
@@ -47,104 +117,9 @@ fun GetMapScreen(userLocation: LatLng) {
             position = CameraPosition.fromLatLngZoom(userLocation, 10f)
         }
     ) {
-        if (userLocation != LatLng(0.0, 0.0)) {
-            Marker(
-                position = userLocation,
-                title = "Your Location",
-                snippet = "Marker at Your Location"
-            )
-
-            /** Aqui deberia crear la linea de viaje */
-            // Dibuja una línea desde el punto ficticio hasta la ubicación actual del usuario
-            Polyline(
-                points = listOf(
-                    startPoint,  // Punto inicial
-                    userLocation  // Ubicación actual del usuario
-                ),
-                color = Color.Blue,  // Color de la línea
-                width = 5f  // Grosor de la línea
-            )
-
+        Marker(position = userLocation, title = "Your Location", snippet = "Marker at Your Location")
+        if (pathPoints.isNotEmpty()) {
+            Polyline(points = pathPoints, color = Color.Blue, width = 5f)
         }
-    }
-}
-
-@Composable
-fun MapScreenInit() {
-    val context = LocalContext.current
-    val fusedLocationClient: FusedLocationProviderClient =
-        LocationServices.getFusedLocationProviderClient(context)
-    val cameraPositionState = rememberCameraPositionState()
-    var userLocation by remember { mutableStateOf<LatLng?>(null) }
-
-
-    // Function to request location permission
-    fun requestLocationPermission() {
-        val REQUEST_LOCATION_PERMISSION_CODE = 1001
-        // Verificar si ya se han concedido los permisos
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            // Los permisos ya han sido concedidos, no hay necesidad de solicitarlos nuevamente
-            return
-        } else {
-            // Los permisos no han sido concedidos, solicitarlos al usuario
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION_CODE
-            )
-        }
-    }
-
-    // Function to get current location
-    fun getCurrentLocation(context: Context) {
-        Log.d("Location", "getCurrentLocation() called")
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { location ->
-                    if (location != null) {
-                        val latitude = location.latitude
-                        val longitude = location.longitude
-                        Log.d("Location", "Latitude: $latitude, Longitude: $longitude")
-                        /** TODO Ubicacion actual del dispositivo enviar a otros..*/
-                        userLocation = LatLng(latitude, longitude)
-                        cameraPositionState.position =
-                            CameraPosition.fromLatLngZoom(userLocation!!, 15f)
-                        Log.d("Location", "User location set: $userLocation")
-                        /** TODO
-                         * Actualizar ubicacion en FireBase*/
-                        val userLocation = UserLocation(location.latitude, location.longitude)
-                        val databaseReference = FirebaseDatabase.getInstance().getReference("locations")
-                        databaseReference.child("userId").setValue(userLocation)
-                    } else {
-                        Log.e("Location", "Location is null")
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("Location", "Error getting location: ${exception.message}")
-                }
-        } else {
-            requestLocationPermission()
-        }
-    }
-
-    // Ejecución asincrona
-    LaunchedEffect(key1 = true) {
-        getCurrentLocation(context)
-    }
-
-    GetMapScreen( LatLng(36.582245 , -4.534661))
-
-    // Le pasa la ubi a la funcion para crear el mapa
-    userLocation?.let {
-        Log.d("UBI", "User location obtained: $it")
-        GetMapScreen(it)
     }
 }

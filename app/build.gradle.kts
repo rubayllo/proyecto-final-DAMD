@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.android.maps.utils)
+    implementation ("com.google.maps:google-maps-services:0.17.0") // Rutas
 
     // LiveData
     implementation(libs.androidx.runtime.livedata)
