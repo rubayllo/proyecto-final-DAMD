@@ -92,7 +92,7 @@ suspend fun getDirections(start: LatLng, end: LatLng, context: Context): Directi
 
     return try {
         DirectionsApi.newRequest(geoApiContext)
-            .mode(TravelMode.DRIVING)
+            .mode(TravelMode.DRIVING) // MODO caminando , auto , bici , etc.
             .origin(com.google.maps.model.LatLng(start.latitude, start.longitude))
             .destination(com.google.maps.model.LatLng(end.latitude, end.longitude))
             .await()
