@@ -46,8 +46,8 @@ fun MapScreenInit() {
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
     var pathPoints by remember { mutableStateOf(listOf<LatLng>()) }
 
-    // Punto final ficticio, reemplaza estas coordenadas con las de cualquier otro destino si es necesario
-    val endPoint = LatLng(36.58929, -4.5814)  // Stupa en Benalmádena
+    /** todo recuperar ru de ALERTA */
+    val endPoint = LatLng(36.58929, -4.5814)
 
     // Function to request location permission
     fun requestLocationPermission() {
