@@ -136,5 +136,8 @@ dependencies {
     // Swipe sirve para hacer swipe en la pantalla hacia la izquierda o derecha
     implementation (libs.swipe)
 
+    // Librería para manejar números de teléfono
+    implementation (libs.libphonenumber) // (o la versión más reciente)
+
 
 }

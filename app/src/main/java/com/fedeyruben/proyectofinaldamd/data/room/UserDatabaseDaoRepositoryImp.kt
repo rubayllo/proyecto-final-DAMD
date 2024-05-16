@@ -16,10 +16,6 @@ class UserDatabaseDaoRepositoryImp @Inject constructor(private val userDataBaseD
         return userDataBaseDao.getAllGuardians().flowOn(Dispatchers.IO).conflate()
     }
 
-    override fun getGuardianById(id: Long): Flow<UserGuardiansContacts> {
-        return userDataBaseDao.getGuardianById(id).flowOn(Dispatchers.IO).conflate()
-    }
-
     override fun getGuardianByPhoneNumber(phoneNumber: String): Flow<UserGuardiansContacts> {
         return userDataBaseDao.getGuardianByPhoneNumber(phoneNumber).flowOn(Dispatchers.IO)
             .conflate()
@@ -43,23 +39,27 @@ class UserDatabaseDaoRepositoryImp @Inject constructor(private val userDataBaseD
         return userDataBaseDao.getAllAlertsOfGuardians()
     }
 
-    override fun getAllAlertsOfGuardiansById(id: Long): Flow<GuardianAlertLevel> {
-        return userDataBaseDao.getAllAlertsOfGuardiansById(id)
+    override fun getAllAlertsOfGuardiansByPhone(phoneNumber: String): Flow<GuardianAlertLevel> {
+        return userDataBaseDao.getAllAlertsOfGuardiansByPhone(phoneNumber)
     }
 
-    override suspend fun updateLowColumn(userGuardianId: Long, newLowValue: Boolean) {
-        userDataBaseDao.updateLowColumn(userGuardianId, newLowValue)
+    override suspend fun insertGuardianAlertLevel(guardianAlertLevel: GuardianAlertLevel) {
+        userDataBaseDao.insertGuardianAlertLevel(guardianAlertLevel)
     }
 
-    override suspend fun updateMediumColumn(userGuardianId: Long, newMediumValue: Boolean) {
-        userDataBaseDao.updateMediumColumn(userGuardianId, newMediumValue)
+    override suspend fun updateLowColumn(phoneNumber: String, newLowValue: Boolean) {
+        userDataBaseDao.updateLowColumn(phoneNumber, newLowValue)
     }
 
-    override suspend fun updateHighColumn(userGuardianId: Long, newHighValue: Boolean) {
-        userDataBaseDao.updateHighColumn(userGuardianId, newHighValue)
+    override suspend fun updateMediumColumn(phoneNumber: String, newMediumValue: Boolean) {
+        userDataBaseDao.updateMediumColumn(phoneNumber, newMediumValue)
     }
 
-    override suspend fun updateCriticalColumn(userGuardianId: Long, newCriticalValue: Boolean) {
-        userDataBaseDao.updateCriticalColumn(userGuardianId, newCriticalValue)
+    override suspend fun updateHighColumn(phoneNumber: String, newHighValue: Boolean) {
+        userDataBaseDao.updateHighColumn(phoneNumber, newHighValue)
+    }
+
+    override suspend fun updateCriticalColumn(phoneNumber: String, newCriticalValue: Boolean) {
+        userDataBaseDao.updateCriticalColumn(phoneNumber, newCriticalValue)
     }
 }

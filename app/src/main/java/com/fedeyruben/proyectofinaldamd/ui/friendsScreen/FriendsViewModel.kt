@@ -8,9 +8,21 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.fedeyruben.proyectofinaldamd.data.Friend
+import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
+import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
+import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
+import com.google.i18n.phonenumbers.PhoneNumberUtil
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FriendsViewModel : ViewModel() {
+@HiltViewModel
+class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp) : ViewModel() {
 
     // Estado mutable que almacena la lista de amigos
     private val _friends = MutableLiveData<List<Friend>>(emptyList())
@@ -20,6 +32,38 @@ class FriendsViewModel : ViewModel() {
         val currentList = _friends.value ?: emptyList()
         _friends.value = currentList + friend
     }
+
+    private val _userGuardiansContactsList = MutableStateFlow<List<UserGuardiansContacts>>(emptyList())
+    val userGuardiansContactsList = _userGuardiansContactsList.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            userDatabaseDaoRepositoryImp.getAllGuardians().collect { item ->
+                if (item.isNotEmpty()) {
+                    _userGuardiansContactsList.value = emptyList()
+                }
+                _userGuardiansContactsList.value = item
+            }
+            Log.d("RoomFriendsViewModel", "init: ${_userGuardiansContactsList.value}")
+        }
+    }
+
+    private fun addGuardian(
+        userGuardiansContacts: UserGuardiansContacts,
+        guardianAlertLevel: GuardianAlertLevel
+    ){
+        viewModelScope.launch {
+            userDatabaseDaoRepositoryImp.insertGuardian(userGuardiansContacts)
+            userDatabaseDaoRepositoryImp.insertGuardianAlertLevel(guardianAlertLevel)
+        }
+    }
+    fun deleteGuardian(userGuardiansContacts: UserGuardiansContacts){
+        viewModelScope.launch {
+            userDatabaseDaoRepositoryImp.deleteGuardian(userGuardiansContacts)
+        }
+    }
+
+    var phoneNumber: String? = null // Declaración inicial de phoneNumber
 
     @SuppressLint("Range")
     fun readContactData(context: Context, contactUri: Uri) {
@@ -54,10 +98,10 @@ class FriendsViewModel : ViewModel() {
                     if (pc.moveToFirst()) {
                         val phoneIndex =
                             pc.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                        val phoneNumber = pc.getString(phoneIndex)
-                        Log.d("ContactPicker", "Phone Number: $phoneNumber")
+                        phoneNumber = pc.getString(phoneIndex)
+                        Log.d("ContactPickerPhone", "Phone Number: $phoneNumber")
                     } else {
-                        Log.d("ContactPicker", "No phone number found.")
+                        Log.d("ContactPickerPhone", "No phone number found.")
                     }
                 }
 
@@ -71,9 +115,68 @@ class FriendsViewModel : ViewModel() {
                     )
                 )
 
+                phoneNumber = editPhoneNumber(phoneNumber!!)
+
+                // Agregar contacto como guardián
+                if (!phoneNumber.isNullOrEmpty()) {
+                    addGuardian(
+                        UserGuardiansContacts(
+                            guardianPhoneNumber = phoneNumber!!,
+                            guardianName = name,
+                            guardianSurname = "",
+                            guardianImage = photoUri,
+                            isGuardianRegister = false,
+                            isGuardianActive = false
+                        ),
+                        GuardianAlertLevel(
+                            userGuardianId = phoneNumber!!,
+                            low = false,
+                            medium = false,
+                            high = false,
+                            critical = false
+                        )
+                    )
+                } else {
+                    Log.d("ContactPickerPhone", "No phone number found 2.")
+                }
+
             } else {
-                Log.d("ContactPicker", "No contact found.")
+                Log.d("ContactPickerPhone", "No contact found 3.")
             }
         }
+    }
+
+    private fun editPhoneNumber(phoneNumber: String): String {
+        val phoneNumberUtil = PhoneNumberUtil.getInstance()
+        var formattedPhoneNumber = phoneNumber.replace(" ", "").trim()
+
+        // Si el número no comienza con el prefijo internacional de España
+        if (!formattedPhoneNumber.startsWith("+34")) {
+            // Agrega el prefijo internacional de España
+            formattedPhoneNumber = "+34$formattedPhoneNumber"
+        }
+
+        try {
+            val parsedPhoneNumber = phoneNumberUtil.parse(formattedPhoneNumber, null)
+            val countryCode = phoneNumberUtil.getRegionCodeForNumber(parsedPhoneNumber)
+
+            // Si el código de país no es nulo, significa que se pudo identificar el país
+            if (countryCode != null) {
+                // Formatea el número de teléfono con el prefijo internacional del país
+                formattedPhoneNumber = phoneNumberUtil.format(parsedPhoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164)
+                Log.d("ContactPickerPhone", "Phone Number2: $formattedPhoneNumber")
+
+            } else {
+                // Si no se puede identificar el país, se devuelve el número sin cambios
+                formattedPhoneNumber = phoneNumberUtil.format(parsedPhoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164)
+                Log.d("ContactPickerPhone", "Phone Number2: $formattedPhoneNumber")
+
+            }
+        } catch (e: Exception) {
+            // Manejar errores de análisis de números de teléfono
+            e.printStackTrace()
+        }
+
+        return formattedPhoneNumber
     }
 }

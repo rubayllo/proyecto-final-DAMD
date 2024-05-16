@@ -40,7 +40,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun LaunchScreenInit(navController: NavHostController) {
     LaunchedEffect(key1 = true) {
-        delay(88000)
+        delay(8800)
         navController.popBackStack()
         navController.navigate(AppScreensRoutes.RegisterScreen.route)
     }
