@@ -17,23 +17,31 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
-class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp) : ViewModel() {
+class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp) :
+    ViewModel() {
+
+    // Estado para el diálogo
+    private val _showDuplicateDialog = MutableStateFlow<String?>(null)
+    val showDuplicateDialog: StateFlow<String?> = _showDuplicateDialog
+
+    // Estado para el diálogo de confirmación de eliminación
+    private val _contactToDelete = MutableStateFlow<UserGuardiansContacts?>(null)
+    val contactToDelete: StateFlow<UserGuardiansContacts?> = _contactToDelete
 
     // Estado mutable que almacena la lista de amigos
     private val _friends = MutableLiveData<List<Friend>>(emptyList())
     val friends: LiveData<List<Friend>> = _friends
 
-    fun addFriend(friend: Friend) {
-        val currentList = _friends.value ?: emptyList()
-        _friends.value = currentList + friend
-    }
-
-    private val _userGuardiansContactsList = MutableStateFlow<List<UserGuardiansContacts>>(emptyList())
+    // Observa los contactos almacenados en Room
+    private val _userGuardiansContactsList =
+        MutableStateFlow<List<UserGuardiansContacts>>(emptyList())
     val userGuardiansContactsList = _userGuardiansContactsList.asStateFlow()
 
     init {
@@ -51,13 +59,14 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
     private fun addGuardian(
         userGuardiansContacts: UserGuardiansContacts,
         guardianAlertLevel: GuardianAlertLevel
-    ){
+    ) {
         viewModelScope.launch {
             userDatabaseDaoRepositoryImp.insertGuardian(userGuardiansContacts)
             userDatabaseDaoRepositoryImp.insertGuardianAlertLevel(guardianAlertLevel)
         }
     }
-    fun deleteGuardian(userGuardiansContacts: UserGuardiansContacts){
+
+    fun deleteGuardian(userGuardiansContacts: UserGuardiansContacts) {
         viewModelScope.launch {
             userDatabaseDaoRepositoryImp.deleteGuardian(userGuardiansContacts)
         }
@@ -105,15 +114,6 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
                     }
                 }
 
-                // Agregar contacto como amigo
-                addFriend(
-                    Friend(
-                        id = contactId.toInt(),
-                        nombre = name,
-                        apellido = "",
-                        imageResId = photoUri
-                    )
-                )
 
                 phoneNumber = editPhoneNumber(phoneNumber!!)
 
@@ -163,12 +163,18 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
             // Si el código de país no es nulo, significa que se pudo identificar el país
             if (countryCode != null) {
                 // Formatea el número de teléfono con el prefijo internacional del país
-                formattedPhoneNumber = phoneNumberUtil.format(parsedPhoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164)
+                formattedPhoneNumber = phoneNumberUtil.format(
+                    parsedPhoneNumber,
+                    PhoneNumberUtil.PhoneNumberFormat.E164
+                )
                 Log.d("ContactPickerPhone", "Phone Number2: $formattedPhoneNumber")
 
             } else {
                 // Si no se puede identificar el país, se devuelve el número sin cambios
-                formattedPhoneNumber = phoneNumberUtil.format(parsedPhoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164)
+                formattedPhoneNumber = phoneNumberUtil.format(
+                    parsedPhoneNumber,
+                    PhoneNumberUtil.PhoneNumberFormat.E164
+                )
                 Log.d("ContactPickerPhone", "Phone Number2: $formattedPhoneNumber")
 
             }
@@ -178,5 +184,21 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
         }
 
         return formattedPhoneNumber
+    }
+
+
+    // Método para mostrar el diálogo de confirmación de eliminación
+    fun confirmDelete(contact: UserGuardiansContacts) {
+        _contactToDelete.value = contact
+    }
+
+    // Método para cerrar el diálogo de confirmación de eliminación
+    fun dismissDeleteDialog() {
+        _contactToDelete.value = null
+    }
+
+    // Método para cerrar el diálogo de número duplicado
+    fun dismissDuplicateDialog() {
+        _showDuplicateDialog.value = null
     }
 }
