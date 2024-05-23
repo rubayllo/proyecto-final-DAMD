@@ -21,6 +21,10 @@ class UserDatabaseDaoRepositoryImp @Inject constructor(private val userDataBaseD
             .conflate()
     }
 
+    override suspend fun doesPhoneNumberExist(phoneNumber: String): Boolean {
+        return userDataBaseDao.doesPhoneNumberExist(phoneNumber)
+    }
+
     override suspend fun insertGuardian(userGuardiansContacts: UserGuardiansContacts) {
         userDataBaseDao.insertGuardian(userGuardiansContacts)
     }

@@ -119,23 +119,32 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
 
                 // Agregar contacto como guardián
                 if (!phoneNumber.isNullOrEmpty()) {
-                    addGuardian(
-                        UserGuardiansContacts(
-                            guardianPhoneNumber = phoneNumber!!,
-                            guardianName = name,
-                            guardianSurname = "",
-                            guardianImage = photoUri,
-                            isGuardianRegister = false,
-                            isGuardianActive = false
-                        ),
-                        GuardianAlertLevel(
-                            userGuardianId = phoneNumber!!,
-                            low = false,
-                            medium = false,
-                            high = false,
-                            critical = false
-                        )
-                    )
+                    viewModelScope.launch(Dispatchers.IO) {
+                        userDatabaseDaoRepositoryImp.doesPhoneNumberExist(phoneNumber!!).let { exist ->
+                            if (exist) {
+                                _showDuplicateDialog.value = phoneNumber
+                            } else {
+                                Log.d("ContactPickerPhone", "Añadiendo contacto: $phoneNumber")
+                                addGuardian(
+                                    UserGuardiansContacts(
+                                        guardianPhoneNumber = phoneNumber!!,
+                                        guardianName = name,
+                                        guardianSurname = "",
+                                        guardianImage = photoUri,
+                                        isGuardianRegister = false,
+                                        isGuardianActive = false
+                                    ),
+                                    GuardianAlertLevel(
+                                        userGuardianId = phoneNumber!!,
+                                        low = false,
+                                        medium = false,
+                                        high = false,
+                                        critical = false
+                                    )
+                                )
+                            }
+                        }
+                    }
                 } else {
                     Log.d("ContactPickerPhone", "No phone number found 2.")
                 }
