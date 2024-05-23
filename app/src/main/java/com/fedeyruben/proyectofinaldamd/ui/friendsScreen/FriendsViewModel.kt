@@ -5,11 +5,8 @@ import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fedeyruben.proyectofinaldamd.data.Friend
 import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
@@ -35,14 +32,19 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
     private val _contactToDelete = MutableStateFlow<UserGuardiansContacts?>(null)
     val contactToDelete: StateFlow<UserGuardiansContacts?> = _contactToDelete
 
-    // Estado mutable que almacena la lista de amigos
-    private val _friends = MutableLiveData<List<Friend>>(emptyList())
-    val friends: LiveData<List<Friend>> = _friends
-
     // Observa los contactos almacenados en Room
     private val _userGuardiansContactsList =
         MutableStateFlow<List<UserGuardiansContacts>>(emptyList())
     val userGuardiansContactsList = _userGuardiansContactsList.asStateFlow()
+
+    // Observa el nivel de alerta de los guardianes
+    private val _guardianAlertLevel = MutableStateFlow<GuardianAlertLevel?>(null)
+    val guardianAlertLevel: StateFlow<GuardianAlertLevel?> = _guardianAlertLevel
+
+    // Observa la lista de niveles de alerta de los guardianes
+    private val _guardianAlertLevelList =
+        MutableStateFlow<List<GuardianAlertLevel>>(emptyList())
+    val guardianAlertLevelList = _guardianAlertLevelList.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -53,6 +55,14 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
                 _userGuardiansContactsList.value = item
             }
             Log.d("RoomFriendsViewModel", "init: ${_userGuardiansContactsList.value}")
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            userDatabaseDaoRepositoryImp.getAllAlertsOfGuardians().collect { item ->
+                if (item.isNotEmpty()) {
+                    _guardianAlertLevelList.value = emptyList()
+                }
+                _guardianAlertLevelList.value = item
+            }
         }
     }
 
@@ -120,30 +130,31 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
                 // Agregar contacto como guardián
                 if (!phoneNumber.isNullOrEmpty()) {
                     viewModelScope.launch(Dispatchers.IO) {
-                        userDatabaseDaoRepositoryImp.doesPhoneNumberExist(phoneNumber!!).let { exist ->
-                            if (exist) {
-                                _showDuplicateDialog.value = phoneNumber
-                            } else {
-                                Log.d("ContactPickerPhone", "Añadiendo contacto: $phoneNumber")
-                                addGuardian(
-                                    UserGuardiansContacts(
-                                        guardianPhoneNumber = phoneNumber!!,
-                                        guardianName = name,
-                                        guardianSurname = "",
-                                        guardianImage = photoUri,
-                                        isGuardianRegister = false,
-                                        isGuardianActive = false
-                                    ),
-                                    GuardianAlertLevel(
-                                        userGuardianId = phoneNumber!!,
-                                        low = false,
-                                        medium = false,
-                                        high = false,
-                                        critical = false
+                        userDatabaseDaoRepositoryImp.doesPhoneNumberExist(phoneNumber!!)
+                            .let { exist ->
+                                if (exist) {
+                                    _showDuplicateDialog.value = phoneNumber
+                                } else {
+                                    Log.d("ContactPickerPhone", "Añadiendo contacto: $phoneNumber")
+                                    addGuardian(
+                                        UserGuardiansContacts(
+                                            guardianPhoneNumber = phoneNumber!!,
+                                            guardianName = name,
+                                            guardianSurname = "",
+                                            guardianImage = photoUri,
+                                            isGuardianRegister = false,
+                                            isGuardianActive = false
+                                        ),
+                                        GuardianAlertLevel(
+                                            userGuardianId = phoneNumber!!,
+                                            low = false,
+                                            medium = false,
+                                            high = false,
+                                            critical = false
+                                        )
                                     )
-                                )
+                                }
                             }
-                        }
                     }
                 } else {
                     Log.d("ContactPickerPhone", "No phone number found 2.")
@@ -209,5 +220,14 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
     // Método para cerrar el diálogo de número duplicado
     fun dismissDuplicateDialog() {
         _showDuplicateDialog.value = null
+    }
+
+    fun getGuardianAlertLevel(guardianPhoneNumber: String) {
+        viewModelScope.launch {
+            userDatabaseDaoRepositoryImp.getAllAlertsOfGuardiansByPhone(guardianPhoneNumber)
+                .collect { item ->
+                    _guardianAlertLevel.value = item
+                }
+        }
     }
 }

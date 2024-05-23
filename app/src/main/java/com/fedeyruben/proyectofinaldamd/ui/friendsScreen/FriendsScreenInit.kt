@@ -1,7 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.ui.friendsScreen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,25 +16,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -60,7 +56,17 @@ fun ListaAmigosScreen(friendsViewModel: FriendsViewModel) {
 }
 
 @Composable
-fun AmigoListItem(amigo: UserGuardiansContacts, friendsViewModel: FriendsViewModel) {
+fun AmigoListItem(
+    amigo: UserGuardiansContacts,
+    friendsViewModel: FriendsViewModel
+) {
+
+    val expanded = rememberSaveable { mutableStateOf(false) }
+    val alertLevelLow = rememberSaveable { mutableStateOf(false) }
+    val alertLevelMed = rememberSaveable { mutableStateOf(false) }
+    val alertLevelHig = rememberSaveable { mutableStateOf(false) }
+    val alertLevelCri = rememberSaveable { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -73,55 +79,116 @@ fun AmigoListItem(amigo: UserGuardiansContacts, friendsViewModel: FriendsViewMod
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween // Asegura que los elementos se distribuyen correctamente
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
-            ) {
-                // Usar Coil para cargar la imagen desde una Uri
-                Image(
-                    painter = if (amigo.guardianImage != null) rememberImagePainter(amigo.guardianImage) else painterResource(
-                        id = R.drawable.person
-                    ),
-                    contentDescription = "Imagen de perfil de ${amigo.guardianName}",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "${amigo.guardianName} ${amigo.guardianSurname ?: ""}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Black
-                    )
-                }
-            }
-            IconButton(
-                onClick = { friendsViewModel.confirmDelete(amigo) },
+            // Usar Coil para cargar la imagen desde una Uri
+            Image(
+                painter = if (amigo.guardianImage != null) rememberImagePainter(amigo.guardianImage) else painterResource(
+                    id = R.drawable.person
+                ),
+                contentDescription = "Imagen de perfil de ${amigo.guardianName}",
                 modifier = Modifier
-                    .size(48.dp)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = { friendsViewModel.confirmDelete(amigo) }
+                    .size(64.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+            ) {
+                Text(
+                    text = "${amigo.guardianName} ${amigo.guardianSurname ?: ""}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                // Fila para botones, alineada a la derecha
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        onClick = {
+                            expanded.value = !expanded.value
+                        }
+                    ) {
+                        Text(text = if (expanded.value) "Reducir" else "Ampliar")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(
+                        onClick = { friendsViewModel.confirmDelete(amigo) }
+                    ) {
+                        Text(
+                            text = "Eliminar",
+                            color = Color.Red
                         )
                     }
+                }
+            }
+        }
+        // Contenido expandido
+        if (expanded.value) {
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Eliminar contacto",
-                    tint = Color.Red,
-                    modifier = Modifier.size(24.dp)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Alerta baja")
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(
+                        onClick = { alertLevelLow.value = !alertLevelLow.value }
+                    ) {
+                        Text(
+                            text = if (alertLevelLow.value) "Desactivar" else "Activar",
+                            color = if (alertLevelLow.value) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
+                        )
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Alerta media")
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(
+                        onClick = { alertLevelMed.value = !alertLevelMed.value }
+                    ) {
+                        Text(
+                            text = if (alertLevelMed.value) "Desactivar" else "Activar",
+                            color = if (alertLevelMed.value) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
+                        )
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Alerta alta")
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(
+                        onClick = { alertLevelHig.value = !alertLevelHig.value }
+                    ) {
+                        Text(
+                            text = if (alertLevelHig.value) "Desactivar" else "Activar",
+                            color = if (alertLevelHig.value) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
+                        )
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Alerta crítica")
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(
+                        onClick = { alertLevelCri.value = !alertLevelCri.value }
+                    ) {
+                        Text(
+                            text = if (alertLevelCri.value) "Desactivar" else "Activar",
+                            color = if (alertLevelCri.value) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
 }
+
 
 
 @Composable
