@@ -11,10 +11,15 @@ import com.fedeyruben.proyectofinaldamd.ui.launchScreen.LaunchScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.HomeScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.RegisterScreenInit
+import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
 
 
 @Composable
-fun AppNavigation(pickContactResultLauncher: ActivityResultLauncher<Void?>, friendsViewModel: FriendsViewModel) {
+fun AppNavigation(
+    pickContactResultLauncher: ActivityResultLauncher<Void?>,
+    friendsViewModel: FriendsViewModel,
+    settingsViewModel: SettingsViewModel
+) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -36,7 +41,11 @@ fun AppNavigation(pickContactResultLauncher: ActivityResultLauncher<Void?>, frie
         }
 
         composable(AppScreensRoutes.HomeScreen.route) {
-            HomeScreenInit(pickContactResultLauncher,friendsViewModel) // Esta es tu pantalla con BottomNavigation y su propia NavHost
+            HomeScreenInit(
+                pickContactResultLauncher,
+                friendsViewModel,
+                settingsViewModel
+            ) // Esta es tu pantalla con BottomNavigation y su propia NavHost
         }
     }
 }

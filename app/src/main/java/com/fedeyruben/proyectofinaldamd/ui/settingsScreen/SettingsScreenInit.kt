@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.bottomBarHeight
 
 @Composable
-fun SettingsScreenInit() {
+fun SettingsScreenInit(settingsViewModel: SettingsViewModel) {
 
     val settingsList = remember {
         mutableStateListOf(
@@ -72,7 +73,7 @@ fun SettingsScreenInit() {
             )
 
             items.forEach { item ->
-                SettingsOption(item)
+                SettingsOption(item, settingsViewModel)
                 Divider()
             }
         }
@@ -80,7 +81,7 @@ fun SettingsScreenInit() {
 }
 
 @Composable
-fun SettingsOption(item: SettingsItem) {
+fun SettingsOption(item: SettingsItem, settingsViewModel: SettingsViewModel) {
     var dropdownExpanded by remember { mutableStateOf(false) }
 
     Row(
@@ -111,11 +112,6 @@ fun SettingsOption(item: SettingsItem) {
                 onCheckedChange = { newState ->
                     additionalSwitchState = newState
                 }
-
-//                onCheckedChange = { newState ->
-//                    // Actualizar el estado del interruptor al pulsarlo
-//                    item.switchState = !newState
-//                }
             )
         } else {
             Icon(
@@ -126,12 +122,15 @@ fun SettingsOption(item: SettingsItem) {
         }
     }
     if (dropdownExpanded) {
-        DropDown(item.type)
+        DropDown(item.type, settingsViewModel)
     }
 }
 
 @Composable
-private fun DropDown(type: String?) {
+private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
+
+    val amigos by settingsViewModel.userGuardiansContactsList.collectAsState()
+    val guardianAlertLevelList by settingsViewModel.guardianAlertLevelList.collectAsState()
 
     // Lista de contactos que te han solicitado protección (simulada)
     val solicitudProteccionList = listOf(
@@ -140,11 +139,11 @@ private fun DropDown(type: String?) {
         "Proteger contacto 3"
     )
 
-    val lowGuardianList = listOf(
-        "Contacto 1 nivel bajo",
-        "Contacto 2 nivel bajo",
-        "Contacto 3 nivel bajo"
-    )
+//    val lowGuardianList = listOf(
+//        "Contacto 1 nivel bajo",
+//        "Contacto 2 nivel bajo",
+//        "Contacto 3 nivel bajo"
+//    )
     val midGuardianList = listOf(
         "Contacto 1 nivel medio",
         "Contacto 2 nivel medio",
@@ -168,8 +167,13 @@ private fun DropDown(type: String?) {
             }
         }
         "LowGuardian" -> {
-            lowGuardianList.forEach { contact ->
-                ExpandMenu(contact)
+//            lowGuardianList.forEach { contact ->
+//                ExpandMenu(contact)
+//            }
+            guardianAlertLevelList.forEach { contact ->
+                if(contact.low){
+                    ExpandMenu(contact.userGuardianId)
+                }
             }
         }
         "MidGuardian" -> {

@@ -13,6 +13,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
+import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.theme.ProyectoFinalDAMDTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val friendsViewModel : FriendsViewModel by viewModels()
+    private val settingsViewModel : SettingsViewModel by viewModels()
 
     /** Acceso a la agenda telefonica */
     private val pickContactResultLauncher = registerForActivityResult(ActivityResultContracts.PickContact()) { uri: Uri? ->
@@ -38,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(pickContactResultLauncher,friendsViewModel)
+                    AppNavigation(pickContactResultLauncher,friendsViewModel, settingsViewModel)
                 }
             }
         }

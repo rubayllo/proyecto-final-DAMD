@@ -41,6 +41,7 @@ import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsScreenInit
+import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
@@ -50,7 +51,7 @@ val bottomBarHeight = 120.dp
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, friendsViewModel: FriendsViewModel) {
+fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, friendsViewModel: FriendsViewModel, settingsViewModel: SettingsViewModel) {
 
     /** Permisos agenda luego gestionar que si cancela dos veces lo mande a las settings*/
     val permissionsState = rememberMultiplePermissionsState(
@@ -127,7 +128,7 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
             }
             composable(settingsTab.title) {
                 showFab.value = false
-                SettingsScreenInit()
+                SettingsScreenInit(settingsViewModel)
             }
         }
     }
