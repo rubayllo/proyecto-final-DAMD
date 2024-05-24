@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.annotation.meta.When
 import javax.inject.Inject
 
 
@@ -228,6 +229,17 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
                 .collect { item ->
                     _guardianAlertLevel.value = item
                 }
+        }
+    }
+
+    fun updateLowColumn(phoneNumber: String, level: Int, newValue: Boolean) {
+        viewModelScope.launch {
+            when(level) {
+                1 -> userDatabaseDaoRepositoryImp.updateLowColumn(phoneNumber, newValue)
+                2 -> userDatabaseDaoRepositoryImp.updateMediumColumn(phoneNumber, newValue)
+                3 -> userDatabaseDaoRepositoryImp.updateHighColumn(phoneNumber, newValue)
+                4 -> userDatabaseDaoRepositoryImp.updateCriticalColumn(phoneNumber, newValue)
+            }
         }
     }
 }
