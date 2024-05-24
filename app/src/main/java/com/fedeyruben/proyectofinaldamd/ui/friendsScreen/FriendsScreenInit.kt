@@ -39,6 +39,7 @@ import coil.compose.rememberImagePainter
 import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
 import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
+import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.bottomBarHeight
 
 @Composable
 fun ListaAmigosScreen(friendsViewModel: FriendsViewModel) {
@@ -47,7 +48,7 @@ fun ListaAmigosScreen(friendsViewModel: FriendsViewModel) {
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = bottomBarHeight),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(amigos) { amigo ->

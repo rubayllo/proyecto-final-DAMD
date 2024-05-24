@@ -44,6 +44,8 @@ import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsScreenInit
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
+// Ajusta esto a la altura de tu BottomNavigation
+val bottomBarHeight = 120.dp
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

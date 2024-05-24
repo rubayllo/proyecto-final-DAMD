@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.bottomBarHeight
 
 @Composable
 fun SettingsScreenInit() {
@@ -56,9 +57,6 @@ fun SettingsScreenInit() {
             )
         )
     }
-
-    // Ajusta esto a la altura de tu BottomNavigation
-    val bottomBarHeight = 120.dp
 
     LazyColumn(
         contentPadding = PaddingValues(bottom = bottomBarHeight)
