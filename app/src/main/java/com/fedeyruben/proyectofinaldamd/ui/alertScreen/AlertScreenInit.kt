@@ -37,6 +37,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fedeyruben.proyectofinaldamd.ui.theme.AlertHighColor
+import com.fedeyruben.proyectofinaldamd.ui.theme.AlertLowColor
+import com.fedeyruben.proyectofinaldamd.ui.theme.AlertCriticalColor
+import com.fedeyruben.proyectofinaldamd.ui.theme.AlertMidColor
 import kotlinx.coroutines.delay
 
 @Composable
@@ -83,14 +87,14 @@ fun AlertScreenInit() {
                 Button(onClick = {
                     showAlertConfirmDialog = false
                     showCountdownDialog = true
-                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
+                }, colors = ButtonDefaults.buttonColors(containerColor = AlertLowColor)) {
                     Text("Confirmar")
                 }
             },
             dismissButton = {
                 Button(
                     onClick = { showAlertConfirmDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                    colors = ButtonDefaults.buttonColors(containerColor = AlertHighColor)
                 ) {
                     Text("Cancelar")
                 }
@@ -137,10 +141,10 @@ fun AlertButton(text: String, icon: ImageVector, color: Color, onClick: () -> Un
 // Función para obtener colores diferentes para cada ícono
 fun getIconColor(index: Int): Color {
     return when (index) {
-        0 -> Color(0xFF8BC34A)
-        1 -> Color(0xFFFFD54F)
-        2 -> Color(0xFFF44336)
-        3 -> Color(0xFF424242)
+        0 -> AlertLowColor
+        1 -> AlertMidColor
+        2 -> AlertHighColor
+        3 -> AlertCriticalColor
         else -> Color.Gray
     }
 }

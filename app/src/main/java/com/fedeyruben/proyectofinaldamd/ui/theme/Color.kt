@@ -22,3 +22,8 @@ val BackGroundColorStyle = Color(0xFFEAECEF)
 val PrimaryColorStyleLight = GreenColorStyle
 val SecondaryColorStyleLight = Color(0xFF747474)
 val TertiaryColorStyleLight = Color(0xFF303030)
+
+val AlertLowColor = Color(0xFF8BC34A)
+val AlertMidColor = Color(0xFFFFD54F)
+val AlertHighColor = Color(0xFFF44336)
+val AlertCriticalColor = Color(0xFF424242)

@@ -143,7 +143,7 @@ fun AmigoListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = {
-                            friendsViewModel.updateLowColumn(amigo.guardianPhoneNumber, 1, !guardianAlertLevel?.low!!)
+                            friendsViewModel.updateGuardianAlertLevel(amigo.guardianPhoneNumber, 0, !guardianAlertLevel?.low!!)
                         }
                     ) {
                         Text(
@@ -157,7 +157,7 @@ fun AmigoListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = {
-                            friendsViewModel.updateLowColumn(amigo.guardianPhoneNumber, 2, !guardianAlertLevel?.medium!!)
+                            friendsViewModel.updateGuardianAlertLevel(amigo.guardianPhoneNumber, 1, !guardianAlertLevel?.medium!!)
                         }                    ) {
                         Text(
                             text = if (guardianAlertLevel?.medium!!) "Desactivar" else "Activar",
@@ -170,7 +170,7 @@ fun AmigoListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = {
-                            friendsViewModel.updateLowColumn(amigo.guardianPhoneNumber, 3, !guardianAlertLevel?.high!!)
+                            friendsViewModel.updateGuardianAlertLevel(amigo.guardianPhoneNumber, 2, !guardianAlertLevel?.high!!)
                         }                    ) {
                         Text(
                             text = if (guardianAlertLevel?.high!!) "Desactivar" else "Activar",
@@ -183,7 +183,7 @@ fun AmigoListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = {
-                            friendsViewModel.updateLowColumn(amigo.guardianPhoneNumber, 4, !guardianAlertLevel?.critical!!)
+                            friendsViewModel.updateGuardianAlertLevel(amigo.guardianPhoneNumber, 3, !guardianAlertLevel?.critical!!)
                         }                    ) {
                         Text(
                             text = if (guardianAlertLevel?.critical!!) "Desactivar" else "Activar",

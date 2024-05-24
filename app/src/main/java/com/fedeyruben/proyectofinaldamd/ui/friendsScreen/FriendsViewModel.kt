@@ -231,13 +231,13 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
         }
     }
 
-    fun updateLowColumn(phoneNumber: String, level: Int, newValue: Boolean) {
+    fun updateGuardianAlertLevel(phoneNumber: String, level: Int, newValue: Boolean) {
         viewModelScope.launch {
             when(level) {
-                1 -> userDatabaseDaoRepositoryImp.updateLowColumn(phoneNumber, newValue)
-                2 -> userDatabaseDaoRepositoryImp.updateMediumColumn(phoneNumber, newValue)
-                3 -> userDatabaseDaoRepositoryImp.updateHighColumn(phoneNumber, newValue)
-                4 -> userDatabaseDaoRepositoryImp.updateCriticalColumn(phoneNumber, newValue)
+                0 -> userDatabaseDaoRepositoryImp.updateLowColumn(phoneNumber, newValue)
+                1 -> userDatabaseDaoRepositoryImp.updateMediumColumn(phoneNumber, newValue)
+                2 -> userDatabaseDaoRepositoryImp.updateHighColumn(phoneNumber, newValue)
+                3 -> userDatabaseDaoRepositoryImp.updateCriticalColumn(phoneNumber, newValue)
             }
         }
     }

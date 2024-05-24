@@ -16,6 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp): ViewModel(){
+
     // Observa los contactos almacenados en Room
     private val _userGuardiansContactsList =
         MutableStateFlow<List<UserGuardiansContacts>>(emptyList())
@@ -46,6 +47,17 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
                     _guardianAlertLevelList.value = emptyList()
                 }
                 _guardianAlertLevelList.value = item
+            }
+        }
+    }
+
+    fun updateGuardianAlertLevel(phoneNumber: String, level: Int, newValue: Boolean) {
+        viewModelScope.launch {
+            when(level) {
+                0 -> userDatabaseDaoRepositoryImp.updateLowColumn(phoneNumber, newValue)
+                1 -> userDatabaseDaoRepositoryImp.updateMediumColumn(phoneNumber, newValue)
+                2 -> userDatabaseDaoRepositoryImp.updateHighColumn(phoneNumber, newValue)
+                3 -> userDatabaseDaoRepositoryImp.updateCriticalColumn(phoneNumber, newValue)
             }
         }
     }
