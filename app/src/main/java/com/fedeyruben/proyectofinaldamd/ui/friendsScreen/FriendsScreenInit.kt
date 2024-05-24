@@ -1,5 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.ui.friendsScreen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,12 +61,10 @@ fun AmigoListItem(
     amigo: UserGuardiansContacts,
     friendsViewModel: FriendsViewModel
 ) {
+    val guardianAlertLevelList by friendsViewModel.guardianAlertLevelList.collectAsState()
+    val guardianAlertLevel = guardianAlertLevelList.find { it.userGuardianId == amigo.guardianPhoneNumber }
 
     val expanded = rememberSaveable { mutableStateOf(false) }
-    val alertLevelLow = rememberSaveable { mutableStateOf(false) }
-    val alertLevelMed = rememberSaveable { mutableStateOf(false) }
-    val alertLevelHig = rememberSaveable { mutableStateOf(false) }
-    val alertLevelCri = rememberSaveable { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -131,6 +130,10 @@ fun AmigoListItem(
         }
         // Contenido expandido
         if (expanded.value) {
+
+                Log.d("AmigoListItem", "guardianAlertLevel: ${guardianAlertLevel?.userGuardianId}")
+
+
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
@@ -138,11 +141,13 @@ fun AmigoListItem(
                     Text(text = "Alerta baja")
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
-                        onClick = { alertLevelLow.value = !alertLevelLow.value }
+                        onClick = {
+                            friendsViewModel.updateLowColumn(amigo.guardianPhoneNumber, 1, !guardianAlertLevel?.low!!)
+                        }
                     ) {
                         Text(
-                            text = if (alertLevelLow.value) "Desactivar" else "Activar",
-                            color = if (alertLevelLow.value) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
+                            text = if (guardianAlertLevel?.low!!) "Desactivar" else "Activar",
+                            color = if (guardianAlertLevel.low) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
                         )
                     }
                 }
@@ -150,11 +155,12 @@ fun AmigoListItem(
                     Text(text = "Alerta media")
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
-                        onClick = { alertLevelMed.value = !alertLevelMed.value }
-                    ) {
+                        onClick = {
+                            friendsViewModel.updateLowColumn(amigo.guardianPhoneNumber, 2, !guardianAlertLevel?.medium!!)
+                        }                    ) {
                         Text(
-                            text = if (alertLevelMed.value) "Desactivar" else "Activar",
-                            color = if (alertLevelMed.value) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
+                            text = if (guardianAlertLevel?.medium!!) "Desactivar" else "Activar",
+                            color = if (guardianAlertLevel.medium) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
                         )
                     }
                 }
@@ -162,11 +168,12 @@ fun AmigoListItem(
                     Text(text = "Alerta alta")
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
-                        onClick = { alertLevelHig.value = !alertLevelHig.value }
-                    ) {
+                        onClick = {
+                            friendsViewModel.updateLowColumn(amigo.guardianPhoneNumber, 3, !guardianAlertLevel?.high!!)
+                        }                    ) {
                         Text(
-                            text = if (alertLevelHig.value) "Desactivar" else "Activar",
-                            color = if (alertLevelHig.value) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
+                            text = if (guardianAlertLevel?.high!!) "Desactivar" else "Activar",
+                            color = if (guardianAlertLevel.high) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
                         )
                     }
                 }
@@ -174,11 +181,12 @@ fun AmigoListItem(
                     Text(text = "Alerta crítica")
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
-                        onClick = { alertLevelCri.value = !alertLevelCri.value }
-                    ) {
+                        onClick = {
+                            friendsViewModel.updateLowColumn(amigo.guardianPhoneNumber, 4, !guardianAlertLevel?.critical!!)
+                        }                    ) {
                         Text(
-                            text = if (alertLevelCri.value) "Desactivar" else "Activar",
-                            color = if (alertLevelCri.value) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
+                            text = if (guardianAlertLevel?.critical!!) "Desactivar" else "Activar",
+                            color = if (guardianAlertLevel.critical) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
                         )
                     }
                 }
@@ -188,7 +196,6 @@ fun AmigoListItem(
         }
     }
 }
-
 
 
 @Composable
