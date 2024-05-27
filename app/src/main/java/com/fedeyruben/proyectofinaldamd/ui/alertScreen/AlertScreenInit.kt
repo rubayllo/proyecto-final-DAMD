@@ -2,21 +2,34 @@ package com.fedeyruben.proyectofinaldamd.ui.alertScreen
 
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Gavel
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,13 +47,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.fedeyruben.proyectofinaldamd.ui.theme.AlertHighColor
-import com.fedeyruben.proyectofinaldamd.ui.theme.AlertLowColor
-import com.fedeyruben.proyectofinaldamd.ui.theme.AlertCriticalColor
-import com.fedeyruben.proyectofinaldamd.ui.theme.AlertMidColor
 import kotlinx.coroutines.delay
 
 @Composable
@@ -87,14 +98,14 @@ fun AlertScreenInit() {
                 Button(onClick = {
                     showAlertConfirmDialog = false
                     showCountdownDialog = true
-                }, colors = ButtonDefaults.buttonColors(containerColor = AlertLowColor)) {
+                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
                     Text("Confirmar")
                 }
             },
             dismissButton = {
                 Button(
                     onClick = { showAlertConfirmDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = AlertHighColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
                 ) {
                     Text("Cancelar")
                 }
@@ -141,10 +152,10 @@ fun AlertButton(text: String, icon: ImageVector, color: Color, onClick: () -> Un
 // Función para obtener colores diferentes para cada ícono
 fun getIconColor(index: Int): Color {
     return when (index) {
-        0 -> AlertLowColor
-        1 -> AlertMidColor
-        2 -> AlertHighColor
-        3 -> AlertCriticalColor
+        0 -> Color(0xFF8BC34A)
+        1 -> Color(0xFFFFD54F)
+        2 -> Color(0xFFF44336)
+        3 -> Color(0xFF424242)
         else -> Color.Gray
     }
 }
