@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.android.maps.utils)
+    implementation ("com.google.maps:google-maps-services:0.17.0") // Rutas
 
     // LiveData
     implementation(libs.androidx.runtime.livedata)
@@ -139,5 +140,7 @@ dependencies {
     // Librería para manejar números de teléfono
     implementation (libs.libphonenumber) // (o la versión más reciente)
 
+    // Convertir instrucciones html google maps
+    implementation ("org.jsoup:jsoup:1.14.3")
 
 }

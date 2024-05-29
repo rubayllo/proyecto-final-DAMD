@@ -1,35 +1,22 @@
 package com.fedeyruben.proyectofinaldamd.ui.alertScreen
 
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.LocalIndication
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,18 +28,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fedeyruben.proyectofinaldamd.utils.LocationService
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AlertScreenInit() {
@@ -165,20 +154,29 @@ fun getIconColor(index: Int): Color {
 fun CountdownDialog(onDismiss: () -> Unit) {
     var countdown by remember { mutableStateOf(10) }
     var showAlertSent by remember { mutableStateOf(false) }
-    val backgroundColor = animateColorAsState(
-        targetValue = if (countdown % 2 == 0) Color(0xFFD65252) else Color(0xFFC62828) // Oscila entre rojo fuerte y rojo claro
-    )
+    val coroutineScope = rememberCoroutineScope()  // Para operaciones asíncronas
+    val context = LocalContext.current
+
     LaunchedEffect(key1 = true) {
         while (countdown > 0) {
             delay(1000)
             countdown--
         }
         if (!showAlertSent) {
-            showAlertSent = true // Cambiar el estado para mostrar el diálogo de alerta enviada
-        } else {
-            onDismiss() // Cierra el diálogo después de mostrar "ALERTA ENVIADA"
+            // Llamar a la función de obtención de ubicación
+            coroutineScope.launch {
+                try {
+                    val location = LocationService.getCurrentLocation(context)
+                    Log.i("ALERT", "Alerta enviada con ubicación: Lat=${location.latitude}, Lng=${location.longitude}")
+                    showAlertSent = true  // Mostrar el diálogo de alerta enviada
+                } catch (e: Exception) {
+                    Log.e("ALERT", "Error al obtener la ubicación: ${e.localizedMessage}")
+                    onDismiss()  // Si falla, cierra el diálogo
+                }
+            }
         }
     }
+
     if (showAlertSent) {
         AlertSentDialog(onDismiss)
     } else {
@@ -189,20 +187,17 @@ fun CountdownDialog(onDismiss: () -> Unit) {
             confirmButton = {
                 Button(
                     onClick = {
-                        showAlertSent =
-                            true // Asegura que no se muestre el diálogo de alerta enviada si se cancela
+                        showAlertSent = true  // Asegura que no se muestre el diálogo de alerta enviada si se cancela
                         onDismiss()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A)),
+                    }
                 ) {
                     Text("Cancelar")
                 }
-            },
-            containerColor = backgroundColor.value, // Color de fondo animado
-            textContentColor = Color.White, // Texto y botones en color blanco
+            }
         )
     }
 }
+
 
 @Composable
 fun AlertSentDialog(onDismiss: () -> Unit) {
