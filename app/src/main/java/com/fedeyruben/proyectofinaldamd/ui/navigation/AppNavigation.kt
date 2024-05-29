@@ -23,12 +23,11 @@ fun AppNavigation(
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = AppScreensRoutes.HomeScreen.route
+        startDestination = AppScreensRoutes.LaunchScreen.route
 
     ) {
         composable(AppScreensRoutes.LaunchScreen.route) {
             LaunchScreenInit(navController)
-            Log.d("Flujo: Navigation", "LaunchScreenInit")
         }
 
         composable(AppScreensRoutes.RegisterScreen.route) {

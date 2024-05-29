@@ -92,13 +92,12 @@ dependencies {
 
     //Firebase
     implementation(platform(libs.firebase.bom))
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.auth.ktx)
     implementation(libs.play.services.safetynet)
 
     //RealtimeDB
     implementation("com.google.firebase:firebase-database-ktx")
-    implementation(libs.com.firebase.auth)
 
     // Agrega esto para Accompanist Permissions
     implementation(libs.accompanist.permissions)

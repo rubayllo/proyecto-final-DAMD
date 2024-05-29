@@ -15,6 +15,7 @@ import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.theme.ProyectoFinalDAMDTheme
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

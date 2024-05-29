@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
+import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepositoryImpl
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.CountriesModel
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -13,9 +16,10 @@ import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel: ViewModel() {
 
     /********* País *********/
     private val _country = MutableLiveData<String>()
