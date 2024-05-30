@@ -1,12 +1,10 @@
 package com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel
 
+import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
-import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepositoryImpl
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.CountriesModel
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
@@ -16,7 +14,6 @@ import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class RegisterViewModel: ViewModel() {
@@ -56,7 +53,6 @@ class RegisterViewModel: ViewModel() {
     private val _verifyIncorrectCode = MutableLiveData<Boolean>()
     val verifyIncorrectCode: LiveData<Boolean> = _verifyIncorrectCode
 
-
     fun onCountryChange(country: CountriesModel) {
         _country.value = country.country
         _codePhone.value = country.codePhone.toString()
@@ -76,15 +72,17 @@ class RegisterViewModel: ViewModel() {
         _verifyIncorrectCode.postValue(showDialog)
     }
 
-    fun onConfirmPhone(phoneNumber: String, phone: Boolean) {
+    fun onConfirmPhone(phoneNumber: String, phone: Boolean, activity: Activity) {
         val auth: FirebaseAuth = FirebaseAuth.getInstance()
+        auth.useAppLanguage()
+
         val callbacks: PhoneAuthProvider.OnVerificationStateChangedCallbacks =
             object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
                     // Esta devolución de llamada se invocará en dos situaciones:
                     // 1 - Verificación instantánea. En algunos casos, el número de teléfono puede ser verificado instantáneamente
                     //     sin necesidad de enviar o introducir un código de verificación.
-                    // 2 - Autoretirada. En algunos dispositivos, los servicios de Google Play pueden detectar automáticamente
+                    // 2 - Autorretirada. En algunos dispositivos, los servicios de Google Play pueden detectar automáticamente
                     //     el SMS de verificación entrante y realizar la verificación sin acción del usuario.
                     Log.d("PHONE1", "onVerificationCompleted:$credential")
                     signInWithPhoneAuthCredential(credential)
@@ -127,9 +125,10 @@ class RegisterViewModel: ViewModel() {
 
         if (phone) {
             val options = PhoneAuthOptions.newBuilder(auth)
-                .setPhoneNumber(phoneNumber) // Número de teléfono a verificar
-                .setTimeout(60L, TimeUnit.SECONDS) // Tiempo de espera y unidad
-                .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
+                .setPhoneNumber(phoneNumber)
+                .setTimeout(60L, TimeUnit.SECONDS)
+                .setActivity(activity)
+                .setCallbacks(callbacks)
                 .build()
             PhoneAuthProvider.verifyPhoneNumber(options)
         }
