@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,9 +40,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.fedeyruben.proyectofinaldamd.utils.LocationService
+import com.fedeyruben.proyectofinaldamd.utils.LocationUpdateService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun AlertScreenInit() {
@@ -154,8 +157,9 @@ fun getIconColor(index: Int): Color {
 fun CountdownDialog(onDismiss: () -> Unit) {
     var countdown by remember { mutableStateOf(10) }
     var showAlertSent by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()  // Para operaciones asíncronas
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val currentLocation by LocationUpdateService.currentLocation.observeAsState()
 
     LaunchedEffect(key1 = true) {
         while (countdown > 0) {
@@ -163,20 +167,23 @@ fun CountdownDialog(onDismiss: () -> Unit) {
             countdown--
         }
         if (!showAlertSent) {
-            // Llamar a la función de obtención de ubicación
-            coroutineScope.launch {
+            coroutineScope.launch(Dispatchers.IO) {
                 try {
-                    val location = LocationService.getCurrentLocation(context)
-                    Log.i("ALERT", "Alerta enviada con ubicación: Lat=${location.latitude}, Lng=${location.longitude}")
-                    showAlertSent = true  // Mostrar el diálogo de alerta enviada
+                    currentLocation?.let {
+                        Log.i("ALERT", "Alerta enviada con ubicación: Lat=${it.latitude}, Lng=${it.longitude}")
+                        showAlertSent = true
+                    } ?: run {
+                        Log.e("ALERT", "Ubicación no disponible")
+                    }
                 } catch (e: Exception) {
                     Log.e("ALERT", "Error al obtener la ubicación: ${e.localizedMessage}")
-                    onDismiss()  // Si falla, cierra el diálogo
+                }
+                withContext(Dispatchers.Main) {
+                    onDismiss()
                 }
             }
         }
     }
-
     if (showAlertSent) {
         AlertSentDialog(onDismiss)
     } else {
@@ -197,7 +204,6 @@ fun CountdownDialog(onDismiss: () -> Unit) {
         )
     }
 }
-
 
 @Composable
 fun AlertSentDialog(onDismiss: () -> Unit) {

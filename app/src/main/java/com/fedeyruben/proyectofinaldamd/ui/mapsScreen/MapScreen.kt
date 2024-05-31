@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.fedeyruben.proyectofinaldamd.R
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -57,11 +56,12 @@ import com.google.maps.model.TravelMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
+import java.io.IOException
 
 @Composable
 fun MapScreenInit() {
     val context = LocalContext.current
-    val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     val cameraPositionState = rememberCameraPositionState()
     var userLocation by remember { mutableStateOf<LatLng?>(null) }
     var pathPoints by remember { mutableStateOf(listOf<LatLng>()) }
@@ -73,7 +73,7 @@ fun MapScreenInit() {
     val endPoint = LatLng(36.58929, -4.5814) // Punto de alerta
     var zoomedOut by remember { mutableStateOf(false) }
 
-    // Function to request location permission
+    // Función para solicitar permiso de ubicación
     fun requestLocationPermission() {
         val REQUEST_LOCATION_PERMISSION_CODE = 1001
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -81,7 +81,9 @@ fun MapScreenInit() {
         }
     }
 
+    // Efecto lanzado cuando el Composable se monta
     LaunchedEffect(key1 = true) {
+        // Verifica si el permiso de ubicación está concedido
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
@@ -95,6 +97,7 @@ fun MapScreenInit() {
         }
     }
 
+    // Interfaz de usuario
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationInstruction(instructions) // Instrucciones de navegación en la parte superior
         Box(modifier = Modifier.weight(1f)) {
@@ -147,6 +150,7 @@ fun NavigationControls(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        // Botón para alternar entre la vista de usuario y la vista de ruta completa
         IconButton(
             onClick = {
                 onZoomToggle()
@@ -167,6 +171,7 @@ fun NavigationControls(
                 .background(Color.White, shape = RoundedCornerShape(50))
                 .padding(8.dp)
         ) {
+            // Icono que cambia según el estado de zoom
             Image(
                 painter = painterResource(id = if (zoomedOut) R.drawable.ic_arrow else R.drawable.ic_split),
                 contentDescription = if (zoomedOut) "Center Map" else "Show Full Route"
@@ -242,6 +247,7 @@ fun startNavigation(
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
 
+    // Callback para recibir actualizaciones de ubicación periódicas
     val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             for (location in locationResult.locations) {
@@ -262,6 +268,7 @@ fun startNavigation(
         }
     }
 
+    // Verifica si los permisos de ubicación están concedidos
     if (ActivityCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -270,11 +277,11 @@ fun startNavigation(
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) != PackageManager.PERMISSION_GRANTED
     ) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions
+        // Manejo de permisos: si no están concedidos, simplemente retorna
         return
     }
+
+    // Solicita actualizaciones de ubicación periódicas
     fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
 
     // Obtener la ubicación actual al iniciar la navegación
@@ -303,10 +310,13 @@ suspend fun getDirections(start: LatLng, end: LatLng, context: Context): Directi
 
     return try {
         DirectionsApi.newRequest(geoApiContext)
-            .mode(TravelMode.DRIVING) // Modo: caminando, auto, bici, etc.
+            .mode(TravelMode.DRIVING)
             .origin(com.google.maps.model.LatLng(start.latitude, start.longitude))
             .destination(com.google.maps.model.LatLng(end.latitude, end.longitude))
             .await()
+    } catch (e: IOException) {
+        Log.e("GoogleMapsDirections", "Network error when fetching directions", e)
+        null
     } catch (e: Exception) {
         Log.e("GoogleMapsDirections", "Failed to fetch directions", e)
         null
