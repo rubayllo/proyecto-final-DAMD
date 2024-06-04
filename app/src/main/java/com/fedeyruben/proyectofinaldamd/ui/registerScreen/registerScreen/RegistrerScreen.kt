@@ -46,8 +46,12 @@ import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.textFieldColors
 
 @Composable
 
-fun RegisterScreenInit(navController: NavHostController, activity: Activity) {
-    RegisterScreen(navController, activity, RegisterViewModel())
+fun RegisterScreenInit(
+    navController: NavHostController,
+    activity: Activity,
+    registerViewModel: RegisterViewModel
+){
+    RegisterScreen(navController, activity, registerViewModel)
 }
 
 @Composable

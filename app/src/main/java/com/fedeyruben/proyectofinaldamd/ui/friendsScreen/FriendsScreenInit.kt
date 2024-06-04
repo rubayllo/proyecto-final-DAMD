@@ -104,7 +104,6 @@ fun AmigoListItem(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-
                 // Fila para botones, alineada a la derecha
                 Row(
                     modifier = Modifier.fillMaxWidth(),

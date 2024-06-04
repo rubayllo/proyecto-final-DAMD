@@ -10,6 +10,10 @@ import androidx.lifecycle.viewModelScope
 import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +27,6 @@ import javax.inject.Inject
 @HiltViewModel
 class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp):
     ViewModel() {
-
     // Estado para el diálogo
     private val _showDuplicateDialog = MutableStateFlow<String?>(null)
     val showDuplicateDialog: StateFlow<String?> = _showDuplicateDialog
@@ -45,6 +48,10 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
     private val _guardianAlertLevelList =
         MutableStateFlow<List<GuardianAlertLevel>>(emptyList())
     val guardianAlertLevelList = _guardianAlertLevelList.asStateFlow()
+
+    // Firebase Auth
+    private val auth: FirebaseAuth = Firebase.auth
+    private val firestore = Firebase.firestore
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

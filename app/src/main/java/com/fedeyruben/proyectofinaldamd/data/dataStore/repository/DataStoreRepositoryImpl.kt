@@ -2,6 +2,7 @@ package com.fedeyruben.proyectofinaldamd.data.dataStore.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fedeyruben.proyectofinaldamd.data.dataStore.model.UserData
@@ -15,25 +16,13 @@ class DataStoreRepositoryImpl @Inject constructor(
 
     /** Clave para acceder a las credenciales del usuario **/
     private val phoneNumber = stringPreferencesKey("user_phone_number")
-    private val codePhone = stringPreferencesKey("user_code_phone")
+    private val isRegister = booleanPreferencesKey("is_register")
 
     /** Funcion para almacenar los datos en local necesito contexto y clave **/
-    override suspend fun saveAllData(phone: String, code: String) {
+    override suspend fun saveAllData(phone: String, isRegister: Boolean) {
         dataStore.edit { editor ->
             editor[phoneNumber] = phone
-            editor[codePhone] = code
-        }
-    }
-
-    override suspend fun savePhoneNumber(phone: String) {
-        dataStore.edit { editor ->
-            editor[phoneNumber] = phone
-        }
-    }
-
-    override suspend fun saveCodePhone(code: String) {
-        dataStore.edit { editor ->
-            editor[codePhone] = code
+            editor[this.isRegister] = isRegister
         }
     }
 
@@ -50,7 +39,7 @@ class DataStoreRepositoryImpl @Inject constructor(
         return dataStore.data.map { preferences ->
             UserData(
                 phoneNumber = preferences[stringPreferencesKey("user_phone_number")].orEmpty(),
-                codePhone = preferences[stringPreferencesKey("user_code_phone")].orEmpty()
+                isRegister = preferences[booleanPreferencesKey("is_register")] ?: false
             )
         }
     }

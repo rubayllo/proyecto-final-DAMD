@@ -32,6 +32,7 @@ googleServices = "4.4.1"
 firebaseDatabase = "21.0.0"
 firebaseMessaging = "24.0.0"
 swipe = "1.1.1"
+firebaseFirestoreKtx = "25.0.0"
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
@@ -77,6 +78,7 @@ play-services-maps = { module = "com.google.android.gms:play-services-maps", ver
 play-services-safetynet = { module = "com.google.android.gms:play-services-safetynet", version.ref = "playServicesSafetynet" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 swipe = { module = "me.saket.swipe:swipe", version.ref = "swipe" }
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

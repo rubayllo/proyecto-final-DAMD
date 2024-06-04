@@ -2,10 +2,17 @@ package com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
+import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepositoryImpl
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.CountriesModel
+import com.google.firebase.Firebase
 import com.google.firebase.FirebaseException
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuth
@@ -14,9 +21,18 @@ import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
-
-class RegisterViewModel: ViewModel() {
+import javax.inject.Inject
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
+    private val dataStoreRepository: DataStoreRepository
+): ViewModel() {
 
     /********* País *********/
     private val _country = MutableLiveData<String>()
@@ -52,6 +68,31 @@ class RegisterViewModel: ViewModel() {
     /********* Código de Verificación *********/
     private val _verifyIncorrectCode = MutableLiveData<Boolean>()
     val verifyIncorrectCode: LiveData<Boolean> = _verifyIncorrectCode
+
+    /********* Firebase *********/
+    private val auth: FirebaseAuth = Firebase.auth
+    private val firestore = Firebase.firestore
+
+    fun saveNewUser(onSuccess: () -> Unit){
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val user = hashMapOf(
+                    "phoneUser" to auth.currentUser?.phoneNumber
+                )
+
+                firestore.collection("users").add(user)
+                    .addOnSuccessListener {
+                        onSuccess()
+                    }
+                    .addOnFailureListener {
+                        Log.d("ERROR SAVE USER 1", it.message.toString())
+                    }
+            } catch (e: Exception) {
+                Log.d("ERROR SAVE USER 2", "Error al guardar Usuario")
+            }
+        }
+    }
+
 
     fun onCountryChange(country: CountriesModel) {
         _country.value = country.country
@@ -139,10 +180,19 @@ class RegisterViewModel: ViewModel() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    saveNewUser {
+                        viewModelScope.launch (Dispatchers.IO){
+                            dataStoreRepository.saveAllData(auth.currentUser?.phoneNumber.toString(), true)
+                            val isRegister = dataStoreRepository.getAllDataUser()
+                            Log.d("DATASTORE", "isRegister: ${isRegister.first().isRegister} Phone: ${isRegister.first().phoneNumber}")
+                        }
+                    }
+
                     Log.d("PHONE1", "signInWithCredential:success")
                     val user = task.result?.user
                     Log.d("PHONE1", "User: $user")
                     _sucessLogin.value = true
+                    Log.d("Current User Phone", auth.currentUser?.phoneNumber.toString())
                 } else {
                     showDialogIncorrectCode(true)
                     Log.w("PHONE1", "signInWithCredential:failure", task.exception)

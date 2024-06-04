@@ -12,6 +12,7 @@ import com.fedeyruben.proyectofinaldamd.ui.launchScreen.LaunchScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.HomeScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.RegisterScreenInit
+import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
 
 
@@ -20,6 +21,7 @@ fun AppNavigation(
     pickContactResultLauncher: ActivityResultLauncher<Void?>,
     friendsViewModel: FriendsViewModel,
     settingsViewModel: SettingsViewModel,
+    registerViewModel: RegisterViewModel,
     activity: MainActivity
 ) {
     val navController = rememberNavController()
@@ -34,7 +36,7 @@ fun AppNavigation(
         }
 
         composable(AppScreensRoutes.RegisterScreen.route) {
-            RegisterScreenInit(navController, activity)
+            RegisterScreenInit(navController, activity, registerViewModel)
         }
 
         composable(AppScreensRoutes.MapScreen.route) {
