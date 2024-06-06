@@ -26,9 +26,6 @@ data class UserGuardiansContacts(
     @ColumnInfo(name = "guadian_surname")
     val guardianSurname: String?, // Apellido del guardián
 
-    @ColumnInfo(name = "guardian_image")
-    val guardianImage: Uri?, // Ruta de la imagen del guardián
-
     @ColumnInfo(name = "is_guardian_register")
     val isGuardianRegister: Boolean, // Indica si el guardián está registrado en la app o no
 

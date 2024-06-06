@@ -2,15 +2,11 @@ package com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel
 
 import android.app.Activity
 import android.util.Log
-import android.widget.Toast
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
-import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepositoryImpl
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.CountriesModel
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseException
@@ -29,6 +25,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
@@ -73,25 +70,67 @@ class RegisterViewModel @Inject constructor(
     private val auth: FirebaseAuth = Firebase.auth
     private val firestore = Firebase.firestore
 
-    fun saveNewUser(onSuccess: () -> Unit){
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val user = hashMapOf(
-                    "phoneUser" to auth.currentUser?.phoneNumber
-                )
+//    private fun saveNewUser(onSuccess: () -> Unit){
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val user = hashMapOf(
+//                    "phoneUser" to auth.currentUser?.phoneNumber
+//                )
+//
+//                firestore.collection("users").add(user)
+//                    .addOnSuccessListener {
+//                        onSuccess()
+//                    }
+//                    .addOnFailureListener {
+//                        Log.d("ERROR SAVE USER 1", it.message.toString())
+//                    }
+//            } catch (e: Exception) {
+//                Log.d("ERROR SAVE USER 2", "Error al guardar Usuario")
+//            }
+//        }
+//    }
 
-                firestore.collection("users").add(user)
-                    .addOnSuccessListener {
+    private fun saveNewUser(onSuccess: () -> Unit) {
+        val phoneUser = auth.currentUser?.phoneNumber
+
+        phoneUser?.let { verifyPhoneUserRegister ->
+            firestore.collection("users")
+                .whereEqualTo("phoneUser", verifyPhoneUserRegister)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents.isEmpty) {
+                        // Usuario no está registrado, agregar a Firestore
+                        viewModelScope.launch(Dispatchers.IO) {
+                            try {
+                                val user = hashMapOf(
+                                    "phoneUser" to verifyPhoneUserRegister
+                                )
+
+                                firestore.collection("users").add(user)
+                                    .addOnSuccessListener {
+                                        Log.d("FriendsViewModel", "User added successfully")
+                                        onSuccess()
+                                    }
+                                    .addOnFailureListener {
+                                        Log.d("ERROR SAVE USER 1", it.message.toString())
+                                    }
+                            } catch (e: Exception) {
+                                Log.d("ERROR SAVE USER 2", "Error al guardar Usuario: ${e.message}")
+                            }
+                        }
+                    } else {
+                        Log.d("FriendsViewModel", "User already registered: $verifyPhoneUserRegister")
                         onSuccess()
                     }
-                    .addOnFailureListener {
-                        Log.d("ERROR SAVE USER 1", it.message.toString())
-                    }
-            } catch (e: Exception) {
-                Log.d("ERROR SAVE USER 2", "Error al guardar Usuario")
-            }
+                }
+                .addOnFailureListener { exception ->
+                    Log.d("ERROR CHECK USER", "Error al verificar Usuario: ${exception.message}")
+                }
+        } ?: run {
+            Log.d("ERROR PHONE", "Número de teléfono no disponible")
         }
     }
+
 
 
     fun onCountryChange(country: CountriesModel) {

@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
+import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel

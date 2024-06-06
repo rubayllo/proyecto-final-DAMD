@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
+import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.MainActivity
 import com.fedeyruben.proyectofinaldamd.ui.launchScreen.LaunchScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapScreenInit
