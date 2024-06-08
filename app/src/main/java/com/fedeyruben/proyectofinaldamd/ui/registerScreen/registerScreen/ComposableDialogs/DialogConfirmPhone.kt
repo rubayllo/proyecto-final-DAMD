@@ -1,5 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs
 
+import android.app.Activity
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
@@ -16,6 +17,7 @@ fun OpenConfirmPhoneDialog(
     dialogConfirmPhone: MutableState<Boolean>,
     phone: String?,
     codePhone: String?,
+    activity: Activity,
     registerViewModel: RegisterViewModel
 ) {
     Log.d("PHONE1", "Phone number1: +$codePhone$phone")
@@ -43,7 +45,9 @@ fun OpenConfirmPhoneDialog(
                     dialogConfirmPhone.value = false // Cierra el diálogo
                     registerViewModel.onConfirmPhone(
                         phone = true,
-                        phoneNumber = "+$codePhone$phone")
+                        phoneNumber = "+$codePhone$phone",
+                        activity = activity
+                    )
                 }
             ) {
                 Text("OK")

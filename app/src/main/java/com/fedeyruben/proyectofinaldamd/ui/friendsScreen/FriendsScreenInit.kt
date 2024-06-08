@@ -33,12 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
 import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
-import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.bottomBarHeight
 
 @Composable
@@ -48,7 +47,12 @@ fun ListaAmigosScreen(friendsViewModel: FriendsViewModel) {
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = bottomBarHeight),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 16.dp,
+            bottom = bottomBarHeight
+        ),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(amigos) { amigo ->
@@ -63,7 +67,12 @@ fun AmigoListItem(
     friendsViewModel: FriendsViewModel
 ) {
     val guardianAlertLevelList by friendsViewModel.guardianAlertLevelList.collectAsState()
-    val guardianAlertLevel = guardianAlertLevelList.find { it.userGuardianId == amigo.guardianPhoneNumber }
+    val guardianAlertLevel =
+        guardianAlertLevelList.find { it.userGuardianId == amigo.guardianPhoneNumber }
+
+    friendsViewModel.isUserSignedIn(amigo.guardianPhoneNumber)
+
+    val context = LocalContext.current
 
     val expanded = rememberSaveable { mutableStateOf(false) }
 
@@ -83,7 +92,7 @@ fun AmigoListItem(
         ) {
             // Usar Coil para cargar la imagen desde una Uri
             Image(
-                painter = if (amigo.guardianImage != null) rememberImagePainter(amigo.guardianImage) else painterResource(
+                painter = painterResource(
                     id = R.drawable.person
                 ),
                 contentDescription = "Imagen de perfil de ${amigo.guardianName}",
@@ -104,27 +113,36 @@ fun AmigoListItem(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-
                 // Fila para botones, alineada a la derecha
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    TextButton(
-                        onClick = {
-                            expanded.value = !expanded.value
+                    if (!amigo.isGuardianRegister) {
+                        TextButton(
+                            onClick = {
+                                friendsViewModel.inviteToApp(amigo.guardianPhoneNumber, context)
+                            }
+                        ) {
+                            Text(text = "Invitar a la app")
                         }
-                    ) {
-                        Text(text = if (expanded.value) "Reducir" else "Ampliar")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TextButton(
-                        onClick = { friendsViewModel.confirmDelete(amigo) }
-                    ) {
-                        Text(
-                            text = "Eliminar",
-                            color = Color.Red
-                        )
+                    } else {
+                        TextButton(
+                            onClick = {
+                                expanded.value = !expanded.value
+                            }
+                        ) {
+                            Text(text = if (expanded.value) "Reducir" else "Ampliar")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        TextButton(
+                            onClick = { friendsViewModel.confirmDelete(amigo) }
+                        ) {
+                            Text(
+                                text = "Eliminar",
+                                color = Color.Red
+                            )
+                        }
                     }
                 }
             }
@@ -132,7 +150,7 @@ fun AmigoListItem(
         // Contenido expandido
         if (expanded.value) {
 
-                Log.d("AmigoListItem", "guardianAlertLevel: ${guardianAlertLevel?.userGuardianId}")
+            Log.d("AmigoListItem", "guardianAlertLevel: ${guardianAlertLevel?.userGuardianId}")
 
 
             Column(
@@ -143,7 +161,11 @@ fun AmigoListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = {
-                            friendsViewModel.updateGuardianAlertLevel(amigo.guardianPhoneNumber, 0, !guardianAlertLevel?.low!!)
+                            friendsViewModel.updateGuardianAlertLevel(
+                                amigo.guardianPhoneNumber,
+                                0,
+                                !guardianAlertLevel?.low!!
+                            )
                         }
                     ) {
                         Text(
@@ -157,8 +179,12 @@ fun AmigoListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = {
-                            friendsViewModel.updateGuardianAlertLevel(amigo.guardianPhoneNumber, 1, !guardianAlertLevel?.medium!!)
-                        }                    ) {
+                            friendsViewModel.updateGuardianAlertLevel(
+                                amigo.guardianPhoneNumber,
+                                1,
+                                !guardianAlertLevel?.medium!!
+                            )
+                        }) {
                         Text(
                             text = if (guardianAlertLevel?.medium!!) "Desactivar" else "Activar",
                             color = if (guardianAlertLevel.medium) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
@@ -170,8 +196,12 @@ fun AmigoListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = {
-                            friendsViewModel.updateGuardianAlertLevel(amigo.guardianPhoneNumber, 2, !guardianAlertLevel?.high!!)
-                        }                    ) {
+                            friendsViewModel.updateGuardianAlertLevel(
+                                amigo.guardianPhoneNumber,
+                                2,
+                                !guardianAlertLevel?.high!!
+                            )
+                        }) {
                         Text(
                             text = if (guardianAlertLevel?.high!!) "Desactivar" else "Activar",
                             color = if (guardianAlertLevel.high) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
@@ -183,8 +213,12 @@ fun AmigoListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = {
-                            friendsViewModel.updateGuardianAlertLevel(amigo.guardianPhoneNumber, 3, !guardianAlertLevel?.critical!!)
-                        }                    ) {
+                            friendsViewModel.updateGuardianAlertLevel(
+                                amigo.guardianPhoneNumber,
+                                3,
+                                !guardianAlertLevel?.critical!!
+                            )
+                        }) {
                         Text(
                             text = if (guardianAlertLevel?.critical!!) "Desactivar" else "Activar",
                             color = if (guardianAlertLevel.critical) Color.Red else Color.Unspecified // Cambia a rojo si está desactivado
@@ -214,7 +248,7 @@ fun FriendsScreenInit(friendsViewModel: FriendsViewModel) {
                     Text("OK")
                 }
             },
-            title = { Text("El usuario con el número de teléfono $phoneNumber ya está registrado.") }
+            title = { Text("El usuario con el número de teléfono $phoneNumber ya está insertado.") }
         )
     }
 

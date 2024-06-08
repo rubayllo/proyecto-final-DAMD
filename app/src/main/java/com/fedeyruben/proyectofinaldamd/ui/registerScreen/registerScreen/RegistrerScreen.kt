@@ -1,5 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen
 
+import android.app.Activity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -45,12 +46,16 @@ import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.textFieldColors
 
 @Composable
 
-fun RegisterScreenInit(navController: NavHostController) {
-    RegisterScreen(navController, RegisterViewModel())
+fun RegisterScreenInit(
+    navController: NavHostController,
+    activity: Activity,
+    registerViewModel: RegisterViewModel
+){
+    RegisterScreen(navController, activity, registerViewModel)
 }
 
 @Composable
-fun RegisterScreen(navController: NavHostController, registerViewModel: RegisterViewModel) {
+fun RegisterScreen(navController: NavHostController, activity: Activity, registerViewModel: RegisterViewModel) {
     Column(
         Modifier
             .fillMaxSize()
@@ -63,7 +68,7 @@ fun RegisterScreen(navController: NavHostController, registerViewModel: Register
 
         Spacer(modifier = Modifier.size(18.dp))
 
-        BodyRegisterScreen(modifier = Modifier,navController, registerViewModel)
+        BodyRegisterScreen(modifier = Modifier,navController, activity, registerViewModel)
     }
 }
 
@@ -79,6 +84,7 @@ fun HeaderRegisterScreen(modifier: Modifier) {
 fun BodyRegisterScreen(
     modifier: Modifier,
     navController : NavHostController,
+    activity: Activity,
     registerViewModel: RegisterViewModel
 ) {
 
@@ -97,6 +103,7 @@ fun BodyRegisterScreen(
             dialogConfirmPhone,
             phone = registerViewModel.phone.value,
             codePhone = registerViewModel.codePhone.value,
+            activity = activity,
             registerViewModel
         )
     }

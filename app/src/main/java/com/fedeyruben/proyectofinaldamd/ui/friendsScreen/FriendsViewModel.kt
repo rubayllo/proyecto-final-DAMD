@@ -1,4 +1,4 @@
-package com.fedeyruben.proyectofinaldamd.friends
+package com.fedeyruben.proyectofinaldamd.ui.friendsScreen
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +25,6 @@ import javax.inject.Inject
 @HiltViewModel
 class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp):
     ViewModel() {
-
     // Estado para el diálogo
     private val _showDuplicateDialog = MutableStateFlow<String?>(null)
     val showDuplicateDialog: StateFlow<String?> = _showDuplicateDialog
@@ -46,6 +47,9 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
         MutableStateFlow<List<GuardianAlertLevel>>(emptyList())
     val guardianAlertLevelList = _guardianAlertLevelList.asStateFlow()
 
+    // Firebase firestore
+    private val firestore = Firebase.firestore
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             userDatabaseDaoRepositoryImp.getAllGuardians().collect { item ->
@@ -64,6 +68,34 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
                 _guardianAlertLevelList.value = item
             }
         }
+    }
+
+    fun isUserSignedIn(verifyPhoneUserRegister: String) {
+        firestore.collection("users")
+            .whereEqualTo("phoneUser", verifyPhoneUserRegister)
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    Log.w("FriendsViewModel", "Listen failed.", error)
+                    return@addSnapshotListener
+                }
+
+                if (value != null) {
+                    for (doc in value) {
+                        Log.d("FriendsViewModel", "$verifyPhoneUserRegister : ${doc.id} => ${doc.data}")
+                        viewModelScope.launch(Dispatchers.IO) {
+                            userDatabaseDaoRepositoryImp.updateIsGuardianRegister(verifyPhoneUserRegister, true)
+                        }
+                    }
+                    if (value.isEmpty) {
+                        Log.d("FriendsViewModel", "$verifyPhoneUserRegister : Phone Number No Registered")
+                        viewModelScope.launch(Dispatchers.IO) {
+                            userDatabaseDaoRepositoryImp.updateIsGuardianRegister(verifyPhoneUserRegister, false)
+                        }
+                    }
+                } else {
+                    Log.d("FriendsViewModel", "No such document")
+                }
+            }
     }
 
     private fun addGuardian(
@@ -141,7 +173,6 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
                                             guardianPhoneNumber = phoneNumber!!,
                                             guardianName = name,
                                             guardianSurname = "",
-                                            guardianImage = photoUri,
                                             isGuardianRegister = false,
                                             isGuardianActive = false
                                         ),
@@ -241,4 +272,15 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
             }
         }
     }
+
+    fun inviteToApp(guardianPhoneNumber: String, context: Context) {
+        // Mandar SMS
+        val smsText = "¡Hola! Soy tu amigo de la app de emergencias. Descárgala en Google Play: https://play.google.com/store/apps/details?id=com.fedeyruben.proyectofinaldamd"
+        val smsUri = Uri.parse("smsto:$guardianPhoneNumber")
+        val intent = android.content.Intent(android.content.Intent.ACTION_SENDTO, smsUri)
+        intent.putExtra("sms_body", smsText)
+        intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(intent)
+    }
+
 }

@@ -43,6 +43,10 @@ interface UserDataBaseDaoRepository {
     @Delete
     suspend fun deleteGuardian(userGuardiansContacts: UserGuardiansContacts)
 
+    // Actualiza is_guardian_register de un guardián en la tabla
+    @Query("UPDATE user_guardians_contacts SET is_guardian_register = :isGuardianRegister WHERE guardian_phone_number = :phoneNumber")
+    suspend fun updateIsGuardianRegister(phoneNumber: String, isGuardianRegister: Boolean)
+
     /** TABLA GuardianAlertLevel **/
 
     // Obtiene todas las alertas de los guardianes

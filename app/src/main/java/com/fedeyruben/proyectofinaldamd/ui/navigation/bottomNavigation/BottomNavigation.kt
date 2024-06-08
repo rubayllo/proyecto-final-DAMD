@@ -31,12 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.fedeyruben.proyectofinaldamd.friends.FriendsViewModel
+import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapScreenInit
