@@ -39,6 +39,7 @@ import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.Composa
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs.OpenConfirmPhoneDialog
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.ButtonStyle
+import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.LoadingScreen
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.LogoSmall
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.OutlineTextFieldStyle
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.textFieldColors
@@ -56,6 +57,7 @@ fun RegisterScreenInit(
 
 @Composable
 fun RegisterScreen(navController: NavHostController, activity: Activity, registerViewModel: RegisterViewModel) {
+    val isLoading by registerViewModel.isLoading.observeAsState(false)
     Column(
         Modifier
             .fillMaxSize()
@@ -64,11 +66,15 @@ fun RegisterScreen(navController: NavHostController, activity: Activity, registe
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HeaderRegisterScreen(modifier = Modifier)
+        if (isLoading) {
+            LoadingScreen()
+        }else {
+            HeaderRegisterScreen(modifier = Modifier)
 
-        Spacer(modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.size(18.dp))
 
-        BodyRegisterScreen(modifier = Modifier,navController, activity, registerViewModel)
+            BodyRegisterScreen(modifier = Modifier, navController, activity, registerViewModel)
+        }
     }
 }
 

@@ -10,6 +10,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
@@ -37,12 +39,22 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ProyectoFinalDAMDTheme {
+                val isUserRegistered by registerViewModel.isUserRegistered.observeAsState(initial = false)
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(pickContactResultLauncher,friendsViewModel, settingsViewModel, registerViewModel,this@MainActivity)
+                    isUserRegistered?.let { registered ->
+                        AppNavigation(
+                            pickContactResultLauncher,
+                            friendsViewModel,
+                            settingsViewModel,
+                            registerViewModel,
+                            this@MainActivity,
+                            registered
+                        )
+                    }
                 }
             }
         }

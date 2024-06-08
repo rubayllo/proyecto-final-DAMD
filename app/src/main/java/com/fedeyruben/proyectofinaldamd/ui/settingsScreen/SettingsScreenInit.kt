@@ -54,16 +54,6 @@ fun SettingsScreenInit(settingsViewModel: SettingsViewModel) {
 
     val settingsList = remember {
         mutableStateListOf(
-            "Configuración personal:" to listOf(
-                SettingsItem("Cambiar Fotografía", null, Icons.Default.PhotoCamera, null, null),
-                SettingsItem(
-                    "Cambiar Nombre de Usuario",
-                    null,
-                    Icons.Default.AccountCircle,
-                    null,
-                    null
-                )
-            ),
             "Configura tus guardianes:" to listOf(
                 SettingsItem("Modo Siempre en Alerta", null, Icons.Default.Warning, null, true),
                 SettingsItem(

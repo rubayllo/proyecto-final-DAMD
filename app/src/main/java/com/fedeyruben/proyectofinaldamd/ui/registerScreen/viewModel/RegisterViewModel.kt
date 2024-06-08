@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.CountriesModel
@@ -22,6 +23,7 @@ import com.google.firebase.firestore.firestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -69,6 +71,18 @@ class RegisterViewModel @Inject constructor(
     /********* Firebase *********/
     private val auth: FirebaseAuth = Firebase.auth
     private val firestore = Firebase.firestore
+
+    /********* Estado de Carga *********/
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    val isUserRegistered: LiveData<Boolean?> = dataStoreRepository.getAllDataUser()
+        .map { it.isRegister }
+        .asLiveData()
+
+    fun setLoading(isLoading: Boolean) {
+        _isLoading.value = isLoading
+    }
 
 //    private fun saveNewUser(onSuccess: () -> Unit){
 //        viewModelScope.launch(Dispatchers.IO) {
@@ -153,6 +167,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onConfirmPhone(phoneNumber: String, phone: Boolean, activity: Activity) {
+        setLoading(true)
         val auth: FirebaseAuth = FirebaseAuth.getInstance()
         auth.useAppLanguage()
 
@@ -164,6 +179,7 @@ class RegisterViewModel @Inject constructor(
                     //     sin necesidad de enviar o introducir un código de verificación.
                     // 2 - Autorretirada. En algunos dispositivos, los servicios de Google Play pueden detectar automáticamente
                     //     el SMS de verificación entrante y realizar la verificación sin acción del usuario.
+                    setLoading(false)
                     Log.d("PHONE1", "onVerificationCompleted:$credential")
                     signInWithPhoneAuthCredential(credential)
                 }
@@ -180,6 +196,7 @@ class RegisterViewModel @Inject constructor(
                     } else if (e is FirebaseAuthMissingActivityForRecaptchaException) {
                         // Intento de verificación de reCAPTCHA con Actividad nula
                     }
+                    setLoading(false)
 
                     // Muestra un mensaje y actualiza la interfaz de usuario
                 }
@@ -195,6 +212,7 @@ class RegisterViewModel @Inject constructor(
                     Log.d("PHONE1", "onCodeSent:$verificationId  Token: ${token.hashCode()}")
 
                     // Guarda el ID de verificación y el token de reenvío para poder usarlos más tarde
+                    setLoading(false)
                     storedVerificationId = verificationId
                     resendToken = token
                     Log.d("PHONE1", "ID de verificación: $storedVerificationId")
@@ -215,9 +233,11 @@ class RegisterViewModel @Inject constructor(
     }
 
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
+        setLoading(true)
         val auth: FirebaseAuth = FirebaseAuth.getInstance()
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
+                setLoading(false)
                 if (task.isSuccessful) {
                     saveNewUser {
                         viewModelScope.launch (Dispatchers.IO){

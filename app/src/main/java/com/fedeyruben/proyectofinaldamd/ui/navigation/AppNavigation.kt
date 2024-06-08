@@ -22,13 +22,14 @@ fun AppNavigation(
     friendsViewModel: FriendsViewModel,
     settingsViewModel: SettingsViewModel,
     registerViewModel: RegisterViewModel,
-    activity: MainActivity
+    activity: MainActivity,
+    registered: Boolean
 ) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = AppScreensRoutes.LaunchScreen.route
+        startDestination = if (registered) AppScreensRoutes.HomeScreen.route else AppScreensRoutes.LaunchScreen.route
 
     ) {
         composable(AppScreensRoutes.LaunchScreen.route) {
@@ -49,7 +50,7 @@ fun AppNavigation(
                 pickContactResultLauncher,
                 friendsViewModel,
                 settingsViewModel
-            ) // Esta es tu pantalla con BottomNavigation y su propia NavHost
+            )
         }
     }
 }

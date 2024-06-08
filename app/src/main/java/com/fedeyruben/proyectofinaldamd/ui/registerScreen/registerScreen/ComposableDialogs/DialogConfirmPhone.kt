@@ -8,8 +8,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.LoadingScreen
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 
 @Composable
@@ -20,6 +23,7 @@ fun OpenConfirmPhoneDialog(
     activity: Activity,
     registerViewModel: RegisterViewModel
 ) {
+    val isLoading by registerViewModel.isLoading.observeAsState(false)
     Log.d("PHONE1", "Phone number1: +$codePhone$phone")
     AlertDialog(
         modifier = Modifier
@@ -32,30 +36,34 @@ fun OpenConfirmPhoneDialog(
             )
         },
         text = {
-            Text(
-                text = "+$codePhone $phone \n ¿Es correcto o quieres modificarlo?",
-                textAlign = TextAlign.Center, // Alinea el texto al centro
-            )
-
+            if (isLoading) {
+                LoadingScreen()
+            } else {
+                Text(
+                    text = "+$codePhone $phone \n ¿Es correcto o quieres modificarlo?",
+                    textAlign = TextAlign.Center, // Alinea el texto al centro
+                )
+            }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    // Realiza acciones de confirmación si es necesario
                     dialogConfirmPhone.value = false // Cierra el diálogo
                     registerViewModel.onConfirmPhone(
                         phone = true,
                         phoneNumber = "+$codePhone$phone",
                         activity = activity
                     )
-                }
+                },
+                enabled = !isLoading
             ) {
                 Text("OK")
             }
         },
         dismissButton = {
             TextButton(
-                onClick = { dialogConfirmPhone.value = false }
+                onClick = { dialogConfirmPhone.value = false },
+                enabled = !isLoading
             ) {
                 Text("EDITAR")
             }
