@@ -84,12 +84,44 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
                         Log.d("FriendsViewModel", "$verifyPhoneUserRegister : ${doc.id} => ${doc.data}")
                         viewModelScope.launch(Dispatchers.IO) {
                             userDatabaseDaoRepositoryImp.updateIsGuardianRegister(verifyPhoneUserRegister, true)
+                            isUserActive(verifyPhoneUserRegister)
                         }
                     }
                     if (value.isEmpty) {
                         Log.d("FriendsViewModel", "$verifyPhoneUserRegister : Phone Number No Registered")
                         viewModelScope.launch(Dispatchers.IO) {
                             userDatabaseDaoRepositoryImp.updateIsGuardianRegister(verifyPhoneUserRegister, false)
+                            userDatabaseDaoRepositoryImp.updateIsGuardianActive(verifyPhoneUserRegister, false)
+                        }
+                    }
+                } else {
+                    Log.d("FriendsViewModel", "No such document")
+                }
+            }
+    }
+
+    // TODO: implementar isUserActive
+    private fun isUserActive(verifyPhoneUserRegister: String) {
+        firestore.collection("users")
+            .whereEqualTo("phoneUser", verifyPhoneUserRegister)
+            .whereEqualTo("active", true)
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    Log.w("FriendsViewModel", "Listen failed.", error)
+                    return@addSnapshotListener
+                }
+
+                if (value != null) {
+                    for (doc in value) {
+                        Log.d("FriendsViewModel", "$verifyPhoneUserRegister : ${doc.id} => ${doc.data}")
+                        viewModelScope.launch(Dispatchers.IO) {
+                            userDatabaseDaoRepositoryImp.updateIsGuardianActive(verifyPhoneUserRegister, true)
+                        }
+                    }
+                    if (value.isEmpty) {
+                        Log.d("FriendsViewModel", "$verifyPhoneUserRegister : Phone Number No Active")
+                        viewModelScope.launch(Dispatchers.IO) {
+                            userDatabaseDaoRepositoryImp.updateIsGuardianActive(verifyPhoneUserRegister, false)
                         }
                     }
                 } else {

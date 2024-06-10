@@ -47,6 +47,11 @@ interface UserDataBaseDaoRepository {
     @Query("UPDATE user_guardians_contacts SET is_guardian_register = :isGuardianRegister WHERE guardian_phone_number = :phoneNumber")
     suspend fun updateIsGuardianRegister(phoneNumber: String, isGuardianRegister: Boolean)
 
+    // Actualiza is_guardian_active de un guardián en la tabla
+    @Query("UPDATE user_guardians_contacts SET is_guardian_active = :isGuardianActive WHERE guardian_phone_number = :phoneNumber")
+    suspend fun updateIsGuardianActive(phoneNumber: String, isGuardianActive: Boolean)
+
+
     /** TABLA GuardianAlertLevel **/
 
     // Obtiene todas las alertas de los guardianes

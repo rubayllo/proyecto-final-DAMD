@@ -144,7 +144,8 @@ fun AmigoListItem(
                                 text = "Esperando confirmación",
                                 style = MaterialTheme.typography.bodySmall, // Mismo estilo que TextButton
                                 color = AlertLowColor // Color verde
-                            )                        }
+                            )
+                        }
 
                     } else {
                         TextButton(
