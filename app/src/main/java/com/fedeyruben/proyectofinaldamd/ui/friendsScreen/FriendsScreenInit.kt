@@ -39,22 +39,25 @@ import androidx.compose.ui.unit.dp
 import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
 import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.bottomBarHeight
+import com.fedeyruben.proyectofinaldamd.ui.theme.AlertLowColor
 
 @Composable
 fun ListaAmigosScreen(friendsViewModel: FriendsViewModel) {
-
+    // Obtener la lista de amigos observando el estado del ViewModel
     val amigos by friendsViewModel.userGuardiansContactsList.collectAsState()
 
+    // LazyColumn para mostrar la lista de amigos con un relleno personalizado y separación entre elementos
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
             end = 16.dp,
             top = 16.dp,
-            bottom = bottomBarHeight
+            bottom = bottomBarHeight // Altura de la barra inferior
         ),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp) // Espacio entre elementos
     ) {
+        // Iterar sobre cada amigo en la lista y mostrar AmigoListItem
         items(amigos) { amigo ->
             AmigoListItem(amigo, friendsViewModel)
         }
@@ -66,52 +69,57 @@ fun AmigoListItem(
     amigo: UserGuardiansContacts,
     friendsViewModel: FriendsViewModel
 ) {
+    // Obtener la lista de niveles de alerta de los guardianes observando el estado del ViewModel
     val guardianAlertLevelList by friendsViewModel.guardianAlertLevelList.collectAsState()
     val guardianAlertLevel =
         guardianAlertLevelList.find { it.userGuardianId == amigo.guardianPhoneNumber }
 
+    // Verificar si el usuario está registrado
     friendsViewModel.isUserSignedIn(amigo.guardianPhoneNumber)
 
+    // Obtener el contexto actual
     val context = LocalContext.current
 
+    // Estado para expandir o reducir el contenido del item
     val expanded = rememberSaveable { mutableStateOf(false) }
 
+    // Tarjeta para mostrar la información del amigo
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0)),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE0E0E0)), // Color de fondo
+        shape = RoundedCornerShape(8.dp), // Esquina redondeada
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // Elevación de la tarjeta
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically // Alinear verticalmente al centro
         ) {
             // Usar Coil para cargar la imagen desde una Uri
             Image(
                 painter = painterResource(
-                    id = R.drawable.person
+                    id = R.drawable.person // Imagen de perfil por defecto
                 ),
                 contentDescription = "Imagen de perfil de ${amigo.guardianName}",
                 modifier = Modifier
-                    .size(64.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
+                    .size(64.dp) // Tamaño de la imagen
+                    .clip(CircleShape), // Forma circular
+                contentScale = ContentScale.Crop // Escalar imagen para que llene el contenedor
             )
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(16.dp)) // Espacio entre imagen y texto
             Column(
                 modifier = Modifier
-                    .weight(1f)
+                    .weight(1f) // Tomar todo el espacio disponible
             ) {
                 Text(
-                    text = "${amigo.guardianName} ${amigo.guardianSurname ?: ""}",
+                    text = "${amigo.guardianName} ${amigo.guardianSurname ?: ""}", // Nombre y apellido del guardián
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp)) // Espacio entre texto y botones
 
                 // Fila para botones, alineada a la derecha
                 Row(
@@ -121,22 +129,35 @@ fun AmigoListItem(
                     if (!amigo.isGuardianRegister) {
                         TextButton(
                             onClick = {
+                                // Acción para invitar a la app
                                 friendsViewModel.inviteToApp(amigo.guardianPhoneNumber, context)
                             }
                         ) {
                             Text(text = "Invitar a la app")
                         }
+                    } else if (!amigo.isGuardianActive) {
+                        TextButton(
+                            onClick = {},
+                            enabled = false // Botón deshabilitado
+                        ) {
+                            Text(
+                                text = "Esperando confirmación",
+                                style = MaterialTheme.typography.bodySmall, // Mismo estilo que TextButton
+                                color = AlertLowColor // Color verde
+                            )                        }
+
                     } else {
                         TextButton(
                             onClick = {
+                                // Expandir o reducir el contenido
                                 expanded.value = !expanded.value
                             }
                         ) {
                             Text(text = if (expanded.value) "Reducir" else "Ampliar")
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(8.dp)) // Espacio entre botones
                         TextButton(
-                            onClick = { friendsViewModel.confirmDelete(amigo) }
+                            onClick = { friendsViewModel.confirmDelete(amigo) } // Confirmar eliminación
                         ) {
                             Text(
                                 text = "Eliminar",
@@ -149,16 +170,15 @@ fun AmigoListItem(
         }
         // Contenido expandido
         if (expanded.value) {
-
             Log.d("AmigoListItem", "guardianAlertLevel: ${guardianAlertLevel?.userGuardianId}")
-
 
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
+                // Nivel de alerta baja
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Alerta baja")
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f)) // Espacio flexible
                     TextButton(
                         onClick = {
                             friendsViewModel.updateGuardianAlertLevel(
@@ -174,9 +194,10 @@ fun AmigoListItem(
                         )
                     }
                 }
+                // Nivel de alerta media
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Alerta media")
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f)) // Espacio flexible
                     TextButton(
                         onClick = {
                             friendsViewModel.updateGuardianAlertLevel(
@@ -191,9 +212,10 @@ fun AmigoListItem(
                         )
                     }
                 }
+                // Nivel de alerta alta
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Alerta alta")
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f)) // Espacio flexible
                     TextButton(
                         onClick = {
                             friendsViewModel.updateGuardianAlertLevel(
@@ -208,9 +230,10 @@ fun AmigoListItem(
                         )
                     }
                 }
+                // Nivel de alerta crítica
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "Alerta crítica")
-                    Spacer(modifier = Modifier.weight(1f))
+                    Spacer(modifier = Modifier.weight(1f)) // Espacio flexible
                     TextButton(
                         onClick = {
                             friendsViewModel.updateGuardianAlertLevel(
@@ -225,21 +248,22 @@ fun AmigoListItem(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp)) // Espacio al final del contenido expandido
             }
         }
     }
 }
 
-
 @Composable
 fun FriendsScreenInit(friendsViewModel: FriendsViewModel) {
+    // Obtener estados observables del ViewModel
     val contactToDelete by friendsViewModel.contactToDelete.collectAsState()
     val showDuplicateDialog by friendsViewModel.showDuplicateDialog.collectAsState()
 
+    // Mostrar la lista de amigos
     ListaAmigosScreen(friendsViewModel)
 
+    // Mostrar diálogo de duplicado si es necesario
     showDuplicateDialog?.let { phoneNumber ->
         AlertDialog(
             onDismissRequest = { friendsViewModel.dismissDuplicateDialog() },
@@ -252,6 +276,7 @@ fun FriendsScreenInit(friendsViewModel: FriendsViewModel) {
         )
     }
 
+    // Mostrar diálogo de confirmación de eliminación si es necesario
     contactToDelete?.let { contact ->
         AlertDialog(
             onDismissRequest = { friendsViewModel.dismissDeleteDialog() },

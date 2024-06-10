@@ -9,18 +9,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddAlert
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -85,9 +82,18 @@ fun SettingsScreenInit(settingsViewModel: SettingsViewModel) {
                     null
                 )
             ),
+            "Contactos protegidos:" to listOf(
+                SettingsItem(
+                    "Listado de Protegidos",
+                    "ListProtect",
+                    Icons.Default.PersonAdd,
+                    null,
+                    null
+                )
+            ),
             "Acepta ser protector de:" to listOf(
                 SettingsItem(
-                    "Solicitud de Protección",
+                    "Solicitudes de Protección",
                     "ProtectTo",
                     Icons.Default.PersonAdd,
                     null,
@@ -179,12 +185,23 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
         "Proteger contacto 3"
     )
 
+    val listadoProtegidos = listOf(
+        "Protegido 1",
+        "Protegido 2",
+        "Protegido 3"
+    )
 
 
     when (type) {
         "ProtectTo" -> {
             solicitudProteccionList.forEach { contact ->
                 ExpandMenuProtectTo(contact, settingsViewModel)
+            }
+        }
+
+        "ListProtect" -> {
+            listadoProtegidos.forEach { protege ->
+                ExpandMenuListProtect(protege, settingsViewModel)
             }
         }
 
@@ -207,7 +224,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
         "HighGuardian" -> {
             guardianAlertLevelList.forEach { contact ->
                 if (contact.high) {
-                    ViewFriendGuardian(amigos, contact,2, settingsViewModel)
+                    ViewFriendGuardian(amigos, contact, 2, settingsViewModel)
                 }
             }
         }
@@ -215,7 +232,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
         "MaxGuardian" -> {
             guardianAlertLevelList.forEach { contact ->
                 if (contact.critical) {
-                    ViewFriendGuardian(amigos, contact,3, settingsViewModel)
+                    ViewFriendGuardian(amigos, contact, 3, settingsViewModel)
                 }
             }
         }
@@ -224,24 +241,60 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
 }
 
 @Composable
+fun ExpandMenuListProtect(protege: String, settingsViewModel: SettingsViewModel) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = {})
+            .padding(start = 26.dp, end = 16.dp, top = 2.dp, bottom = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically // Alineación vertical al centro
+
+        ) {
+            Text(
+                text = protege,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Start, // Cambiado a Start
+                modifier = Modifier.weight(1f) // Añadir peso para ocupar el espacio disponible
+            )
+            TextButton(
+                onClick = {
+                    // Acción para rechazar la solicitud de protección
+                }
+            ) {
+                Text(
+                    text = "Quitar",
+                    color = AlertHighColor
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
 fun ExpandMenuProtectTo(contact: String, settingsViewModel: SettingsViewModel) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = {})
-            .padding(start = 26.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+            .padding(start = 26.dp, end = 16.dp, top = 2.dp, bottom = 2.dp)
     ) {
-        Text(
-            text = contact,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically // Alineación vertical al centro
+
         ) {
+            Text(
+                text = contact,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Start, // Cambiado a Start
+                modifier = Modifier.weight(1f) // Añadir peso para ocupar el espacio disponible
+            )
             TextButton(
                 onClick = {
                     // Acción para aceptar la solicitud de protección
@@ -250,16 +303,6 @@ fun ExpandMenuProtectTo(contact: String, settingsViewModel: SettingsViewModel) {
                 Text(
                     text = "Aceptar",
                     color = AlertLowColor
-                )
-            }
-            TextButton(
-                onClick = {
-                    // Acción para rechazar la solicitud de protección
-                }
-            ) {
-                Text(
-                    text = "Rechazar",
-                    color = AlertHighColor
                 )
             }
         }
@@ -276,7 +319,12 @@ private fun ViewFriendGuardian(
 ) {
     amigos.forEach { amigo ->
         if (amigo.guardianPhoneNumber == guardianAlertLevel.userGuardianId) {
-            ExpandMenuLevelGuardianAlert(amigo.guardianName, guardianAlertLevel.userGuardianId, levelGuardianAlert, settingsViewModel)
+            ExpandMenuLevelGuardianAlert(
+                amigo.guardianName,
+                guardianAlertLevel.userGuardianId,
+                levelGuardianAlert,
+                settingsViewModel
+            )
         }
     }
 }
@@ -306,7 +354,11 @@ private fun ExpandMenuLevelGuardianAlert(
             TextButton(
                 onClick = {
                     // Acción para quitar el contacto
-                    settingsViewModel.updateGuardianAlertLevel(userGuardianId!!, levelGuardianAlert, false)
+                    settingsViewModel.updateGuardianAlertLevel(
+                        userGuardianId!!,
+                        levelGuardianAlert,
+                        false
+                    )
                 }
             ) {
                 Text(
@@ -332,7 +384,11 @@ private fun ExpandMenuLevelGuardianAlert(
             TextButton(
                 onClick = {
                     // Acción para quitar el contacto
-                    settingsViewModel.updateGuardianAlertLevel(userGuardianId!!, levelGuardianAlert, false)
+                    settingsViewModel.updateGuardianAlertLevel(
+                        userGuardianId!!,
+                        levelGuardianAlert,
+                        false
+                    )
                 }
             ) {
                 Text(
