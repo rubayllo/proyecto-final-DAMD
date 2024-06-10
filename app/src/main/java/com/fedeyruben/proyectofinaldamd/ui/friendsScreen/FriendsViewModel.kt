@@ -52,7 +52,6 @@ class FriendsViewModel @Inject constructor(
         MutableStateFlow<List<GuardianAlertLevel>>(emptyList())
     val guardianAlertLevelList = _guardianAlertLevelList.asStateFlow()
 
-
     // Firebase firestore
     private val firestore = Firebase.firestore
 
@@ -162,7 +161,6 @@ class FriendsViewModel @Inject constructor(
                     }
                 }
 
-
                 phoneNumber = editPhoneNumber(phoneNumber!!)
 
                 // Agregar contacto como guardián
@@ -243,7 +241,6 @@ class FriendsViewModel @Inject constructor(
         return formattedPhoneNumber
     }
 
-
     // Método para mostrar el diálogo de confirmación de eliminación
     fun confirmDelete(contact: UserGuardiansContacts) {
         _contactToDelete.value = contact
@@ -290,7 +287,6 @@ class FriendsViewModel @Inject constructor(
     }
 
     /** Método para enviar la alerta */
-
     fun sendAlert(level: Int, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         viewModelScope.launch {
             try {
@@ -321,7 +317,6 @@ class FriendsViewModel @Inject constructor(
             }
         }
     }
-
 
     private fun notifyGuardians(level: Int, alertData: HashMap<String, String>) {
         viewModelScope.launch {
@@ -358,7 +353,4 @@ class FriendsViewModel @Inject constructor(
             else -> false
         }
     }
-
-
-
 }

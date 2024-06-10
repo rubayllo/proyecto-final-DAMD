@@ -28,9 +28,9 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val friendsViewModel : FriendsViewModel by viewModels()
-    private val settingsViewModel : SettingsViewModel by viewModels()
-    private val registerViewModel : RegisterViewModel by viewModels()
+    private val friendsViewModel: FriendsViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val registerViewModel: RegisterViewModel by viewModels()
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
@@ -72,8 +72,6 @@ class MainActivity : ComponentActivity() {
         checkLocationPermissions()
     }
 
-
-
     private fun checkLocationPermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -101,18 +99,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
-
-
-/*
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    ProyectoFinalDAMDTheme {
-        AppNavigation()
-    }
-}
-*/
-
-
