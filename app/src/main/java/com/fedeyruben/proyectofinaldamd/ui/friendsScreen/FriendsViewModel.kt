@@ -304,16 +304,19 @@ class FriendsViewModel @Inject constructor(
                     firestore.collection("alerts")
                         .add(alertData)
                         .addOnSuccessListener {
+                            Log.d("sendAlert", "Alerta enviada: $alertData")
                             notifyGuardians(level, alertData)
                             onSuccess()
                         }
                         .addOnFailureListener { e ->
+                            Log.e("sendAlert", "Error al enviar la alerta: ${e.message}")
                             onFailure(e)
                         }
                 } else {
                     onFailure(Exception("Location not available"))
                 }
             } catch (e: Exception) {
+                Log.e("sendAlert", "Error: ${e.message}")
                 onFailure(e)
             }
         }
@@ -334,10 +337,12 @@ class FriendsViewModel @Inject constructor(
 
                         try {
                             FirebaseMessaging.getInstance().send(message)
-                            Log.d("FriendsViewModel", "Notification sent to ${guardian.guardianPhoneNumber}")
+                            Log.d("notifyGuardians", "Notificación enviada a ${guardian.guardianPhoneNumber}: $alertData")
                         } catch (e: Exception) {
-                            Log.e("FriendsViewModel", "Error sending notification to ${guardian.guardianPhoneNumber}: ${e.message}")
+                            Log.e("notifyGuardians", "Error al enviar la notificación a ${guardian.guardianPhoneNumber}: ${e.message}")
                         }
+                    } else {
+                        Log.d("notifyGuardians", "Guardían no notificado: ${guardian.guardianPhoneNumber}")
                     }
                 }
             }
