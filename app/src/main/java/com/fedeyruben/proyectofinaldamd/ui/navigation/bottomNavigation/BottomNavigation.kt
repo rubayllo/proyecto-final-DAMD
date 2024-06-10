@@ -46,13 +46,11 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 // Ajusta esto a la altura de tu BottomNavigation
 val bottomBarHeight = 120.dp
-
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, friendsViewModel: FriendsViewModel, settingsViewModel: SettingsViewModel) {
 
-    /** Permisos agenda luego gestionar que si cancela dos veces lo mande a las settings*/
     val permissionsState = rememberMultiplePermissionsState(
         permissions = listOf(
             android.Manifest.permission.READ_CONTACTS,
@@ -60,7 +58,6 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
         )
     )
 
-    // Definir los ítems de la barra de navegación
     val alertTab = TabBarItem(
         title = "Alert",
         selectedIcon = Icons.Filled.CrisisAlert,
@@ -85,13 +82,8 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
     val tabBarItems = listOf(alertTab, friendsTab, mapsTab, settingsTab)
 
     val navController = rememberNavController()
-
-    // Estado para mostrar el FloatingActionButton en la pantalla de amigos
     val showFab = remember { mutableStateOf(false) }
 
-    val context = LocalContext.current
-
-    // Escucha cambios en la pantalla actual y actualiza showFab
     LaunchedEffect(navController.currentBackStackEntry) {
         showFab.value = (navController.currentDestination?.route == "Friends")
     }
@@ -106,24 +98,26 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
                     } else {
                         pickContactResultLauncher.launch(null)
                     }
-                    }) {
+                }) {
                     Icon(Icons.Filled.Add, contentDescription = "Agregar amigo")
                 }
             }
         }
-    ) { innerPadding ->
+    ) {
         NavHost(navController = navController, startDestination = alertTab.title) {
             composable(alertTab.title) {
                 showFab.value = false
-                AlertScreenInit()
+                AlertScreenInit(friendsViewModel)
             }
             composable(friendsTab.title) {
                 showFab.value = true
                 FriendsScreenInit(friendsViewModel)
             }
-            composable(mapsTab.title) {
+            composable(mapsTab.title) { backStackEntry ->
                 showFab.value = false
-                MapScreenInit()
+                val latitude = backStackEntry.arguments?.getString("latitude")?.toDoubleOrNull()
+                val longitude = backStackEntry.arguments?.getString("longitude")?.toDoubleOrNull()
+                MapScreenInit(latitude, longitude)
             }
             composable(settingsTab.title) {
                 showFab.value = false
@@ -132,7 +126,6 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
         }
     }
 }
-
 
 @Composable
 fun TabView(tabBarItems: List<TabBarItem>, navController: NavController) {

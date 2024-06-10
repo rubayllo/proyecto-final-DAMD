@@ -1,5 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.ui.friendsScreen
 
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
@@ -10,8 +11,11 @@ import androidx.lifecycle.viewModelScope
 import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
+import com.fedeyruben.proyectofinaldamd.utils.LocationUpdateService
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.RemoteMessage
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,12 +23,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
-
 @HiltViewModel
-class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp):
-    ViewModel() {
+class FriendsViewModel @Inject constructor(
+    private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp
+) : ViewModel() {
     // Estado para el diálogo
     private val _showDuplicateDialog = MutableStateFlow<String?>(null)
     val showDuplicateDialog: StateFlow<String?> = _showDuplicateDialog
@@ -46,6 +51,7 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
     private val _guardianAlertLevelList =
         MutableStateFlow<List<GuardianAlertLevel>>(emptyList())
     val guardianAlertLevelList = _guardianAlertLevelList.asStateFlow()
+
 
     // Firebase firestore
     private val firestore = Firebase.firestore
@@ -264,7 +270,7 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
 
     fun updateGuardianAlertLevel(phoneNumber: String, level: Int, newValue: Boolean) {
         viewModelScope.launch {
-            when(level) {
+            when (level) {
                 0 -> userDatabaseDaoRepositoryImp.updateLowColumn(phoneNumber, newValue)
                 1 -> userDatabaseDaoRepositoryImp.updateMediumColumn(phoneNumber, newValue)
                 2 -> userDatabaseDaoRepositoryImp.updateHighColumn(phoneNumber, newValue)
@@ -282,5 +288,72 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
         intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
         context.startActivity(intent)
     }
+
+    /** Método para enviar la alerta */
+
+    fun sendAlert(level: Int, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val location = LocationUpdateService.currentLocation.value
+                if (location != null) {
+                    val alertData = hashMapOf(
+                        "level" to level.toString(),
+                        "latitude" to location.latitude.toString(),
+                        "longitude" to location.longitude.toString()
+                    )
+                    firestore.collection("alerts")
+                        .add(alertData)
+                        .addOnSuccessListener {
+                            notifyGuardians(level, alertData)
+                            onSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            onFailure(e)
+                        }
+                } else {
+                    onFailure(Exception("Location not available"))
+                }
+            } catch (e: Exception) {
+                onFailure(e)
+            }
+        }
+    }
+
+
+    private fun notifyGuardians(level: Int, alertData: HashMap<String, String>) {
+        viewModelScope.launch {
+            userDatabaseDaoRepositoryImp.getAllGuardians().collect { guardians ->
+                guardians.forEach { guardian ->
+                    val guardianAlertLevel = _guardianAlertLevelList.value.find { it.userGuardianId == guardian.guardianPhoneNumber }
+
+                    if (guardianAlertLevel != null && shouldNotifyGuardian(level, guardianAlertLevel)) {
+                        val message = RemoteMessage.Builder("${guardian.guardianPhoneNumber}@fcm.googleapis.com")
+                            .setMessageId(UUID.randomUUID().toString())
+                            .setData(alertData)
+                            .build()
+
+                        try {
+                            FirebaseMessaging.getInstance().send(message)
+                            Log.d("FriendsViewModel", "Notification sent to ${guardian.guardianPhoneNumber}")
+                        } catch (e: Exception) {
+                            Log.e("FriendsViewModel", "Error sending notification to ${guardian.guardianPhoneNumber}: ${e.message}")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun shouldNotifyGuardian(level: Int, guardianAlertLevel: GuardianAlertLevel): Boolean {
+        return when (level) {
+            0 -> guardianAlertLevel.low
+            1 -> guardianAlertLevel.medium
+            2 -> guardianAlertLevel.high
+            3 -> guardianAlertLevel.critical
+            else -> false
+        }
+    }
+
+
 
 }

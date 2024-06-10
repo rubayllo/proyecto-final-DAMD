@@ -16,6 +16,7 @@ import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterView
 import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
 
 
+
 @Composable
 fun AppNavigation(
     pickContactResultLauncher: ActivityResultLauncher<Void?>,
@@ -23,14 +24,15 @@ fun AppNavigation(
     settingsViewModel: SettingsViewModel,
     registerViewModel: RegisterViewModel,
     activity: MainActivity,
-    registered: Boolean
+    registered: Boolean,
+    latitude: Double?,
+    longitude: Double?
 ) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
         startDestination = if (registered) AppScreensRoutes.HomeScreen.route else AppScreensRoutes.LaunchScreen.route
-
     ) {
         composable(AppScreensRoutes.LaunchScreen.route) {
             LaunchScreenInit(navController)
@@ -41,8 +43,7 @@ fun AppNavigation(
         }
 
         composable(AppScreensRoutes.MapScreen.route) {
-            MapScreenInit()
-            Log.d("Flujo: Navigation", "MapScreenInit")
+            MapScreenInit(latitude, longitude)
         }
 
         composable(AppScreensRoutes.HomeScreen.route) {
@@ -54,6 +55,3 @@ fun AppNavigation(
         }
     }
 }
-
-
-

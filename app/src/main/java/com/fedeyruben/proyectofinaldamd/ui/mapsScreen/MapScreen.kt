@@ -59,7 +59,8 @@ import org.jsoup.Jsoup
 import java.io.IOException
 
 @Composable
-fun MapScreenInit() {
+fun MapScreenInit(latitude: Double?, longitude: Double?) {
+    Log.d("MapScreenInit", "Recibido lat: $latitude y lng: $longitude")
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     val cameraPositionState = rememberCameraPositionState()
@@ -70,7 +71,11 @@ fun MapScreenInit() {
     var distance by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
-    val endPoint = LatLng(36.58929, -4.5814) // Punto de alerta
+    val endPoint = if (latitude != null && longitude != null) {
+        LatLng(latitude, longitude)
+    } else {
+        LatLng(36.58929, -4.5814) // Default point if no coordinates are passed
+    }
     var zoomedOut by remember { mutableStateOf(false) }
 
     // Función para solicitar permiso de ubicación
