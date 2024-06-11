@@ -11,6 +11,8 @@ import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
 import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +25,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp):
+class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp) :
     ViewModel() {
     // Estado para el diálogo
     private val _showDuplicateDialog = MutableStateFlow<String?>(null)
@@ -49,6 +51,7 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
 
     // Firebase firestore
     private val firestore = Firebase.firestore
+    private val auth = Firebase.auth
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -81,17 +84,32 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
 
                 if (value != null) {
                     for (doc in value) {
-                        Log.d("FriendsViewModel", "$verifyPhoneUserRegister : ${doc.id} => ${doc.data}")
+                        Log.d(
+                            "FriendsViewModel",
+                            "$verifyPhoneUserRegister : ${doc.id} => ${doc.data}"
+                        )
                         viewModelScope.launch(Dispatchers.IO) {
-                            userDatabaseDaoRepositoryImp.updateIsGuardianRegister(verifyPhoneUserRegister, true)
+                            userDatabaseDaoRepositoryImp.updateIsGuardianRegister(
+                                verifyPhoneUserRegister,
+                                true
+                            )
                             isUserActive(verifyPhoneUserRegister)
                         }
                     }
                     if (value.isEmpty) {
-                        Log.d("FriendsViewModel", "$verifyPhoneUserRegister : Phone Number No Registered")
+                        Log.d(
+                            "FriendsViewModel",
+                            "$verifyPhoneUserRegister : Phone Number No Registered"
+                        )
                         viewModelScope.launch(Dispatchers.IO) {
-                            userDatabaseDaoRepositoryImp.updateIsGuardianRegister(verifyPhoneUserRegister, false)
-                            userDatabaseDaoRepositoryImp.updateIsGuardianActive(verifyPhoneUserRegister, false)
+                            userDatabaseDaoRepositoryImp.updateIsGuardianRegister(
+                                verifyPhoneUserRegister,
+                                false
+                            )
+                            userDatabaseDaoRepositoryImp.updateIsGuardianActive(
+                                verifyPhoneUserRegister,
+                                false
+                            )
                         }
                     }
                 } else {
@@ -100,32 +118,78 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
             }
     }
 
-    // TODO: implementar isUserActive
     private fun isUserActive(verifyPhoneUserRegister: String) {
-        firestore.collection("users")
-            .whereEqualTo("phoneUser", verifyPhoneUserRegister)
-            .whereEqualTo("active", true)
+        val thisPhoneUser = auth.currentUser?.phoneNumber
+
+        firestore.collection("guardian_request")
+            .whereEqualTo("userPhone", verifyPhoneUserRegister)
             .addSnapshotListener { value, error ->
                 if (error != null) {
-                    Log.w("FriendsViewModel", "Listen failed.", error)
+                    Log.w("FriendsViewModelActive", "Listen failed.", error)
                     return@addSnapshotListener
                 }
 
                 if (value != null) {
                     for (doc in value) {
-                        Log.d("FriendsViewModel", "$verifyPhoneUserRegister : ${doc.id} => ${doc.data}")
-                        viewModelScope.launch(Dispatchers.IO) {
-                            userDatabaseDaoRepositoryImp.updateIsGuardianActive(verifyPhoneUserRegister, true)
+                        Log.d(
+                            "FriendsViewModelActive2",
+                            "$verifyPhoneUserRegister : ${doc.id} => ${doc.data}"
+                        )
+                        // Obtener el array 'request' del documento
+                        val requestList = doc.get("request") as List<Map<String, Boolean>>
+                        Log.d(
+                            "FriendsViewModelActive2",
+                            "$verifyPhoneUserRegister : $requestList"
+                        )
+                        requestList.forEach { request ->
+                            if (request[thisPhoneUser] == true) {
+                                Log.d(
+                                    "FriendsViewModelActive2",
+                                    "$verifyPhoneUserRegister : Si Acepta tu petición"
+                                )
+
+                                // Actualizar el estado en la base de datos local
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    userDatabaseDaoRepositoryImp.updateIsGuardianActive(
+                                        verifyPhoneUserRegister,
+                                        true
+                                    )
+                                }
+                            } else if (request[thisPhoneUser] == false) {
+                                Log.d(
+                                    "FriendsViewModelActive2",
+                                    "$verifyPhoneUserRegister : No Acepta tu petición"
+                                )
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    userDatabaseDaoRepositoryImp.updateIsGuardianActive(
+                                        verifyPhoneUserRegister,
+                                        false
+                                    )
+                                }
+                            }
                         }
                     }
+
                     if (value.isEmpty) {
-                        Log.d("FriendsViewModel", "$verifyPhoneUserRegister : Phone Number No Active")
+                        Log.d(
+                            "FriendsViewModelActive",
+                            "$verifyPhoneUserRegister : No Acepta tu petición"
+                        )
                         viewModelScope.launch(Dispatchers.IO) {
-                            userDatabaseDaoRepositoryImp.updateIsGuardianActive(verifyPhoneUserRegister, false)
+                            userDatabaseDaoRepositoryImp.updateIsGuardianActive(
+                                verifyPhoneUserRegister,
+                                false
+                            )
                         }
                     }
                 } else {
-                    Log.d("FriendsViewModel", "No such document")
+                    Log.d("FriendsViewModelActive", "No such document")
+                    viewModelScope.launch(Dispatchers.IO) {
+                        userDatabaseDaoRepositoryImp.updateIsGuardianActive(
+                            verifyPhoneUserRegister,
+                            false
+                        )
+                    }
                 }
             }
     }
@@ -134,13 +198,120 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
         userGuardiansContacts: UserGuardiansContacts,
         guardianAlertLevel: GuardianAlertLevel
     ) {
+        val thisPhoneUser = auth.currentUser?.phoneNumber
+
         viewModelScope.launch {
             userDatabaseDaoRepositoryImp.insertGuardian(userGuardiansContacts)
             userDatabaseDaoRepositoryImp.insertGuardianAlertLevel(guardianAlertLevel)
         }
+
+        val userPhone = userGuardiansContacts.guardianPhoneNumber
+
+        firestore.collection("guardian_request")
+            .whereEqualTo("userPhone", userPhone)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    // Usuario no está registrado, agregar a Firestore
+                    val newUser = hashMapOf(
+                        "userPhone" to userPhone,
+                        "request" to arrayListOf(
+                            hashMapOf(
+                                thisPhoneUser to false
+                            )
+                        )
+                    )
+
+                    firestore.collection("guardian_request").add(newUser)
+                        .addOnSuccessListener {
+                            Log.d("FriendsViewModel", "User added successfully")
+                        }
+                        .addOnFailureListener {
+                            Log.d("ERROR SAVE USER 1", it.message.toString())
+                        }
+                } else {
+                    // Usuario ya está registrado, actualizar en Firestore
+                    Log.d("FriendsViewModel", "User already registered: $userPhone")
+                    for (document in documents) {
+                        val requestList = document.get("request") as? List<Map<String, Boolean>>
+                        val existingGuardian =
+                            requestList?.any { it.containsKey(thisPhoneUser) } == true
+
+                        if (!existingGuardian) {
+                            // El guardián no está en el array, agregarlo
+                            val newGuardian = mapOf(thisPhoneUser to false)
+                            firestore.collection("guardian_request")
+                                .document(document.id)
+                                .update("request", FieldValue.arrayUnion(newGuardian))
+                                .addOnSuccessListener {
+                                    Log.d(
+                                        "FriendsViewModel",
+                                        "Guardian added to existing document with ID: ${document.id}"
+                                    )
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.w("FriendsViewModel", "Error updating document", e)
+                                }
+                        } else {
+                            Log.d(
+                                "FriendsViewModel",
+                                "Guardian already exists in the request array"
+                            )
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w("FriendsViewModel", "Error getting documents", e)
+            }
     }
 
+
     fun deleteGuardian(userGuardiansContacts: UserGuardiansContacts) {
+        // Eliminar guardian de Firestore
+        val thisPhoneUser = auth.currentUser?.phoneNumber
+        val userPhone = userGuardiansContacts.guardianPhoneNumber
+
+        firestore.collection("guardian_request")
+            .whereEqualTo("userPhone", userPhone)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    Log.d("FriendsViewModel", "User not found in Firestore")
+                } else {
+                    for (document in documents) {
+                        val requestList = document.get("request") as? List<Map<String, Boolean>>
+                        val existingGuardian =
+                            requestList?.any { it.containsKey(thisPhoneUser) } == true
+
+                        if (existingGuardian) {
+                            // El guardián está en el array, eliminarlo
+                            val guardianToRemove = mapOf(thisPhoneUser to false)
+                            firestore.collection("guardian_request")
+                                .document(document.id)
+                                .update("request", FieldValue.arrayRemove(guardianToRemove))
+                                .addOnSuccessListener {
+                                    Log.d(
+                                        "FriendsViewModel",
+                                        "Guardian removed from existing document with ID: ${document.id}"
+                                    )
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.w("FriendsViewModel", "Error updating document", e)
+                                }
+                        } else {
+                            Log.d(
+                                "FriendsViewModel",
+                                "Guardian does not exist in the request array"
+                            )
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w("FriendsViewModel", "Error getting documents", e)
+            }
+
         viewModelScope.launch {
             userDatabaseDaoRepositoryImp.deleteGuardian(userGuardiansContacts)
         }
@@ -296,7 +467,7 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
 
     fun updateGuardianAlertLevel(phoneNumber: String, level: Int, newValue: Boolean) {
         viewModelScope.launch {
-            when(level) {
+            when (level) {
                 0 -> userDatabaseDaoRepositoryImp.updateLowColumn(phoneNumber, newValue)
                 1 -> userDatabaseDaoRepositoryImp.updateMediumColumn(phoneNumber, newValue)
                 2 -> userDatabaseDaoRepositoryImp.updateHighColumn(phoneNumber, newValue)
@@ -307,7 +478,8 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
 
     fun inviteToApp(guardianPhoneNumber: String, context: Context) {
         // Mandar SMS
-        val smsText = "¡Hola! Soy tu amigo de la app de emergencias. Descárgala en Google Play: https://play.google.com/store/apps/details?id=com.fedeyruben.proyectofinaldamd"
+        val smsText =
+            "¡Hola! Soy tu amigo de la app de emergencias. Descárgala en Google Play: https://play.google.com/store/apps/details?id=com.fedeyruben.proyectofinaldamd"
         val smsUri = Uri.parse("smsto:$guardianPhoneNumber")
         val intent = android.content.Intent(android.content.Intent.ACTION_SENDTO, smsUri)
         intent.putExtra("sms_body", smsText)

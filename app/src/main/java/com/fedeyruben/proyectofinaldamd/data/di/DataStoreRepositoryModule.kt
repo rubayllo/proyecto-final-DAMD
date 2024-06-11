@@ -20,6 +20,6 @@ object DataStoreRepositoryModule {
 
     @Singleton
     @Provides
-    fun providesDataStoreRepository(dataStore: DataStore<Preferences>): DataStoreRepository =
-        DataStoreRepositoryImpl(dataStore)
+    fun providesDataStoreRepository(dataStore: DataStore<Preferences>):
+            DataStoreRepository = DataStoreRepositoryImpl(dataStore)
 }

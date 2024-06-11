@@ -48,6 +48,10 @@ class UserDatabaseDaoRepositoryImp @Inject constructor(private val userDataBaseD
         return userDataBaseDao.updateIsGuardianActive(phoneNumber, isGuardianActive)
     }
 
+    override fun isGuardianActive(phoneNumber: String): Boolean {
+        return userDataBaseDao.isGuardianActive(phoneNumber)
+    }
+
 
     /** ZONA DE ALERTAS **/
     override fun getAllAlertsOfGuardians(): Flow<List<GuardianAlertLevel>> {
