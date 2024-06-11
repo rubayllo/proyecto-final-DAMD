@@ -1,6 +1,5 @@
 package com.fedeyruben.proyectofinaldamd.data.room.model
 
-import android.net.Uri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -51,4 +50,7 @@ data class GuardianAlertLevel(
     @ColumnInfo(name = "critical")
     val critical: Boolean // Indica si el nivel de alerta es crítico
 )
+
+
+
 

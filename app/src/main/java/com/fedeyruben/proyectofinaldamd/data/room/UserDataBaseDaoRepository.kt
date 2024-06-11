@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
+import com.fedeyruben.proyectofinaldamd.data.room.model.UserProtected
 import kotlinx.coroutines.flow.Flow
 
 
@@ -85,4 +86,22 @@ interface UserDataBaseDaoRepository {
     @Query("UPDATE guardian_alert_level SET critical = :newCriticalValue WHERE guardian_phone_number_alert_level = :phoneNumber")
     suspend fun updateCriticalColumn(phoneNumber: String, newCriticalValue: Boolean)
 
+
+    /** TABLA UserProtected **/
+
+    // Obtiene todas las peticiones de protección de los usuarios
+    @Query("SELECT * FROM user_request_protected")
+    fun getAllRequestsProtected(): Flow<List<UserProtected>>
+
+    // Obtiene una petición de protección por su número de teléfono
+    @Query("SELECT * FROM user_request_protected WHERE user_phone_protected = :phoneNumber")
+    fun getRequestProtectedByPhone(phoneNumber: String): Flow<UserProtected>
+
+    // Inserta una petición de protección en la tabla
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRequestProtected(userProtected: UserProtected)
+
+    // Actualiza una petición de protección en la tabla
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateRequestProtected(userProtected: UserProtected)
 }

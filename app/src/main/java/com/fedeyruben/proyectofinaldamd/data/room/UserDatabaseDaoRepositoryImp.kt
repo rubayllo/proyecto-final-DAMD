@@ -2,6 +2,7 @@ package com.fedeyruben.proyectofinaldamd.data.room
 
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
+import com.fedeyruben.proyectofinaldamd.data.room.model.UserProtected
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
@@ -80,5 +81,24 @@ class UserDatabaseDaoRepositoryImp @Inject constructor(private val userDataBaseD
 
     override suspend fun updateCriticalColumn(phoneNumber: String, newCriticalValue: Boolean) {
         userDataBaseDao.updateCriticalColumn(phoneNumber, newCriticalValue)
+    }
+
+
+    /** ZONA DE PETICIONES DE USUARIO PROTEGIDO **/
+
+    override fun getAllRequestsProtected(): Flow<List<UserProtected>> {
+        return userDataBaseDao.getAllRequestsProtected()
+    }
+
+    override fun getRequestProtectedByPhone(phoneNumber: String): Flow<UserProtected> {
+        return userDataBaseDao.getRequestProtectedByPhone(phoneNumber)
+    }
+
+    override suspend fun insertRequestProtected(userProtected: UserProtected) {
+        userDataBaseDao.insertRequestProtected(userProtected)
+    }
+
+    override suspend fun updateRequestProtected(userProtected: UserProtected) {
+        userDataBaseDao.updateRequestProtected(userProtected)
     }
 }

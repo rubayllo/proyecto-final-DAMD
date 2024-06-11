@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fedeyruben.proyectofinaldamd.data.dataStore.model.UserData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -32,6 +33,13 @@ class DataStoreRepositoryImpl @Inject constructor(
         dataStore.edit { editor ->
             editor.clear()
         }
+    }
+
+
+    override suspend fun getUserPhone(): String {
+        return dataStore.data.map { preferences ->
+            preferences[stringPreferencesKey("user_phone_number")] ?: ""
+        }.first()
     }
 
     /** Funcion para mapear todos los datos juntos **/

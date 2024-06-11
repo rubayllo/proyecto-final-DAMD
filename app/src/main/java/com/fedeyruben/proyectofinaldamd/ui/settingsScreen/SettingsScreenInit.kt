@@ -49,6 +49,8 @@ import com.fedeyruben.proyectofinaldamd.ui.theme.AlertMidColor
 @Composable
 fun SettingsScreenInit(settingsViewModel: SettingsViewModel) {
 
+    settingsViewModel.iniciarFirestoreRecogerProtegidos()
+
     val settingsList = remember {
         mutableStateListOf(
             "Configura tus guardianes:" to listOf(
@@ -177,31 +179,22 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
 
     val amigos by settingsViewModel.userGuardiansContactsList.collectAsState()
     val guardianAlertLevelList by settingsViewModel.guardianAlertLevelList.collectAsState()
-
-    // Lista de contactos que te han solicitado protección (simulada)
-    val solicitudProteccionList = listOf(
-        "Proteger contacto 1",
-        "Proteger contacto 2",
-        "Proteger contacto 3"
-    )
-
-    val listadoProtegidos = listOf(
-        "Protegido 1",
-        "Protegido 2",
-        "Protegido 3"
-    )
-
+    val protectedGuardiansContactsList by settingsViewModel.protectedGuardiansContactsList.collectAsState()
 
     when (type) {
         "ProtectTo" -> {
-            solicitudProteccionList.forEach { contact ->
-                ExpandMenuProtectTo(contact, settingsViewModel)
+            protectedGuardiansContactsList.forEach { amigo ->
+                if (!amigo.isProtected) {
+                    ExpandMenuListProtect(amigo.userPhoneProtected, settingsViewModel)
+                }
             }
         }
 
         "ListProtect" -> {
-            listadoProtegidos.forEach { protege ->
-                ExpandMenuListProtect(protege, settingsViewModel)
+            protectedGuardiansContactsList.forEach { amigo ->
+                if (amigo.isProtected) {
+                    ExpandMenuProtectTo(amigo.userPhoneProtected, settingsViewModel)
+                }
             }
         }
 
@@ -263,11 +256,12 @@ fun ExpandMenuListProtect(protege: String, settingsViewModel: SettingsViewModel)
             TextButton(
                 onClick = {
                     // Acción para rechazar la solicitud de protección
+                    settingsViewModel.updateIsGuardianRegister(protege, true)
                 }
             ) {
                 Text(
-                    text = "Quitar",
-                    color = AlertHighColor
+                    text = "Aceptar",
+                    color = AlertLowColor
                 )
             }
         }
@@ -298,11 +292,12 @@ fun ExpandMenuProtectTo(contact: String, settingsViewModel: SettingsViewModel) {
             TextButton(
                 onClick = {
                     // Acción para aceptar la solicitud de protección
+                    settingsViewModel.updateIsGuardianRegister(contact, false)
                 }
             ) {
                 Text(
-                    text = "Aceptar",
-                    color = AlertLowColor
+                    text = "Quitar",
+                    color = AlertHighColor
                 )
             }
         }
