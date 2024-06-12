@@ -115,7 +115,7 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
         NavHost(navController = navController, startDestination = alertTab.title) {
             composable(alertTab.title) {
                 showFab.value = false
-                AlertScreenInit()
+                AlertScreenInit(friendsViewModel)
             }
             composable(friendsTab.title) {
                 showFab.value = true

@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,18 +35,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.fedeyruben.proyectofinaldamd.utils.LocationUpdateService
-import kotlinx.coroutines.Dispatchers
+import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
-fun AlertScreenInit() {
+fun AlertScreenInit(friendsViewModel: FriendsViewModel) {
     val alerts = listOf(
         "Nivel de alerta bajo" to Icons.Default.Warning,
         "Nivel de alerta medio" to Icons.Default.Warning,
@@ -59,6 +54,8 @@ fun AlertScreenInit() {
     var showAlertConfirmDialog by remember { mutableStateOf(false) }
     var currentAlert by remember { mutableStateOf("") }
     var showCountdownDialog by remember { mutableStateOf(false) }
+    var alertSent by remember { mutableStateOf(false) }
+    var cancelAlertDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -70,12 +67,16 @@ fun AlertScreenInit() {
     ) {
         alerts.forEachIndexed { index, alert ->
             AlertButton(
-                text = alert.first,
+                text = if (alertSent && currentAlert == alert.first) "¡¡¡ALERTA EN CURSO!!!" else alert.first,
                 icon = alert.second,
                 color = getIconColor(index), // Obtener color diferente para cada icono
                 onClick = {
-                    currentAlert = alert.first
-                    showAlertConfirmDialog = true
+                    if (alertSent && currentAlert == alert.first) {
+                        cancelAlertDialog = true
+                    } else {
+                        currentAlert = alert.first
+                        showAlertConfirmDialog = true
+                    }
                 }
             )
         }
@@ -106,7 +107,80 @@ fun AlertScreenInit() {
     }
 
     if (showCountdownDialog) {
-        CountdownDialog { showCountdownDialog = false }
+        CountdownDialog(friendsViewModel, currentAlert) {
+            showCountdownDialog = false
+            alertSent = true
+        }
+    }
+
+    if (cancelAlertDialog) {
+        AlertDialog(
+            onDismissRequest = { cancelAlertDialog = false },
+            title = { Text("Cancelar Alerta") },
+            text = { Text("¿Quiere cancelar la alerta?") },
+            confirmButton = {
+                Button(onClick = {
+                    friendsViewModel.cancelAlert(currentAlert)
+                    alertSent = false
+                    cancelAlertDialog = false
+                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { cancelAlertDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+                ) {
+                    Text("Cerrar")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun CountdownDialog(friendsViewModel: FriendsViewModel, alertLevel: String, onDismiss: () -> Unit) {
+    var countdown by remember { mutableStateOf(10) }
+    var showAlertSent by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(key1 = true) {
+        while (countdown > 0) {
+            delay(1000)
+            countdown--
+        }
+        if (!showAlertSent) {
+            friendsViewModel.sendAlert(alertLevel, {
+                Log.i("ALERT", "Alerta enviada con éxito")
+                showAlertSent = true
+                onDismiss()
+            }, { error ->
+                Log.e("ALERT", "Error al enviar la alerta: ${error.localizedMessage}")
+                showAlertSent = true
+                onDismiss()
+            })
+        }
+    }
+
+    if (showAlertSent) {
+        AlertSentDialog(onDismiss)
+    } else {
+        AlertDialog(
+            onDismissRequest = {},
+            title = { Text("Enviando Alerta") },
+            text = { Text("¡¡¡ESTÁ ENVIANDO UNA ALERTA!!!\nEnviando en $countdown segundos.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showAlertSent = true  // Asegura que no se muestre el diálogo de alerta enviada si se cancela
+                        onDismiss()
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 
@@ -140,7 +214,6 @@ fun AlertButton(text: String, icon: ImageVector, color: Color, onClick: () -> Un
     }
 }
 
-
 // Función para obtener colores diferentes para cada ícono
 fun getIconColor(index: Int): Color {
     return when (index) {
@@ -149,59 +222,6 @@ fun getIconColor(index: Int): Color {
         2 -> Color(0xFFF44336)
         3 -> Color(0xFF424242)
         else -> Color.Gray
-    }
-}
-
-
-@Composable
-fun CountdownDialog(onDismiss: () -> Unit) {
-    var countdown by remember { mutableStateOf(10) }
-    var showAlertSent by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val currentLocation by LocationUpdateService.currentLocation.observeAsState()
-
-    LaunchedEffect(key1 = true) {
-        while (countdown > 0) {
-            delay(1000)
-            countdown--
-        }
-        if (!showAlertSent) {
-            coroutineScope.launch(Dispatchers.IO) {
-                try {
-                    currentLocation?.let {
-                        Log.i("ALERT", "Alerta enviada con ubicación: Lat=${it.latitude}, Lng=${it.longitude}")
-                        showAlertSent = true
-                    } ?: run {
-                        Log.e("ALERT", "Ubicación no disponible")
-                    }
-                } catch (e: Exception) {
-                    Log.e("ALERT", "Error al obtener la ubicación: ${e.localizedMessage}")
-                }
-                withContext(Dispatchers.Main) {
-                    onDismiss()
-                }
-            }
-        }
-    }
-    if (showAlertSent) {
-        AlertSentDialog(onDismiss)
-    } else {
-        AlertDialog(
-            onDismissRequest = {},
-            title = { Text("Enviando Alerta") },
-            text = { Text("¡¡¡ESTÁ ENVIANDO UNA ALERTA!!!\nEnviando en $countdown segundos.") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showAlertSent = true  // Asegura que no se muestre el diálogo de alerta enviada si se cancela
-                        onDismiss()
-                    }
-                ) {
-                    Text("Cancelar")
-                }
-            }
-        )
     }
 }
 
@@ -219,3 +239,6 @@ fun AlertSentDialog(onDismiss: () -> Unit) {
         dismissButton = { },
     )
 }
+
+
+
