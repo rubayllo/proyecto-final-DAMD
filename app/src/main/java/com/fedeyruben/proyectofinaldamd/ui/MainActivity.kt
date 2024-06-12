@@ -1,8 +1,5 @@
 package com.fedeyruben.proyectofinaldamd.ui
 
-import android.app.Activity
-import android.bluetooth.BluetoothAdapter
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -16,8 +13,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
+import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepositoryImpl
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils
+import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils.permissionsList
 import com.fedeyruben.proyectofinaldamd.data.permissions.ShowPermissionExplanationDialog
+import com.fedeyruben.proyectofinaldamd.data.permissions.permissionRequest
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
@@ -63,9 +64,11 @@ class MainActivity : ComponentActivity() {
                             registered
                         )
                         val permissionState =
-                            rememberMultiplePermissionsState(permissions = PermissionUtils.permissionsList)
+                            rememberMultiplePermissionsState(permissions = permissionsList)
 
-                        if (!permissionState.allPermissionsGranted) {
+                        if (!isPermissionsGranted && registered) {
+                            requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
+                        } else if (!permissionState.allPermissionsGranted && !isPermissionsGranted && registered) {
                             ShowPermissionExplanationDialog()
                         }
                     }
@@ -74,40 +77,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
-    }
-
-    private var isPermissionsDialog = false
     private var isPermissionsGranted = false
-
-    private fun showBluetoothDialog() {
-        if (!isPermissionsGranted) {
-            requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
-//        } else if (isPermissionsGranted && !bluetoothAdapter.isEnabled) {
-        } else if (isPermissionsGranted) {
-            if (!isPermissionsDialog) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-//                startBluetoothIntentForResult.launch(enableBtIntent)
-                isPermissionsDialog = true
-            }
-        } else if (!isPermissionsGranted) {
-            if (!isPermissionsDialog) {
-                requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
-            }
-        }
-    }
-
-//    private val startBluetoothIntentForResult =
-//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-//            isPermissionsDialog = false
-//            if (result.resultCode != Activity.RESULT_OK) {
-//                // Bluetooth no conectado
-//                showBluetoothDialog()
-//            }
-//        }
-
 
     private val requestMultiplePermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -117,7 +87,7 @@ class MainActivity : ComponentActivity() {
             if (allPermissionsGranted) {
                 isPermissionsGranted = true
             }
-            showBluetoothDialog()
         }
+
 }
 

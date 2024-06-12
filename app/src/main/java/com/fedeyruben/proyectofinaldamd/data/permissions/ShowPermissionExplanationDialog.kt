@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
             title = { Text("Permisos necesarios") },
             text = {
                 Text(
-                    "Necesitamos acceso a tu ubicación para proporcionarte una mejor experiencia. " +
+                    "Necesitamos acceso a tu ubicación, contactos y al estado de tú dispositivo móvil para proporcionarte una mejor experiencia. " +
                             "Por favor, concede los permisos en la configuración de la aplicación."
                 )
             },
