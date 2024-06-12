@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
@@ -181,11 +182,14 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
     val guardianAlertLevelList by settingsViewModel.guardianAlertLevelList.collectAsState()
     val protectedGuardiansContactsList by settingsViewModel.protectedGuardiansContactsList.collectAsState()
 
+    val context = LocalContext.current
+
     when (type) {
         "ProtectTo" -> {
             protectedGuardiansContactsList.forEach { amigo ->
                 if (!amigo.isProtected) {
-                    ExpandMenuListProtect(amigo.userPhoneProtected, settingsViewModel)
+                    val amigoName = settingsViewModel.recuperarNombreTelefono(context, amigo.userPhoneProtected)
+                    ExpandMenuListProtect(amigoName, amigo.userPhoneProtected, settingsViewModel)
                 }
             }
         }
@@ -193,7 +197,8 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
         "ListProtect" -> {
             protectedGuardiansContactsList.forEach { amigo ->
                 if (amigo.isProtected) {
-                    ExpandMenuProtectTo(amigo.userPhoneProtected, settingsViewModel)
+                    val amigoName = settingsViewModel.recuperarNombreTelefono(context, amigo.userPhoneProtected)
+                    ExpandMenuProtectTo(amigoName, amigo.userPhoneProtected, settingsViewModel)
                 }
             }
         }
@@ -234,7 +239,11 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
 }
 
 @Composable
-fun ExpandMenuListProtect(protege: String, settingsViewModel: SettingsViewModel) {
+fun ExpandMenuListProtect(
+    amigoName: String,
+    amigoPhoneNumber: String,
+    settingsViewModel: SettingsViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -248,7 +257,7 @@ fun ExpandMenuListProtect(protege: String, settingsViewModel: SettingsViewModel)
 
         ) {
             Text(
-                text = protege,
+                text = amigoName,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Start, // Cambiado a Start
                 modifier = Modifier.weight(1f) // Añadir peso para ocupar el espacio disponible
@@ -256,7 +265,7 @@ fun ExpandMenuListProtect(protege: String, settingsViewModel: SettingsViewModel)
             TextButton(
                 onClick = {
                     // Acción para rechazar la solicitud de protección
-                    settingsViewModel.updateIsGuardianRegister(protege, true)
+                    settingsViewModel.updateIsGuardianRegister(amigoPhoneNumber, true)
                 }
             ) {
                 Text(
@@ -270,7 +279,11 @@ fun ExpandMenuListProtect(protege: String, settingsViewModel: SettingsViewModel)
 
 
 @Composable
-fun ExpandMenuProtectTo(contact: String, settingsViewModel: SettingsViewModel) {
+fun ExpandMenuProtectTo(
+    amigoName: String,
+    amigoPhoneNumber: String,
+    settingsViewModel: SettingsViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -284,7 +297,7 @@ fun ExpandMenuProtectTo(contact: String, settingsViewModel: SettingsViewModel) {
 
         ) {
             Text(
-                text = contact,
+                text = amigoName,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Start, // Cambiado a Start
                 modifier = Modifier.weight(1f) // Añadir peso para ocupar el espacio disponible
@@ -292,7 +305,7 @@ fun ExpandMenuProtectTo(contact: String, settingsViewModel: SettingsViewModel) {
             TextButton(
                 onClick = {
                     // Acción para aceptar la solicitud de protección
-                    settingsViewModel.updateIsGuardianRegister(contact, false)
+                    settingsViewModel.updateIsGuardianRegister(amigoPhoneNumber, false)
                 }
             ) {
                 Text(

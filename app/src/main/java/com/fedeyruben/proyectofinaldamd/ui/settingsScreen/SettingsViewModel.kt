@@ -1,5 +1,9 @@
 package com.fedeyruben.proyectofinaldamd.ui.settingsScreen
 
+import android.content.ContentResolver
+import android.content.Context
+import android.database.Cursor
+import android.provider.ContactsContract
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -168,4 +172,35 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
                 Log.w("SettingsViewModelUpdate", "Error getting documents: ", e)
             }
     }
+
+    fun recuperarNombreTelefono(context: Context, userPhoneProtected: String): String {
+        var contactName = userPhoneProtected.trim() // Eliminar espacios en blanco al principio y al final
+
+        // Normalizar el número proporcionado
+        val userPhoneNormalized = userPhoneProtected.replace("\\s+".toRegex(), "").removePrefix("+")
+
+        // Consulta la agenda telefónica para obtener el nombre del contacto
+        val resolver: ContentResolver = context.contentResolver
+        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
+        )
+
+        // Comparación flexible de números normalizados
+        val selection = "REPLACE(REPLACE(${ContactsContract.CommonDataKinds.Phone.NUMBER}, ' ', ''), '+', '') = REPLACE(REPLACE(?, ' ', ''), '+', '')"
+        val selectionArgs = arrayOf(userPhoneNormalized)
+
+        // Realizar consulta a la agenda telefónica
+        val cursor: Cursor? = resolver.query(uri, projection, selection, selectionArgs, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val nameIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                contactName = it.getString(nameIndex)
+            }
+        }
+
+        return contactName
+    }
+
 }
