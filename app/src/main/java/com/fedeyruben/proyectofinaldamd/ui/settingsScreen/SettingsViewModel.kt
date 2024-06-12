@@ -80,7 +80,7 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
 
     }
 
-     fun iniciarFirestoreRecogerProtegidos() {
+     fun iniciarFirestoreRecogerProtegidos(context: Context) {
         // Recoge la coleccion de Firestore de los contactos protegidos y los incluye en la lista
         val thisPhoneUser = auth.currentUser?.phoneNumber
 
@@ -100,7 +100,7 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
                         Log.d("SettingsViewModelInit", "Request: $request")
                         val phoneNumber = request.keys.first()
                         val isAccepted = request.values.first()
-                        val userProtected = UserProtected(phoneNumber, isAccepted)
+                        val userProtected = UserProtected(phoneNumber, recuperarNombreTelefono(context, phoneNumber), isAccepted)
 
                         // Si el contacto no está en la lista de contactos protegidos, lo añade
                         // Y si el contacto está en la lista de contactos protegidos, lo actualiza
@@ -130,7 +130,7 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
         }
     }
 
-    fun updateIsGuardianRegister(userPhoneProtected: String, isAccepted: Boolean) {
+    fun updateIsGuardianRegister(userPhoneProtected: String, isAccepted: Boolean, context: Context) {
         val thisPhoneUser = auth.currentUser?.phoneNumber
 
         // Consulta Firestore para obtener el documento con el array de request
@@ -158,7 +158,7 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
                             Log.d("SettingsViewModelUpdate", "DocumentSnapshot successfully updated!")
 
                             // Actualiza la base de datos local
-                            val userProtected = UserProtected(userPhoneProtected, isAccepted)
+                            val userProtected = UserProtected(userPhoneProtected, recuperarNombreTelefono(context, userPhoneProtected),isAccepted)
                             viewModelScope.launch(Dispatchers.IO) {
                                 userDatabaseDaoRepositoryImp.updateRequestProtected(userProtected)
                             }
@@ -200,7 +200,27 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
             }
         }
 
+        if(contactName == userPhoneProtected) {
+            contactName = "Desconocido $userPhoneProtected"
+        }
+
         return contactName
+    }
+
+    // Funcion para contar cuantos protegidosOrdenados hay en el listado de protegidos y cuantos en solicitudes de proteccion
+    fun countProtectedAndRequests(
+        protectedGuardiansContactsList: List<UserProtected>
+    ): Pair<Int, Int> {
+        var protected = 0
+        var requests = 0
+        protectedGuardiansContactsList.forEach {
+            if (it.isProtected) {
+                protected++
+            } else {
+                requests++
+            }
+        }
+        return Pair(protected, requests)
     }
 
 }

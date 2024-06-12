@@ -16,7 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAlert
-import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Divider
@@ -41,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
+import com.fedeyruben.proyectofinaldamd.data.room.model.UserProtected
 import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.bottomBarHeight
 import com.fedeyruben.proyectofinaldamd.ui.theme.AlertCriticalColor
 import com.fedeyruben.proyectofinaldamd.ui.theme.AlertHighColor
@@ -50,7 +52,9 @@ import com.fedeyruben.proyectofinaldamd.ui.theme.AlertMidColor
 @Composable
 fun SettingsScreenInit(settingsViewModel: SettingsViewModel) {
 
-    settingsViewModel.iniciarFirestoreRecogerProtegidos()
+    val context = LocalContext.current
+
+    settingsViewModel.iniciarFirestoreRecogerProtegidos(context)
 
     val settingsList = remember {
         mutableStateListOf(
@@ -85,16 +89,14 @@ fun SettingsScreenInit(settingsViewModel: SettingsViewModel) {
                     null
                 )
             ),
-            "Contactos protegidos:" to listOf(
+            "Configura tus protegidos:" to listOf(
                 SettingsItem(
                     "Listado de Protegidos",
                     "ListProtect",
                     Icons.Default.PersonAdd,
                     null,
                     null
-                )
-            ),
-            "Acepta ser protector de:" to listOf(
+                ),
                 SettingsItem(
                     "Solicitudes de Protección",
                     "ProtectTo",
@@ -163,8 +165,14 @@ fun SettingsOption(item: SettingsItem, settingsViewModel: SettingsViewModel) {
                 }
             )
         } else {
+            val icono =
+                if (!dropdownExpanded) {
+                    Icons.Default.ArrowDropDown
+                } else {
+                    Icons.Default.ArrowDropUp
+                }
             Icon(
-                imageVector = Icons.Default.ArrowForwardIos,
+                imageVector = icono,
                 contentDescription = "Navigate",
                 modifier = Modifier.size(24.dp)
             )
@@ -184,66 +192,159 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
 
     val context = LocalContext.current
 
+    // Ordenar la lista antes de dividirla
+    val sortedProtectedGuardiansContactsList = protectedGuardiansContactsList.sortedBy { it.userProtectedName }
+
+    val (protected, requests) = settingsViewModel.countProtectedAndRequests(sortedProtectedGuardiansContactsList)
+
     when (type) {
+
         "ProtectTo" -> {
-            protectedGuardiansContactsList.forEach { amigo ->
-                if (!amigo.isProtected) {
-                    val amigoName = settingsViewModel.recuperarNombreTelefono(context, amigo.userPhoneProtected)
-                    ExpandMenuListProtect(amigoName, amigo.userPhoneProtected, settingsViewModel)
+            if (requests == 0) {
+                Text(
+                    text = "No tienes solicitudes de protección",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)
+                )
+            } else {
+                sortedProtectedGuardiansContactsList.forEach { amigo ->
+                    if (!amigo.isProtected) {
+                        val amigoName =
+                            settingsViewModel.recuperarNombreTelefono(
+                                context,
+                                amigo.userPhoneProtected
+                            )
+                        ExpandMenuProtect(
+                            amigoName,
+                            amigo.userPhoneProtected,
+                            settingsViewModel,
+                            false
+                        )
+                    }
                 }
             }
         }
 
         "ListProtect" -> {
-            protectedGuardiansContactsList.forEach { amigo ->
-                if (amigo.isProtected) {
-                    val amigoName = settingsViewModel.recuperarNombreTelefono(context, amigo.userPhoneProtected)
-                    ExpandMenuProtectTo(amigoName, amigo.userPhoneProtected, settingsViewModel)
+            if (protected == 0) {
+                Text(
+                    text = "No tienes protegidos",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)
+
+                )
+            } else {
+                sortedProtectedGuardiansContactsList.forEach { amigo ->
+                    if (amigo.isProtected) {
+                        val amigoName =
+                            settingsViewModel.recuperarNombreTelefono(
+                                context,
+                                amigo.userPhoneProtected
+                            )
+                        ExpandMenuProtect(
+                            amigoName,
+                            amigo.userPhoneProtected,
+                            settingsViewModel,
+                            true
+                        )
+                    }
                 }
             }
         }
 
         "LowGuardian" -> {
-            guardianAlertLevelList.forEach { contact ->
-                if (contact.low) {
-                    ViewFriendGuardian(amigos, contact, 0, settingsViewModel)
+            val noTrueLow = hasNoTrue(guardianAlertLevelList) { it.low }
+            if (noTrueLow) {
+                Text(
+                    text = "No tienes guardianes en este nivel",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)
+                )
+            } else {
+                guardianAlertLevelList.forEach { contact ->
+                    if (contact.low) {
+                        ViewFriendGuardian(amigos, contact, 0, settingsViewModel)
+                    }
                 }
             }
         }
 
         "MidGuardian" -> {
-            guardianAlertLevelList.forEach { contact ->
-                if (contact.medium) {
-                    ViewFriendGuardian(amigos, contact, 1, settingsViewModel)
+            val noTrueMedium = hasNoTrue(guardianAlertLevelList) { it.medium }
+            if (noTrueMedium) {
+                Text(
+                    text = "No tienes guardianes en este nivel",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)                )
+            } else {
+                guardianAlertLevelList.forEach { contact ->
+                    if (contact.medium) {
+                        ViewFriendGuardian(amigos, contact, 1, settingsViewModel)
+                    }
                 }
             }
         }
 
         "HighGuardian" -> {
-            guardianAlertLevelList.forEach { contact ->
-                if (contact.high) {
-                    ViewFriendGuardian(amigos, contact, 2, settingsViewModel)
+            val noTrueHigh = hasNoTrue(guardianAlertLevelList) { it.high }
+            if (noTrueHigh) {
+                Text(
+                    text = "No tienes guardianes en este nivel",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)                )
+            } else {
+                guardianAlertLevelList.forEach { contact ->
+                    if (contact.high) {
+                        ViewFriendGuardian(amigos, contact, 2, settingsViewModel)
+                    }
                 }
             }
         }
 
         "MaxGuardian" -> {
-            guardianAlertLevelList.forEach { contact ->
-                if (contact.critical) {
-                    ViewFriendGuardian(amigos, contact, 3, settingsViewModel)
+            val noTrueCritical = hasNoTrue(guardianAlertLevelList) { it.critical }
+            if (noTrueCritical) {
+                Text(
+                    text = "No tienes guardianes en este nivel",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)                )
+            } else {
+                guardianAlertLevelList.forEach { contact ->
+                    if (contact.critical) {
+                        ViewFriendGuardian(amigos, contact, 3, settingsViewModel)
+                    }
                 }
             }
         }
-
     }
 }
 
+
+// Función auxiliar para verificar si ningún elemento cumple con el predicado
+private fun <T> hasNoTrue(list: List<T>, predicate: (T) -> Boolean): Boolean {
+    for (item in list) {
+        if (predicate(item)) {
+            return false
+        }
+    }
+    return true
+}
+
+
 @Composable
-fun ExpandMenuListProtect(
+fun ExpandMenuProtect(
     amigoName: String,
     amigoPhoneNumber: String,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    isProtected: Boolean
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -264,58 +365,19 @@ fun ExpandMenuListProtect(
             )
             TextButton(
                 onClick = {
-                    // Acción para rechazar la solicitud de protección
-                    settingsViewModel.updateIsGuardianRegister(amigoPhoneNumber, true)
+                    // Acción para aceptar o quitar la protección
+                    settingsViewModel.updateIsGuardianRegister(amigoPhoneNumber, !isProtected, context)
                 }
             ) {
                 Text(
-                    text = "Aceptar",
-                    color = AlertLowColor
+                    text = if (isProtected) "Quitar" else "Aceptar",
+                    color = if (isProtected) AlertHighColor else AlertLowColor
                 )
             }
         }
     }
 }
 
-
-@Composable
-fun ExpandMenuProtectTo(
-    amigoName: String,
-    amigoPhoneNumber: String,
-    settingsViewModel: SettingsViewModel
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = {})
-            .padding(start = 26.dp, end = 16.dp, top = 2.dp, bottom = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically // Alineación vertical al centro
-
-        ) {
-            Text(
-                text = amigoName,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Start, // Cambiado a Start
-                modifier = Modifier.weight(1f) // Añadir peso para ocupar el espacio disponible
-            )
-            TextButton(
-                onClick = {
-                    // Acción para aceptar la solicitud de protección
-                    settingsViewModel.updateIsGuardianRegister(amigoPhoneNumber, false)
-                }
-            ) {
-                Text(
-                    text = "Quitar",
-                    color = AlertHighColor
-                )
-            }
-        }
-    }
-}
 
 
 @Composable

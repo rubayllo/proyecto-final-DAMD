@@ -10,6 +10,9 @@ data class UserProtected(
     @ColumnInfo(name = "user_phone_protected")
     val userPhoneProtected: String,
 
+    @ColumnInfo(name = "user_protected_name")
+    val userProtectedName: String,
+
     @ColumnInfo(name = "isProtected")
     val isProtected: Boolean
 )
