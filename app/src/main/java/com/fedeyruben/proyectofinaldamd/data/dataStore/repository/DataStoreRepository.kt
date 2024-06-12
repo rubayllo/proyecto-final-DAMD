@@ -7,4 +7,5 @@ interface DataStoreRepository {
     suspend fun saveAllData(phone: String, isRegister: Boolean)
     suspend fun deleteUser()
     fun getAllDataUser(): Flow<UserData>
+    suspend fun saveToken(token: String)
 }

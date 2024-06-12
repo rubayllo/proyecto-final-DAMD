@@ -20,6 +20,7 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -113,11 +114,11 @@ class RegisterViewModel @Inject constructor(
                 .get()
                 .addOnSuccessListener { documents ->
                     if (documents.isEmpty) {
-                        // Usuario no está registrado, agregar a Firestore
                         viewModelScope.launch(Dispatchers.IO) {
                             try {
                                 val user = hashMapOf(
-                                    "phoneUser" to verifyPhoneUserRegister
+                                    "phoneUser" to verifyPhoneUserRegister,
+                                    "fcmToken" to getCurrentToken() // Guarda el token FCM
                                 )
 
                                 firestore.collection("users").add(user)
@@ -145,7 +146,15 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-
+    private fun getCurrentToken(): String? {
+        var currentToken: String? = null
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                currentToken = task.result
+            }
+        }
+        return currentToken
+    }
 
     fun onCountryChange(country: CountriesModel) {
         _country.value = country.country

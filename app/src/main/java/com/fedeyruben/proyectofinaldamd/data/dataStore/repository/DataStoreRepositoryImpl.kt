@@ -17,6 +17,7 @@ class DataStoreRepositoryImpl @Inject constructor(
     /** Clave para acceder a las credenciales del usuario **/
     private val phoneNumber = stringPreferencesKey("user_phone_number")
     private val isRegister = booleanPreferencesKey("is_register")
+    private val fcmTokenKey = stringPreferencesKey("fcm_token")
 
     /** Funcion para almacenar los datos en local necesito contexto y clave **/
     override suspend fun saveAllData(phone: String, isRegister: Boolean) {
@@ -41,6 +42,12 @@ class DataStoreRepositoryImpl @Inject constructor(
                 phoneNumber = preferences[stringPreferencesKey("user_phone_number")].orEmpty(),
                 isRegister = preferences[booleanPreferencesKey("is_register")] ?: false
             )
+        }
+    }
+
+    override suspend fun saveToken(token: String) {
+        dataStore.edit { editor ->
+            editor[fcmTokenKey] = token
         }
     }
 }

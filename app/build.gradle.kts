@@ -96,6 +96,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.messaging.ktx)
     implementation(libs.play.services.safetynet)
 
     //RealtimeDB
@@ -142,5 +144,7 @@ dependencies {
 
     // Convertir instrucciones html google maps
     implementation ("org.jsoup:jsoup:1.14.3")
+
+
 
 }

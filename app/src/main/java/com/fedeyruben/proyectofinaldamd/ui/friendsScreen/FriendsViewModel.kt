@@ -287,25 +287,32 @@ class FriendsViewModel @Inject constructor(
     }
 
     /** Método para enviar la alerta */
+
     fun sendAlert(level: Int, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         viewModelScope.launch {
             try {
+                // Obtiene la ubicación actual desde el servicio de actualizaciones de ubicación
                 val location = LocationUpdateService.currentLocation.value
                 if (location != null) {
+                    // Crea un mapa de datos con el nivel de alerta y la ubicación (latitud y longitud)
                     val alertData = hashMapOf(
                         "level" to level.toString(),
                         "latitude" to location.latitude.toString(),
                         "longitude" to location.longitude.toString()
                     )
+                    // Guarda la alerta en Firestore en la colección "alerts"
                     firestore.collection("alerts")
                         .add(alertData)
                         .addOnSuccessListener {
                             Log.d("sendAlert", "Alerta enviada: $alertData")
+                            // Notifica a los guardianes sobre la alerta
                             notifyGuardians(level, alertData)
+                            // Llama a la función de éxito
                             onSuccess()
                         }
                         .addOnFailureListener { e ->
                             Log.e("sendAlert", "Error al enviar la alerta: ${e.message}")
+                            // Llama a la función de fallo con la excepción
                             onFailure(e)
                         }
                 } else {
@@ -318,32 +325,41 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
+
     private fun notifyGuardians(level: Int, alertData: HashMap<String, String>) {
         viewModelScope.launch {
+            // Recupera todos los guardianes del usuario desde la base de datos local
             userDatabaseDaoRepositoryImp.getAllGuardians().collect { guardians ->
                 guardians.forEach { guardian ->
-                    val guardianAlertLevel = _guardianAlertLevelList.value.find { it.userGuardianId == guardian.guardianPhoneNumber }
-
-                    if (guardianAlertLevel != null && shouldNotifyGuardian(level, guardianAlertLevel)) {
-                        val message = RemoteMessage.Builder("${guardian.guardianPhoneNumber}@fcm.googleapis.com")
-                            .setMessageId(UUID.randomUUID().toString())
-                            .setData(alertData)
-                            .build()
-
-                        try {
-                            FirebaseMessaging.getInstance().send(message)
-                            Log.d("notifyGuardians", "Notificación enviada a ${guardian.guardianPhoneNumber}: $alertData")
-                        } catch (e: Exception) {
-                            Log.e("notifyGuardians", "Error al enviar la notificación a ${guardian.guardianPhoneNumber}: ${e.message}")
+                    // Busca en Firestore el documento del guardián para obtener su token FCM
+                    firestore.collection("users")
+                        .whereEqualTo("phoneUser", guardian.guardianPhoneNumber)
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            for (document in documents) {
+                                val token = document.getString("fcmToken")
+                                if (token != null) {
+                                    // Envía la notificación al token FCM del guardián
+                                    sendNotification(token, alertData)
+                                }
+                            }
                         }
-                    } else {
-                        Log.d("notifyGuardians", "Guardían no notificado: ${guardian.guardianPhoneNumber}")
-                    }
                 }
             }
         }
     }
 
+
+    private fun sendNotification(token: String, alertData: HashMap<String, String>) {
+        val message = RemoteMessage.Builder("$token@fcm.googleapis.com")
+            .setMessageId(UUID.randomUUID().toString())
+            .setData(alertData)
+            .build()
+
+        FirebaseMessaging.getInstance().send(message)
+    }
+
+    /** Filtrar por tipo de alerta , para no enviar a todos los amigos*/
     private fun shouldNotifyGuardian(level: Int, guardianAlertLevel: GuardianAlertLevel): Boolean {
         return when (level) {
             0 -> guardianAlertLevel.low

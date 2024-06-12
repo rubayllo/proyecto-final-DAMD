@@ -1,25 +1,41 @@
 package com.fedeyruben.proyectofinaldamd.data.firebase.cloudMessaging
 
+
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fedeyruben.proyectofinaldamd.R
+import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
 import com.fedeyruben.proyectofinaldamd.ui.MainActivity
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MyFirebaseMessagingService : FirebaseMessagingService() {
+@AndroidEntryPoint
+class MyFirebaseMessagingService @Inject constructor(
+    private val dataStoreRepository: DataStoreRepository
+) : FirebaseMessagingService() {
+
     @SuppressLint("MissingPermission")
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        // Obtener datos de la notificación
+        // Obtiene los datos de la notificación y la carga útil
         val title = remoteMessage.notification?.title ?: "Alerta"
         val body = remoteMessage.notification?.body ?: ""
         val latitude = remoteMessage.data["latitude"]?.toDoubleOrNull()
@@ -27,16 +43,16 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         Log.d("MyFirebaseMessagingService", "Notificación recibida: Title: $title, Body: $body, Lat: $latitude, Long: $longitude")
 
-        // Crear intent para abrir la actividad principal al hacer clic en la notificación
+        // Crea un Intent para abrir la MainActivity cuando se toque la notificación
         val notificationIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("latitude", latitude)
             putExtra("longitude", longitude)
         }
 
-        // Crear la notificación
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT)
+        // Crea un PendingIntent para el Intent anterior
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        // Construye la notificación
         val notificationBuilder = NotificationCompat.Builder(this, "alert_channel")
             .setContentTitle(title)
             .setContentText(body)
@@ -44,17 +60,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 
-        // Mostrar la notificación
+        // Muestra la notificación
         with(NotificationManagerCompat.from(this)) {
             notify(0, notificationBuilder.build())
         }
 
-        // Confirmación de recepción
+        // Envía una confirmación de recepción
         sendReceiptConfirmation(latitude, longitude)
     }
 
+    // Envía una confirmación de recepción a Firestore
     private fun sendReceiptConfirmation(latitude: Double?, longitude: Double?) {
-        val userId = getUserId() // Obtener el ID del usuario actual
+        val userId = getUserId()
         val receiptData = hashMapOf(
             "userId" to userId,
             "latitude" to latitude.toString(),
@@ -71,9 +88,45 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
     }
 
+    // Maneja la actualización del token FCM
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        Log.d("MyFirebaseMessagingService", "Refreshed token: $token")
+
+        // Guarda el token en Firestore
+        sendRegistrationToServer(token)
+        // Guarda el token en DataStore
+        saveTokenToLocal(token)
+    }
+
+    // Guarda el token en Firestore
+    private fun sendRegistrationToServer(token: String) {
+        val userId = getUserId()
+        val userTokenData = hashMapOf(
+            "userId" to userId,
+            "token" to token
+        )
+        Firebase.firestore.collection("user_tokens")
+            .document(userId)
+            .set(userTokenData)
+            .addOnSuccessListener {
+                Log.d("MyFirebaseMessagingService", "Token guardado en Firestore.")
+            }
+            .addOnFailureListener { e ->
+                Log.e("MyFirebaseMessagingService", "Error al guardar token: ${e.message}")
+            }
+    }
+
+    // Guarda el token en DataStore
+    private fun saveTokenToLocal(token: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            dataStoreRepository.saveToken(token)
+        }
+    }
+
+    // Obtiene el ID del usuario actual
     private fun getUserId(): String {
-        // Implementar la lógica para obtener el ID del usuario actual
-        return "user_id_example"
+        val user = FirebaseAuth.getInstance().currentUser
+        return user?.uid ?: "unknown_user"
     }
 }
-
