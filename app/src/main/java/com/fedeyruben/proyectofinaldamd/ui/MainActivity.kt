@@ -8,17 +8,21 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
-import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepositoryImpl
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils.permissionsList
 import com.fedeyruben.proyectofinaldamd.data.permissions.ShowPermissionExplanationDialog
-import com.fedeyruben.proyectofinaldamd.data.permissions.permissionRequest
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
@@ -31,17 +35,18 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val friendsViewModel : FriendsViewModel by viewModels()
-    private val settingsViewModel : SettingsViewModel by viewModels()
-    private val registerViewModel : RegisterViewModel by viewModels()
+    private val friendsViewModel: FriendsViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val registerViewModel: RegisterViewModel by viewModels()
 
     /** Acceso a la agenda telefonica */
-    private val pickContactResultLauncher = registerForActivityResult(ActivityResultContracts.PickContact()) { uri: Uri? ->
-        uri?.let {
-            Log.i("ok","${it.userInfo}")
-            friendsViewModel.readContactData(this, uri)
+    private val pickContactResultLauncher =
+        registerForActivityResult(ActivityResultContracts.PickContact()) { uri: Uri? ->
+            uri?.let {
+                Log.i("ok", "${it.userInfo}")
+                friendsViewModel.readContactData(this, uri)
+            }
         }
-    }
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,11 +70,15 @@ class MainActivity : ComponentActivity() {
                         )
                         val permissionState =
                             rememberMultiplePermissionsState(permissions = permissionsList)
+                        var isDialogShown by rememberSaveable { mutableStateOf(false) }
 
-                        if (!isPermissionsGranted && registered) {
-                            requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
-                        } else if (!permissionState.allPermissionsGranted && !isPermissionsGranted && registered) {
-                            ShowPermissionExplanationDialog()
+                        if (!permissionState.allPermissionsGranted && registered) {
+                            if (!isDialogShown) {
+                                requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
+                                isDialogShown = true
+                            } else if (!permissionState.shouldShowRationale) {
+                                ShowPermissionExplanationDialog()
+                            }
                         }
                     }
                 }
@@ -77,15 +86,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private var isPermissionsGranted = false
 
     private val requestMultiplePermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            val allPermissionsGranted = permissions.all { isGranted ->
-                isGranted.value
-            }
-            if (allPermissionsGranted) {
-                isPermissionsGranted = true
+            permissions.entries.forEach {
+                Log.d("Permission", "${it.key} = ${it.value}")
             }
         }
 

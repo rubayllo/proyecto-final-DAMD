@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalContext
             text = {
                 Text(
                     "Necesitamos acceso a tu ubicación, contactos y al estado de tú dispositivo móvil para proporcionarte una mejor experiencia. " +
-                            "Por favor, concede los permisos en la configuración de la aplicación."
+                            "Por favor, concede los permisos en la configuración de la aplicación. Una vez concedidos podrás seguir disfrutando de la aplicación."
                 )
             },
             confirmButton = {
