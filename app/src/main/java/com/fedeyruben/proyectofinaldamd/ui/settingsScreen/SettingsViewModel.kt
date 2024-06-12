@@ -55,7 +55,7 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
                 if (item.isNotEmpty()) {
                     _userGuardiansContactsList.value = emptyList()
                 }
-                _userGuardiansContactsList.value = item
+                _userGuardiansContactsList.value = item.sortedBy { it.guardianName }
             }
         }
 
@@ -73,7 +73,7 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
                 if (item.isNotEmpty()) {
                     _protectedGuardiansContactsList.value = emptyList()
                 }
-                _protectedGuardiansContactsList.value = item
+                _protectedGuardiansContactsList.value = item.sortedBy { it.userProtectedName }
                 Log.d("SettingsViewModelInit", "ProtectedGuardiansContactsList: $item")
             }
         }

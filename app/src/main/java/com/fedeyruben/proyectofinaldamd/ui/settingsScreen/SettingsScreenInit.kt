@@ -192,10 +192,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
 
     val context = LocalContext.current
 
-    // Ordenar la lista antes de dividirla
-    val sortedProtectedGuardiansContactsList = protectedGuardiansContactsList.sortedBy { it.userProtectedName }
-
-    val (protected, requests) = settingsViewModel.countProtectedAndRequests(sortedProtectedGuardiansContactsList)
+    val (protected, requests) = settingsViewModel.countProtectedAndRequests(protectedGuardiansContactsList)
 
     when (type) {
 
@@ -208,7 +205,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
                         .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)
                 )
             } else {
-                sortedProtectedGuardiansContactsList.forEach { amigo ->
+                protectedGuardiansContactsList.forEach { amigo ->
                     if (!amigo.isProtected) {
                         val amigoName =
                             settingsViewModel.recuperarNombreTelefono(
@@ -236,7 +233,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
 
                 )
             } else {
-                sortedProtectedGuardiansContactsList.forEach { amigo ->
+                protectedGuardiansContactsList.forEach { amigo ->
                     if (amigo.isProtected) {
                         val amigoName =
                             settingsViewModel.recuperarNombreTelefono(
