@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils.permissionsList
 import com.fedeyruben.proyectofinaldamd.data.permissions.ShowPermissionExplanationDialog
+import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertViewModel
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
@@ -41,6 +42,7 @@ class MainActivity : ComponentActivity() {
     private val friendsViewModel: FriendsViewModel by viewModels()
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val registerViewModel: RegisterViewModel by viewModels()
+    private val alertViewModel: AlertViewModel by viewModels()
 
     /** Acceso a la agenda telefonica */
     private val pickContactResultLauncher =
@@ -69,7 +71,8 @@ class MainActivity : ComponentActivity() {
                             settingsViewModel,
                             registerViewModel,
                             this@MainActivity,
-                            registered
+                            registered,
+                            alertViewModel
                         )
                         val permissionState =
                             rememberMultiplePermissionsState(permissions = permissionsList)
@@ -89,7 +92,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     private fun startLocationService() {
         val intent = Intent(this, LocationUpdateService::class.java)
         startService(intent)
@@ -101,6 +103,5 @@ class MainActivity : ComponentActivity() {
                 Log.d("Permission", "${it.key} = ${it.value}")
             }
         }
-
 }
 

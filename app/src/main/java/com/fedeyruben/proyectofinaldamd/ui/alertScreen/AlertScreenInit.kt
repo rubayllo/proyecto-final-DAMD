@@ -42,7 +42,7 @@ import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun AlertScreenInit(friendsViewModel: FriendsViewModel) {
+fun AlertScreenInit(alertViewModel: AlertViewModel) {
     val alerts = listOf(
         "Nivel de alerta bajo" to Icons.Default.Warning,
         "Nivel de alerta medio" to Icons.Default.Warning,
@@ -107,7 +107,7 @@ fun AlertScreenInit(friendsViewModel: FriendsViewModel) {
     }
 
     if (showCountdownDialog) {
-        CountdownDialog(friendsViewModel, currentAlert) {
+        CountdownDialog(alertViewModel, currentAlert) {
             showCountdownDialog = false
             alertSent = true
         }
@@ -120,7 +120,7 @@ fun AlertScreenInit(friendsViewModel: FriendsViewModel) {
             text = { Text("¿Quiere cancelar la alerta?") },
             confirmButton = {
                 Button(onClick = {
-                    friendsViewModel.cancelAlert(currentAlert)
+                    alertViewModel.cancelAlert(currentAlert)
                     alertSent = false
                     cancelAlertDialog = false
                 }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
@@ -140,7 +140,7 @@ fun AlertScreenInit(friendsViewModel: FriendsViewModel) {
 }
 
 @Composable
-fun CountdownDialog(friendsViewModel: FriendsViewModel, alertLevel: String, onDismiss: () -> Unit) {
+fun CountdownDialog(alertViewModel: AlertViewModel, alertLevel: String, onDismiss: () -> Unit) {
     var countdown by remember { mutableStateOf(10) }
     var showAlertSent by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -151,7 +151,7 @@ fun CountdownDialog(friendsViewModel: FriendsViewModel, alertLevel: String, onDi
             countdown--
         }
         if (!showAlertSent) {
-            friendsViewModel.sendAlert(alertLevel, {
+            alertViewModel.sendAlert(alertLevel, {
                 Log.i("ALERT", "Alerta enviada con éxito")
                 showAlertSent = true
                 onDismiss()

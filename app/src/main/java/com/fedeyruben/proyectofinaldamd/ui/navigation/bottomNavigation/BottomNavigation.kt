@@ -37,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertScreenInit
+import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertViewModel
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsScreenInit
@@ -50,7 +51,7 @@ val bottomBarHeight = 120.dp
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, friendsViewModel: FriendsViewModel, settingsViewModel: SettingsViewModel) {
+fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, friendsViewModel: FriendsViewModel, settingsViewModel: SettingsViewModel, alertViewModel: AlertViewModel) {
 
     /** Permisos agenda luego gestionar que si cancela dos veces lo mande a las settings*/
     val permissionsState = rememberMultiplePermissionsState(
@@ -115,7 +116,7 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
         NavHost(navController = navController, startDestination = alertTab.title) {
             composable(alertTab.title) {
                 showFab.value = false
-                AlertScreenInit(friendsViewModel)
+                AlertScreenInit(alertViewModel)
             }
             composable(friendsTab.title) {
                 showFab.value = true
