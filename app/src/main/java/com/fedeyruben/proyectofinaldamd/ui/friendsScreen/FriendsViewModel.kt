@@ -286,7 +286,9 @@ class FriendsViewModel @Inject constructor(private val userDatabaseDaoRepository
 
                         if (existingGuardian) {
                             // El guardián está en el array, eliminarlo
-                            val guardianToRemove = mapOf(thisPhoneUser to false)
+                            val guardianValue = requestList?.find { it.containsKey(thisPhoneUser) }?.get(thisPhoneUser)
+                            val guardianToRemove = mapOf(thisPhoneUser to guardianValue)
+
                             firestore.collection("guardian_request")
                                 .document(document.id)
                                 .update("request", FieldValue.arrayRemove(guardianToRemove))
