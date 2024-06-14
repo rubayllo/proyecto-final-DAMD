@@ -49,10 +49,6 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
         MutableStateFlow<List<UserProtected>>(emptyList())
     val protectedGuardiansContactsList = _protectedGuardiansContactsList.asStateFlow()
 
-    // Observa las alertas
-    private val _friendAlertLocation = MutableLiveData<LatLng?>()
-    val friendAlertLocation: LiveData<LatLng?> = _friendAlertLocation
-
     // Firebase firestore
     private val firestore = Firebase.firestore
     private val auth = Firebase.auth
@@ -85,36 +81,6 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
                 Log.d("SettingsViewModelInit", "ProtectedGuardiansContactsList: $item")
             }
         }
-
-        listenForFriendsAlerts()
-    }
-
-    // Method to listen for friend's alerts
-    fun listenForFriendsAlerts() {
-        val userPhoneNumber = auth.currentUser?.phoneNumber
-        userPhoneNumber?.let { phoneNumber ->
-            firestore.collection("Alerts")
-                .whereEqualTo("isAlert", true)
-                .addSnapshotListener { snapshots, e ->
-                    if (e != null) {
-                        Log.w("SettingsViewModel", "Listen failed.", e)
-                        return@addSnapshotListener
-                    }
-
-                    for (doc in snapshots!!) {
-                        val geoPoint = doc.getGeoPoint("geoPoint")
-                        if (geoPoint != null) {
-                            val latLng = LatLng(geoPoint.latitude, geoPoint.longitude)
-                            _friendAlertLocation.postValue(latLng)
-                        }
-                    }
-                }
-        }
-    }
-
-
-    private fun openMapWithCoordinates(latitude: Double, longitude: Double) {
-
     }
 
      fun iniciarFirestoreRecogerProtegidos(context: Context) {

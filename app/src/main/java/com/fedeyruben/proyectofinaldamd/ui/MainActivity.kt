@@ -9,24 +9,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils.permissionsList
 import com.fedeyruben.proyectofinaldamd.data.permissions.ShowPermissionExplanationDialog
 import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertViewModel
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
+import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
@@ -43,6 +39,7 @@ class MainActivity : ComponentActivity() {
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val registerViewModel: RegisterViewModel by viewModels()
     private val alertViewModel: AlertViewModel by viewModels()
+    private val mapViewModel: MapViewModel by viewModels()
 
     /** Acceso a la agenda telefonica */
     private val pickContactResultLauncher =
@@ -72,7 +69,8 @@ class MainActivity : ComponentActivity() {
                             registerViewModel,
                             this@MainActivity,
                             registered,
-                            alertViewModel
+                            alertViewModel,
+                            mapViewModel
                         )
                         val permissionState =
                             rememberMultiplePermissionsState(permissions = permissionsList)

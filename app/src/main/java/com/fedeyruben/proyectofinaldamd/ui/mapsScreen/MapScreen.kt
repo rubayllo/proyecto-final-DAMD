@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,7 +60,10 @@ import org.jsoup.Jsoup
 import java.io.IOException
 
 @Composable
-fun MapScreenInit() {
+fun MapScreenInit(mapViewModel: MapViewModel) {
+
+    val endPoint by mapViewModel.friendAlertLocation.observeAsState()
+
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     val cameraPositionState = rememberCameraPositionState()
@@ -70,7 +74,6 @@ fun MapScreenInit() {
     var distance by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
-    val endPoint = LatLng(36.58929, -4.5814) // Punto de alerta
     var zoomedOut by remember { mutableStateOf(false) }
 
     // Función para solicitar permiso de ubicación
@@ -101,22 +104,24 @@ fun MapScreenInit() {
     Column(modifier = Modifier.fillMaxSize()) {
         NavigationInstruction(instructions) // Instrucciones de navegación en la parte superior
         Box(modifier = Modifier.weight(1f)) {
-            GetMapScreen(userLocation, pathPoints, cameraPositionState, endPoint)
-            NavigationControls(
-                userLocation = userLocation,
-                pathPoints = pathPoints,
-                endPoint = endPoint,
-                cameraPositionState = cameraPositionState,
-                zoomedOut = zoomedOut,
-                isNavigating = isNavigating,
-                onZoomToggle = { zoomedOut = !zoomedOut }
-            )
+            GetMapScreen(userLocation, pathPoints, cameraPositionState, endPoint!!)
+            endPoint?.let {
+                NavigationControls(
+                    userLocation = userLocation,
+                    pathPoints = pathPoints,
+                    endPoint = it,
+                    cameraPositionState = cameraPositionState,
+                    zoomedOut = zoomedOut,
+                    isNavigating = isNavigating,
+                    onZoomToggle = { zoomedOut = !zoomedOut }
+                )
+            }
         }
         if (userLocation != null && !isNavigating) {
             Button(
                 onClick = {
                     isNavigating = true
-                    startNavigation(userLocation!!, endPoint, context, coroutineScope) { newLocation, newPathPoints, newInstruction, newDistance, newDuration ->
+                    startNavigation(userLocation!!, endPoint!!, context, coroutineScope) { newLocation, newPathPoints, newInstruction, newDistance, newDuration ->
                         userLocation = newLocation
                         pathPoints = newPathPoints
                         instructions = newInstruction

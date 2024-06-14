@@ -51,11 +51,8 @@ import com.fedeyruben.proyectofinaldamd.ui.theme.AlertMidColor
 
 @Composable
 fun SettingsScreenInit(settingsViewModel: SettingsViewModel) {
-
     val context = LocalContext.current
-
     settingsViewModel.iniciarFirestoreRecogerProtegidos(context)
-
     val settingsList = remember {
         mutableStateListOf(
             "Configura tus guardianes:" to listOf(
