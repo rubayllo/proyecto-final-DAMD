@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,43 +39,44 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun AlertScreenInit(alertViewModel: AlertViewModel) {
+fun AlertScreenInit(alertViewModel: AlertViewModel ) {
     val alerts = listOf(
         "Nivel de alerta bajo" to Icons.Default.Warning,
         "Nivel de alerta medio" to Icons.Default.Warning,
         "Nivel de alerta alto" to Icons.Default.Warning,
-        "Nivel de alerta maximo" to Icons.Default.Warning,
+        "Nivel de alerta máximo" to Icons.Default.Warning,
     )
 
-    // Estados para manejar la visibilidad y el texto de los diálogos
+    val alertStatus by alertViewModel.alertStatus.collectAsState()
+    val canceled by alertViewModel.canceled.collectAsState()
+
     var showAlertConfirmDialog by remember { mutableStateOf(false) }
+    var showCancelAlertDialog by remember { mutableStateOf(false) }
     var currentAlert by remember { mutableStateOf("") }
     var showCountdownDialog by remember { mutableStateOf(false) }
-    var alertSent by remember { mutableStateOf(false) }
-    var cancelAlertDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .padding(bottom = 72.dp), // Margen inferior para dejar espacio para BottomNavigation
+            .padding(bottom = 72.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         alerts.forEachIndexed { index, alert ->
+            val alertSent = alertStatus[alert.first] ?: false
             AlertButton(
-                text = if (alertSent && currentAlert == alert.first) "¡¡¡ALERTA EN CURSO!!!" else alert.first,
+                text = if (alertSent) "¡¡¡ALERTA EN CURSO!!!" else alert.first,
                 icon = alert.second,
-                color = getIconColor(index), // Obtener color diferente para cada icono
+                color = getIconColor(index),
                 onClick = {
-                    if (alertSent && currentAlert == alert.first) {
-                        cancelAlertDialog = true
+                    currentAlert = alert.first
+                    if (alertSent) {
+                        showCancelAlertDialog = true
                     } else {
-                        currentAlert = alert.first
                         showAlertConfirmDialog = true
                     }
                 }
@@ -91,6 +93,7 @@ fun AlertScreenInit(alertViewModel: AlertViewModel) {
                 Button(onClick = {
                     showAlertConfirmDialog = false
                     showCountdownDialog = true
+                    alertViewModel.resetCanceled()  // Reset canceled state
                 }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
                     Text("Confirmar")
                 }
@@ -107,32 +110,29 @@ fun AlertScreenInit(alertViewModel: AlertViewModel) {
     }
 
     if (showCountdownDialog) {
-        CountdownDialog(alertViewModel, currentAlert) {
-            showCountdownDialog = false
-            alertSent = true
-        }
+        CountdownDialog(alertViewModel, currentAlert) { showCountdownDialog = false }
     }
 
-    if (cancelAlertDialog) {
+    if (showCancelAlertDialog) {
         AlertDialog(
-            onDismissRequest = { cancelAlertDialog = false },
+            onDismissRequest = { showCancelAlertDialog = false },
             title = { Text("Cancelar Alerta") },
-            text = { Text("¿Quiere cancelar la alerta?") },
+            text = { Text("¿Quiere cancelar la alerta de $currentAlert?") },
             confirmButton = {
                 Button(onClick = {
+                    alertViewModel.setAlertStatus(currentAlert, false)
                     alertViewModel.cancelAlert(currentAlert)
-                    alertSent = false
-                    cancelAlertDialog = false
+                    showCancelAlertDialog = false
                 }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
-                    Text("OK")
+                    Text("Sí")
                 }
             },
             dismissButton = {
                 Button(
-                    onClick = { cancelAlertDialog = false },
+                    onClick = { showCancelAlertDialog = false },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
                 ) {
-                    Text("Cerrar")
+                    Text("No")
                 }
             }
         )
@@ -144,16 +144,18 @@ fun CountdownDialog(alertViewModel: AlertViewModel, alertLevel: String, onDismis
     var countdown by remember { mutableStateOf(10) }
     var showAlertSent by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val canceled by alertViewModel.canceled.collectAsState()
 
     LaunchedEffect(key1 = true) {
-        while (countdown > 0) {
+        while (countdown > 0 && !canceled) {
             delay(1000)
             countdown--
         }
-        if (!showAlertSent) {
+        if (!canceled) {
             alertViewModel.sendAlert(alertLevel, {
                 Log.i("ALERT", "Alerta enviada con éxito")
                 showAlertSent = true
+                alertViewModel.setAlertStatus(alertLevel, true)
                 onDismiss()
             }, { error ->
                 Log.e("ALERT", "Error al enviar la alerta: ${error.localizedMessage}")
@@ -167,10 +169,18 @@ fun CountdownDialog(alertViewModel: AlertViewModel, alertLevel: String, onDismis
         AlertSentDialog(onDismiss)
     } else {
         AlertDialog(
-            onDismissRequest = {},
+            onDismissRequest = { alertViewModel.setCanceled(true); onDismiss() },
             title = { Text("Enviando Alerta") },
             text = { Text("¡¡¡ESTÁ ENVIANDO UNA ALERTA!!!\nEnviando en $countdown segundos.") },
             confirmButton = {
+                Button(
+                    onClick = {
+                        alertViewModel.setCanceled(true)
+                        onDismiss()
+                    }
+                ) {
+                    Text("Cancelar")
+                }
             }
         )
     }
@@ -182,21 +192,21 @@ fun AlertButton(text: String, icon: ImageVector, color: Color, onClick: () -> Un
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .height(120.dp) // Reducir la altura de los botones
+            .height(120.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start // Icono a la izquierda, texto a la derecha
+        horizontalArrangement = Arrangement.Start
     ) {
         Spacer(modifier = Modifier.width(16.dp))
         Icon(
             imageVector = icon,
             contentDescription = text,
             modifier = Modifier.size(64.dp),
-            tint = color // Asignar color al icono
+            tint = color
         )
-        Spacer(modifier = Modifier.width(16.dp)) // Espacio entre el icono y el texto
+        Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
@@ -206,7 +216,6 @@ fun AlertButton(text: String, icon: ImageVector, color: Color, onClick: () -> Un
     }
 }
 
-// Función para obtener colores diferentes para cada ícono
 fun getIconColor(index: Int): Color {
     return when (index) {
         0 -> Color(0xFF8BC34A)
@@ -231,6 +240,3 @@ fun AlertSentDialog(onDismiss: () -> Unit) {
         dismissButton = { },
     )
 }
-
-
-
