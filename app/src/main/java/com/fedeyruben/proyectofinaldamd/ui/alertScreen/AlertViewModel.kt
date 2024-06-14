@@ -24,31 +24,8 @@ class AlertViewModel : ViewModel() {
     private val _canceled = MutableStateFlow(false)
     val canceled: StateFlow<Boolean> = _canceled
 
-    private val _friendsInAlert = MutableStateFlow<List<Alert>>(emptyList())
-    val friendsInAlert: StateFlow<List<Alert>> = _friendsInAlert
-
-
     init {
-        listenForFriendsAlerts()
         _canceled.value = false
-    }
-
-
-    private fun listenForFriendsAlerts() {
-        val userPhoneNumber = auth.currentUser?.phoneNumber ?: return
-        firestore.collection("Alerts")
-            .whereEqualTo("isAlert", true)
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Log.w("AlertViewModel", "listen:error", e)
-                    return@addSnapshotListener
-                }
-
-                val alerts = snapshots?.documents?.mapNotNull { doc ->
-                    doc.toObject(Alert::class.java)
-                } ?: emptyList()
-                _friendsInAlert.value = alerts.filter { it.phoneNumber != userPhoneNumber }
-            }
     }
 
     fun resetCanceled() {
