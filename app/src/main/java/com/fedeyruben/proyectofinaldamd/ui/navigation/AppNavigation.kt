@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.MainActivity
+import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertViewModel
 import com.fedeyruben.proyectofinaldamd.ui.launchScreen.LaunchScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.HomeScreenInit
@@ -23,7 +24,8 @@ fun AppNavigation(
     settingsViewModel: SettingsViewModel,
     registerViewModel: RegisterViewModel,
     activity: MainActivity,
-    registered: Boolean
+    registered: Boolean,
+    alertViewModel: AlertViewModel
 ) {
     val navController = rememberNavController()
 
@@ -49,7 +51,8 @@ fun AppNavigation(
             HomeScreenInit(
                 pickContactResultLauncher,
                 friendsViewModel,
-                settingsViewModel
+                settingsViewModel,
+                alertViewModel
             )
         }
     }
