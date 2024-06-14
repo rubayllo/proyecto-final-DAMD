@@ -171,14 +171,6 @@ fun CountdownDialog(alertViewModel: AlertViewModel, alertLevel: String, onDismis
             title = { Text("Enviando Alerta") },
             text = { Text("¡¡¡ESTÁ ENVIANDO UNA ALERTA!!!\nEnviando en $countdown segundos.") },
             confirmButton = {
-                Button(
-                    onClick = {
-                        showAlertSent = true  // Asegura que no se muestre el diálogo de alerta enviada si se cancela
-                        onDismiss()
-                    }
-                ) {
-                    Text("Cancelar")
-                }
             }
         )
     }
