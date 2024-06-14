@@ -2,6 +2,7 @@ package com.fedeyruben.proyectofinaldamd.ui.mapsScreen
 
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
@@ -70,10 +71,15 @@ fun MapScreenInit() {
     var distance by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
-    val endPoint = LatLng(36.58929, -4.5814) // Punto de alerta
+    val intent = (context as? Activity)?.intent
+    val endPoint = intent?.getDoubleExtra("latitude", 0.0)?.let { lat ->
+        intent.getDoubleExtra("longitude", 0.0)?.let { lng ->
+            LatLng(lat, lng)
+        }
+    }
     var zoomedOut by remember { mutableStateOf(false) }
 
-    // Función para solicitar permiso de ubicación
+    // Function to request location permission
     fun requestLocationPermission() {
         val REQUEST_LOCATION_PERMISSION_CODE = 1001
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -81,9 +87,9 @@ fun MapScreenInit() {
         }
     }
 
-    // Efecto lanzado cuando el Composable se monta
+    // Effect launched when the Composable is mounted
     LaunchedEffect(key1 = true) {
-        // Verifica si el permiso de ubicación está concedido
+        // Check if location permission is granted
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
@@ -97,26 +103,28 @@ fun MapScreenInit() {
         }
     }
 
-    // Interfaz de usuario
+    // UI
     Column(modifier = Modifier.fillMaxSize()) {
-        NavigationInstruction(instructions) // Instrucciones de navegación en la parte superior
+        NavigationInstruction(instructions)
         Box(modifier = Modifier.weight(1f)) {
             GetMapScreen(userLocation, pathPoints, cameraPositionState, endPoint)
-            NavigationControls(
-                userLocation = userLocation,
-                pathPoints = pathPoints,
-                endPoint = endPoint,
-                cameraPositionState = cameraPositionState,
-                zoomedOut = zoomedOut,
-                isNavigating = isNavigating,
-                onZoomToggle = { zoomedOut = !zoomedOut }
-            )
+            if (endPoint != null) {
+                NavigationControls(
+                    userLocation = userLocation,
+                    pathPoints = pathPoints,
+                    endPoint = endPoint,
+                    cameraPositionState = cameraPositionState,
+                    zoomedOut = zoomedOut,
+                    isNavigating = isNavigating,
+                    onZoomToggle = { zoomedOut = !zoomedOut }
+                )
+            }
         }
         if (userLocation != null && !isNavigating) {
             Button(
                 onClick = {
                     isNavigating = true
-                    startNavigation(userLocation!!, endPoint, context, coroutineScope) { newLocation, newPathPoints, newInstruction, newDistance, newDuration ->
+                    startNavigation(userLocation!!, endPoint!!, context, coroutineScope) { newLocation, newPathPoints, newInstruction, newDistance, newDuration ->
                         userLocation = newLocation
                         pathPoints = newPathPoints
                         instructions = newInstruction
@@ -132,7 +140,28 @@ fun MapScreenInit() {
                 Text("Iniciar Navegación")
             }
         }
-        NavigationInfo(distance, duration, Modifier.padding(bottom = 56.dp)) // Ajusta el padding inferior
+        NavigationInfo(distance, duration, Modifier.padding(bottom = 56.dp))
+    }
+}
+
+@Composable
+fun GetMapScreen(userLocation: LatLng?, pathPoints: List<LatLng>, cameraPositionState: CameraPositionState, endPoint: LatLng?) {
+    GoogleMap(
+        modifier = Modifier.fillMaxSize(),
+        properties = MapProperties(isMyLocationEnabled = true),
+        uiSettings = MapUiSettings(
+            myLocationButtonEnabled = true,
+            rotationGesturesEnabled = true,
+            scrollGesturesEnabled = true
+        ),
+        cameraPositionState = cameraPositionState
+    ) {
+        if (endPoint != null) {
+            Marker(position = endPoint, title = "Alert Location", snippet = "Location of the alert")
+        }
+        if (pathPoints.isNotEmpty()) {
+            Polyline(points = pathPoints, color = Color.Blue, width = 5f)
+        }
     }
 }
 
@@ -211,25 +240,6 @@ fun NavigationInstruction(instructions: String, modifier: Modifier = Modifier) {
             fontSize = 18.sp,
             modifier = Modifier.align(Alignment.Center)
         )
-    }
-}
-
-@Composable
-fun GetMapScreen(userLocation: LatLng?, pathPoints: List<LatLng>, cameraPositionState: CameraPositionState, endPoint: LatLng) {
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        properties = MapProperties(isMyLocationEnabled = true), // Activar la ubicación estándar
-        uiSettings = MapUiSettings(
-            myLocationButtonEnabled = true,
-            rotationGesturesEnabled = true,
-            scrollGesturesEnabled = true
-        ),
-        cameraPositionState = cameraPositionState
-    ) {
-        Marker(position = endPoint, title = "Alert Location", snippet = "Location of the alert")
-        if (pathPoints.isNotEmpty()) {
-            Polyline(points = pathPoints, color = Color.Blue, width = 5f)
-        }
     }
 }
 
