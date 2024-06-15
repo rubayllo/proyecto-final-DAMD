@@ -11,12 +11,14 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils.permissionsList
 import com.fedeyruben.proyectofinaldamd.data.permissions.ShowPermissionExplanationDialog
@@ -24,6 +26,7 @@ import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertViewModel
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapViewModel
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppNavigation
+import com.fedeyruben.proyectofinaldamd.ui.navigation.AppScreensRoutes
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.theme.ProyectoFinalDAMDTheme
@@ -41,7 +44,6 @@ class MainActivity : ComponentActivity() {
     private val alertViewModel: AlertViewModel by viewModels()
     private val mapViewModel: MapViewModel by viewModels()
 
-    /** Acceso a la agenda telefonica */
     private val pickContactResultLauncher =
         registerForActivityResult(ActivityResultContracts.PickContact()) { uri: Uri? ->
             uri?.let {
@@ -56,13 +58,23 @@ class MainActivity : ComponentActivity() {
         setContent {
             ProyectoFinalDAMDTheme {
                 val isUserRegistered by registerViewModel.isUserRegistered.observeAsState(initial = false)
-                // A surface container using the 'background' color from the theme
+                val navController = rememberNavController()
+
+                LaunchedEffect(mapViewModel.friendAlertLocation) {
+                    mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
+                        if (alertLocation != null) {
+                            navController.navigate(AppScreensRoutes.MapScreen.route)
+                        }
+                    }
+                }
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     isUserRegistered?.let { registered ->
                         AppNavigation(
+                            navController,
                             pickContactResultLauncher,
                             friendsViewModel,
                             settingsViewModel,
@@ -102,5 +114,3 @@ class MainActivity : ComponentActivity() {
             }
         }
 }
-
-

@@ -17,31 +17,25 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp) :
-    ViewModel() {
-
-    // Firebase firestore
+class MapViewModel @Inject constructor() : ViewModel() {
     private val firestore = Firebase.firestore
     private val auth = Firebase.auth
 
-    // Observa las alertas
     private val _friendAlertLocation = MutableLiveData<LatLng?>()
     val friendAlertLocation: LiveData<LatLng?> = _friendAlertLocation
 
-
-    init{
+    init {
         listenForFriendsAlerts()
     }
 
-    // Escuchar las alertas
-    fun listenForFriendsAlerts() {
+    private fun listenForFriendsAlerts() {
         val userPhoneNumber = auth.currentUser?.phoneNumber
-        userPhoneNumber?.let { phoneNumber ->
+        userPhoneNumber?.let {
             firestore.collection("Alerts")
                 .whereEqualTo("isAlert", true)
                 .addSnapshotListener { snapshots, e ->
                     if (e != null) {
-                        Log.i("SettingsViewModel", "Listen failed.", e)
+                        Log.i("MapViewModel", "Listen failed.", e)
                         return@addSnapshotListener
                     }
 
@@ -50,12 +44,9 @@ class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp:
                         if (geoPoint != null) {
                             val latLng = LatLng(geoPoint.latitude, geoPoint.longitude)
                             _friendAlertLocation.postValue(latLng)
-                            Log.i("alertaRecibida", "$latLng")
                         }
                     }
                 }
         }
     }
-
-
 }

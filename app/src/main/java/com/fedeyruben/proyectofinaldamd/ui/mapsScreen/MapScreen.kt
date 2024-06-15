@@ -59,6 +59,7 @@ import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import java.io.IOException
 
+
 @Composable
 fun MapScreenInit(mapViewModel: MapViewModel) {
 
@@ -76,7 +77,7 @@ fun MapScreenInit(mapViewModel: MapViewModel) {
     val coroutineScope = rememberCoroutineScope()
     var zoomedOut by remember { mutableStateOf(false) }
 
-    // Función para solicitar permiso de ubicación
+    // Function to request location permission
     fun requestLocationPermission() {
         val REQUEST_LOCATION_PERMISSION_CODE = 1001
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -84,9 +85,8 @@ fun MapScreenInit(mapViewModel: MapViewModel) {
         }
     }
 
-    // Efecto lanzado cuando el Composable se monta
+    // Effect to get the user's location
     LaunchedEffect(key1 = true) {
-        // Verifica si el permiso de ubicación está concedido
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
@@ -100,24 +100,26 @@ fun MapScreenInit(mapViewModel: MapViewModel) {
         }
     }
 
-    // Interfaz de usuario
+    // UI
     Column(modifier = Modifier.fillMaxSize()) {
-        NavigationInstruction(instructions) // Instrucciones de navegación en la parte superior
+        NavigationInstruction(instructions)
         Box(modifier = Modifier.weight(1f)) {
-            GetMapScreen(userLocation, pathPoints, cameraPositionState, endPoint!!)
-            endPoint?.let {
+            if (endPoint != null) {
+                GetMapScreen(userLocation, pathPoints, cameraPositionState, endPoint!!)
                 NavigationControls(
                     userLocation = userLocation,
                     pathPoints = pathPoints,
-                    endPoint = it,
+                    endPoint = endPoint!!,
                     cameraPositionState = cameraPositionState,
                     zoomedOut = zoomedOut,
                     isNavigating = isNavigating,
                     onZoomToggle = { zoomedOut = !zoomedOut }
                 )
+            } else {
+                GetMapScreen(userLocation, pathPoints, cameraPositionState, null)
             }
         }
-        if (userLocation != null && !isNavigating) {
+        if (userLocation != null && !isNavigating && endPoint != null) {
             Button(
                 onClick = {
                     isNavigating = true
@@ -137,7 +139,28 @@ fun MapScreenInit(mapViewModel: MapViewModel) {
                 Text("Iniciar Navegación")
             }
         }
-        NavigationInfo(distance, duration, Modifier.padding(bottom = 56.dp)) // Ajusta el padding inferior
+        NavigationInfo(distance, duration, Modifier.padding(bottom = 56.dp))
+    }
+}
+
+@Composable
+fun GetMapScreen(userLocation: LatLng?, pathPoints: List<LatLng>, cameraPositionState: CameraPositionState, endPoint: LatLng?) {
+    GoogleMap(
+        modifier = Modifier.fillMaxSize(),
+        properties = MapProperties(isMyLocationEnabled = true),
+        uiSettings = MapUiSettings(
+            myLocationButtonEnabled = true,
+            rotationGesturesEnabled = true,
+            scrollGesturesEnabled = true
+        ),
+        cameraPositionState = cameraPositionState
+    ) {
+        endPoint?.let {
+            Marker(position = it, title = "Alert Location", snippet = "Location of the alert")
+        }
+        if (pathPoints.isNotEmpty()) {
+            Polyline(points = pathPoints, color = Color.Blue, width = 5f)
+        }
     }
 }
 
@@ -218,26 +241,6 @@ fun NavigationInstruction(instructions: String, modifier: Modifier = Modifier) {
         )
     }
 }
-
-@Composable
-fun GetMapScreen(userLocation: LatLng?, pathPoints: List<LatLng>, cameraPositionState: CameraPositionState, endPoint: LatLng) {
-    GoogleMap(
-        modifier = Modifier.fillMaxSize(),
-        properties = MapProperties(isMyLocationEnabled = true), // Activar la ubicación estándar
-        uiSettings = MapUiSettings(
-            myLocationButtonEnabled = true,
-            rotationGesturesEnabled = true,
-            scrollGesturesEnabled = true
-        ),
-        cameraPositionState = cameraPositionState
-    ) {
-        Marker(position = endPoint, title = "Alert Location", snippet = "Location of the alert")
-        if (pathPoints.isNotEmpty()) {
-            Polyline(points = pathPoints, color = Color.Blue, width = 5f)
-        }
-    }
-}
-
 fun startNavigation(
     startLocation: LatLng,
     endLocation: LatLng,

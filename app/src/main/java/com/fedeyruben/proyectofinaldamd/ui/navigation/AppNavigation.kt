@@ -2,6 +2,7 @@ package com.fedeyruben.proyectofinaldamd.ui.navigation
 
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -19,6 +20,7 @@ import com.fedeyruben.proyectofinaldamd.ui.settingsScreen.SettingsViewModel
 
 @Composable
 fun AppNavigation(
+    navController: NavHostController,
     pickContactResultLauncher: ActivityResultLauncher<Void?>,
     friendsViewModel: FriendsViewModel,
     settingsViewModel: SettingsViewModel,
@@ -28,12 +30,9 @@ fun AppNavigation(
     alertViewModel: AlertViewModel,
     mapViewModel: MapViewModel
 ) {
-    val navController = rememberNavController()
-
     NavHost(
         navController = navController,
         startDestination = if (registered) AppScreensRoutes.HomeScreen.route else AppScreensRoutes.LaunchScreen.route
-
     ) {
         composable(AppScreensRoutes.LaunchScreen.route) {
             LaunchScreenInit(navController)
