@@ -4,10 +4,13 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,14 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fedeyruben.proyectofinaldamd.R
-
 @Preview
 @Composable
 fun ProgressBarPreview() {
@@ -47,17 +51,25 @@ fun ProgressBar() {
     }
 }
 
-
 @Composable
 private fun Body(modifier: Modifier) {
-    FlippingImage(modifier = modifier)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        FlippingImage(modifier = modifier)
 
-    Text(
-        text = "Loading.....",
-        textAlign = TextAlign.Center,
-        modifier = Modifier.padding(32.dp),
-        fontSize = 20.sp
-    )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "Loading...",
+            textAlign = TextAlign.Center,
+            color = Color(0xFF000080),
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+    }
 }
 
 @Composable
@@ -80,17 +92,17 @@ private fun FlippingImage(modifier: Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoadingScreen() {
-    BasicAlertDialog(onDismissRequest = { /* no podener nada para que el usuario no pueda quitarlo */ },
+    BasicAlertDialog(onDismissRequest = { /* no poner nada para que el usuario no pueda quitarlo */ },
         modifier = Modifier.fillMaxSize(),
         content = {
-            FlippingImage(modifier = Modifier.fillMaxSize())
+            ProgressBar()
         })
 }
 
 @Composable
 fun Logo(modifier: Modifier) {
     Image(
-        modifier = modifier.fillMaxWidth(0.5f),
+        modifier = modifier.fillMaxWidth(0.7f),
         painter = painterResource(id = R.drawable.world),
         contentDescription = "Logo",
         contentScale = ContentScale.FillWidth

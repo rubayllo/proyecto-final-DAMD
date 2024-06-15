@@ -87,7 +87,6 @@ class MainActivity : ComponentActivity() {
                         val permissionState =
                             rememberMultiplePermissionsState(permissions = permissionsList)
                         var isDialogShown by rememberSaveable { mutableStateOf(false) }
-                        startLocationService()
                         if (!permissionState.allPermissionsGranted && registered) {
                             if (!isDialogShown) {
                                 requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
@@ -111,6 +110,9 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             permissions.entries.forEach {
                 Log.d("Permission", "${it.key} = ${it.value}")
+            }
+            if (permissions.entries.all { it.value }) {
+                startLocationService()
             }
         }
 }
