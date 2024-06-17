@@ -1,5 +1,6 @@
 package com.fedeyruben.proyectofinaldamd.ui
 
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,17 +12,15 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils.permissionsList
 import com.fedeyruben.proyectofinaldamd.data.permissions.ShowPermissionExplanationDialog
+import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertFriendDialog
 import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertViewModel
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.mapsScreen.MapViewModel
@@ -59,13 +58,27 @@ class MainActivity : ComponentActivity() {
             ProyectoFinalDAMDTheme {
                 val isUserRegistered by registerViewModel.isUserRegistered.observeAsState(initial = false)
                 val navController = rememberNavController()
+                var showDialog by rememberSaveable { mutableStateOf(false) }
+                var friendName by rememberSaveable { mutableStateOf("") }
 
                 LaunchedEffect(mapViewModel.friendAlertLocation) {
                     mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
                         if (alertLocation != null) {
-                            navController.navigate(AppScreensRoutes.MapScreen.route)
+                            friendName = "Nombre del amigo" // Aquí debes obtener el nombre real del amigo
+                            showDialog = true
                         }
                     }
+                }
+
+                if (showDialog) {
+                    AlertFriendDialog(
+                        friendName = friendName,
+                        onNavigate = {
+                            showDialog = false
+                            navController.navigate(AppScreensRoutes.MapScreen.route)
+                        },
+                        onDismiss = { showDialog = false }
+                    )
                 }
 
                 Surface(
@@ -94,6 +107,9 @@ class MainActivity : ComponentActivity() {
                             } else if (!permissionState.shouldShowRationale) {
                                 ShowPermissionExplanationDialog()
                             }
+                        } else if (permissionState.allPermissionsGranted && !isDialogShown) {
+                            isDialogShown = true
+                            startLocationService()
                         }
                     }
                 }
@@ -116,3 +132,4 @@ class MainActivity : ComponentActivity() {
             }
         }
 }
+
