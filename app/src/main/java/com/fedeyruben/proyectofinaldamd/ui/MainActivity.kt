@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils.permissionsList
@@ -60,12 +61,13 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 var showDialog by rememberSaveable { mutableStateOf(false) }
                 var friendName by rememberSaveable { mutableStateOf("") }
-                val friendAlertName by mapViewModel.friendAlertName.observeAsState()
+                val friendAlertPhone by mapViewModel.friendAlertPhone.observeAsState()
+                val context = LocalContext.current
 
                 LaunchedEffect(mapViewModel.friendAlertLocation) {
                     mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
                         if (alertLocation != null) {
-                            friendName = friendAlertName?:"Amigo"
+                            friendName = settingsViewModel.recuperarNombreTelefono(context,friendAlertPhone!!)
                             showDialog = true
                         }
                     }

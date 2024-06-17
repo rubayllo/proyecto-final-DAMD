@@ -32,6 +32,9 @@ class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp:
     private val _friendAlertName = MutableLiveData<String?>()
     val friendAlertName: LiveData<String?> = _friendAlertName
 
+    private val _friendAlertPhone = MutableLiveData<String?>()
+    val friendAlertPhone: LiveData<String?> = _friendAlertPhone
+
     init {
         listenForFriendsAlerts()
     }
@@ -48,28 +51,14 @@ class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp:
                     }
                     for (doc in snapshots!!) {
                         val geoPoint = doc.getGeoPoint("geoPoint")
-                        val alertPhoneNumber = doc.getString("phoneNumber")
+                        _friendAlertPhone.postValue(doc.getString("phoneNumber"))
                         if (geoPoint != null) {
                             val latLng = LatLng(geoPoint.latitude, geoPoint.longitude)
                             _friendAlertLocation.postValue(latLng)
-                            if (alertPhoneNumber != null) {
-                                getGuardianName(alertPhoneNumber) { name ->
-                                    _friendAlertName.postValue(name)
-                                }
-                            }
                         }
                     }
                 }
         }
     }
 
-
-    private fun getGuardianName(phoneNumber: String, callback: (String) -> Unit) {
-        viewModelScope.launch {
-            val guardian =
-                userDatabaseDaoRepositoryImp.getGuardianByPhoneNumber(phoneNumber).firstOrNull()
-            val name = guardian?.guardianName ?: "Amigo"
-            callback(name)
-        }
-    }
 }
