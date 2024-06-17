@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
 import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
@@ -14,10 +15,13 @@ import com.google.firebase.firestore.firestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp) : ViewModel() {
+class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp: UserDatabaseDaoRepositoryImp) :
+    ViewModel() {
 
     private val firestore = Firebase.firestore
     private val auth = Firebase.auth
@@ -25,8 +29,8 @@ class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp:
     private val _friendAlertLocation = MutableLiveData<LatLng?>()
     val friendAlertLocation: LiveData<LatLng?> = _friendAlertLocation
 
-    private val _friendInDanger = MutableLiveData<String?>()
-    val friendInDanger: LiveData<String?> = _friendInDanger
+    private val _friendAlertName = MutableLiveData<String?>()
+    val friendAlertName: LiveData<String?> = _friendAlertName
 
     init {
         listenForFriendsAlerts()
@@ -42,21 +46,30 @@ class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp:
                         Log.i("SettingsViewModel", "Listen failed.", e)
                         return@addSnapshotListener
                     }
-
                     for (doc in snapshots!!) {
                         val geoPoint = doc.getGeoPoint("geoPoint")
-                        val friendName = doc.getString("friendName") ?: "Amigo"
+                        val alertPhoneNumber = doc.getString("phoneNumber")
                         if (geoPoint != null) {
                             val latLng = LatLng(geoPoint.latitude, geoPoint.longitude)
                             _friendAlertLocation.postValue(latLng)
-                            _friendInDanger.postValue(friendName)
+                            if (alertPhoneNumber != null) {
+                                getGuardianName(alertPhoneNumber) { name ->
+                                    _friendAlertName.postValue(name)
+                                }
+                            }
                         }
                     }
                 }
         }
     }
 
-    fun clearFriendInDanger() {
-        _friendInDanger.value = null
+
+    private fun getGuardianName(phoneNumber: String, callback: (String) -> Unit) {
+        viewModelScope.launch {
+            val guardian =
+                userDatabaseDaoRepositoryImp.getGuardianByPhoneNumber(phoneNumber).firstOrNull()
+            val name = guardian?.guardianName ?: "Amigo"
+            callback(name)
+        }
     }
 }

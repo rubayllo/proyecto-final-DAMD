@@ -60,11 +60,12 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 var showDialog by rememberSaveable { mutableStateOf(false) }
                 var friendName by rememberSaveable { mutableStateOf("") }
+                val friendAlertName by mapViewModel.friendAlertName.observeAsState()
 
                 LaunchedEffect(mapViewModel.friendAlertLocation) {
                     mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
                         if (alertLocation != null) {
-                            friendName = "Nombre del amigo" // Aquí debes obtener el nombre real del amigo
+                            friendName = friendAlertName?:"Amigo"
                             showDialog = true
                         }
                     }
@@ -73,11 +74,11 @@ class MainActivity : ComponentActivity() {
                 if (showDialog) {
                     AlertFriendDialog(
                         friendName = friendName,
+                        onDismiss = { showDialog = false },
                         onNavigate = {
                             showDialog = false
                             navController.navigate(AppScreensRoutes.MapScreen.route)
-                        },
-                        onDismiss = { showDialog = false }
+                        }
                     )
                 }
 
