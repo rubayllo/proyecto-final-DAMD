@@ -29,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,8 +50,6 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
     )
 
     val alertStatus by alertViewModel.alertStatus.collectAsState()
-    val canceled by alertViewModel.canceled.collectAsState()
-
     var showAlertConfirmDialog by remember { mutableStateOf(false) }
     var showCancelAlertDialog by remember { mutableStateOf(false) }
     var currentAlert by remember { mutableStateOf("") }
@@ -143,7 +140,6 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
 fun CountdownDialog(alertViewModel: AlertViewModel, alertLevel: String, onDismiss: () -> Unit) {
     var countdown by remember { mutableStateOf(10) }
     var showAlertSent by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
     val canceled by alertViewModel.canceled.collectAsState()
 
     LaunchedEffect(key1 = true) {

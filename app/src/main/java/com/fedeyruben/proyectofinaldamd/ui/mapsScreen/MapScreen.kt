@@ -77,17 +77,29 @@ fun MapScreenInit(mapViewModel: MapViewModel) {
     val coroutineScope = rememberCoroutineScope()
     var zoomedOut by remember { mutableStateOf(false) }
 
-    // Function to request location permission
+    // Permisos
     fun requestLocationPermission() {
         val REQUEST_LOCATION_PERMISSION_CODE = 1001
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(context as ComponentActivity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION_CODE)
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                context as ComponentActivity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION_PERMISSION_CODE
+            )
         }
     }
 
     // Effect to get the user's location
     LaunchedEffect(key1 = true) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     val currentLatLng = LatLng(it.latitude, it.longitude)
@@ -123,13 +135,19 @@ fun MapScreenInit(mapViewModel: MapViewModel) {
             Button(
                 onClick = {
                     isNavigating = true
-                    startNavigation(userLocation!!, endPoint!!, context, coroutineScope) { newLocation, newPathPoints, newInstruction, newDistance, newDuration ->
+                    startNavigation(
+                        userLocation!!,
+                        endPoint!!,
+                        context,
+                        coroutineScope
+                    ) { newLocation, newPathPoints, newInstruction, newDistance, newDuration ->
                         userLocation = newLocation
                         pathPoints = newPathPoints
                         instructions = newInstruction
                         distance = newDistance
                         duration = newDuration
-                        cameraPositionState.position = CameraPosition.fromLatLngZoom(newLocation, 16f)
+                        cameraPositionState.position =
+                            CameraPosition.fromLatLngZoom(newLocation, 16f)
                     }
                 },
                 modifier = Modifier
@@ -144,7 +162,12 @@ fun MapScreenInit(mapViewModel: MapViewModel) {
 }
 
 @Composable
-fun GetMapScreen(userLocation: LatLng?, pathPoints: List<LatLng>, cameraPositionState: CameraPositionState, endPoint: LatLng?) {
+fun GetMapScreen(
+    userLocation: LatLng?,
+    pathPoints: List<LatLng>,
+    cameraPositionState: CameraPositionState,
+    endPoint: LatLng?
+) {
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         properties = MapProperties(isMyLocationEnabled = true),
@@ -191,7 +214,12 @@ fun NavigationControls(
                     pathPoints.forEach { bounds.include(it) }
                     bounds.include(userLocation!!)
                     bounds.include(endPoint)
-                    cameraPositionState.move(CameraUpdateFactory.newLatLngBounds(bounds.build(), 100))
+                    cameraPositionState.move(
+                        CameraUpdateFactory.newLatLngBounds(
+                            bounds.build(),
+                            100
+                        )
+                    )
                 }
             },
             modifier = Modifier
@@ -241,6 +269,7 @@ fun NavigationInstruction(instructions: String, modifier: Modifier = Modifier) {
         )
     }
 }
+
 fun startNavigation(
     startLocation: LatLng,
     endLocation: LatLng,
@@ -262,15 +291,29 @@ fun startNavigation(
                 val newLatLng = LatLng(location.latitude, location.longitude)
                 coroutineScope.launch {
                     val directionsResult = getDirections(newLatLng, endLocation, context)
-                    val newPathPoints = directionsResult?.routes?.firstOrNull()?.overviewPolyline?.decodePath()?.map {
-                        LatLng(it.lat, it.lng)
-                    } ?: listOf()
-                    val newInstruction = directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.steps?.firstOrNull()?.let {
-                        Jsoup.parse(it.htmlInstructions).text()
-                    } ?: ""
-                    val newDistance = directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.distance?.toString() ?: ""
-                    val newDuration = directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.duration?.toString() ?: ""
-                    onLocationUpdate(newLatLng, newPathPoints, newInstruction, newDistance, newDuration)
+                    val newPathPoints =
+                        directionsResult?.routes?.firstOrNull()?.overviewPolyline?.decodePath()
+                            ?.map {
+                                LatLng(it.lat, it.lng)
+                            } ?: listOf()
+                    val newInstruction =
+                        directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.steps?.firstOrNull()
+                            ?.let {
+                                Jsoup.parse(it.htmlInstructions).text()
+                            } ?: ""
+                    val newDistance =
+                        directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.distance?.toString()
+                            ?: ""
+                    val newDuration =
+                        directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.duration?.toString()
+                            ?: ""
+                    onLocationUpdate(
+                        newLatLng,
+                        newPathPoints,
+                        newInstruction,
+                        newDistance,
+                        newDuration
+                    )
                 }
             }
         }
@@ -298,15 +341,28 @@ fun startNavigation(
             val currentLatLng = LatLng(it.latitude, it.longitude)
             coroutineScope.launch {
                 val directionsResult = getDirections(currentLatLng, endLocation, context)
-                val initialPathPoints = directionsResult?.routes?.firstOrNull()?.overviewPolyline?.decodePath()?.map {
-                    LatLng(it.lat, it.lng)
-                } ?: listOf()
-                val initialInstruction = directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.steps?.firstOrNull()?.let {
-                    Jsoup.parse(it.htmlInstructions).text()
-                } ?: ""
-                val initialDistance = directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.distance?.toString() ?: ""
-                val initialDuration = directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.duration?.toString() ?: ""
-                onLocationUpdate(currentLatLng, initialPathPoints, initialInstruction, initialDistance, initialDuration)
+                val initialPathPoints =
+                    directionsResult?.routes?.firstOrNull()?.overviewPolyline?.decodePath()?.map {
+                        LatLng(it.lat, it.lng)
+                    } ?: listOf()
+                val initialInstruction =
+                    directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.steps?.firstOrNull()
+                        ?.let {
+                            Jsoup.parse(it.htmlInstructions).text()
+                        } ?: ""
+                val initialDistance =
+                    directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.distance?.toString()
+                        ?: ""
+                val initialDuration =
+                    directionsResult?.routes?.firstOrNull()?.legs?.firstOrNull()?.duration?.toString()
+                        ?: ""
+                onLocationUpdate(
+                    currentLatLng,
+                    initialPathPoints,
+                    initialInstruction,
+                    initialDistance,
+                    initialDuration
+                )
             }
         }
     }

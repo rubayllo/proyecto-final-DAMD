@@ -4,19 +4,12 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.fedeyruben.proyectofinaldamd.data.dataStore.repository.DataStoreRepository
 import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
-import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,9 +21,6 @@ class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp:
 
     private val _friendAlertLocation = MutableLiveData<LatLng?>()
     val friendAlertLocation: LiveData<LatLng?> = _friendAlertLocation
-
-    private val _friendAlertName = MutableLiveData<String?>()
-    val friendAlertName: LiveData<String?> = _friendAlertName
 
     private val _friendAlertPhone = MutableLiveData<String?>()
     val friendAlertPhone: LiveData<String?> = _friendAlertPhone
@@ -60,5 +50,4 @@ class MapViewModel @Inject constructor(private val userDatabaseDaoRepositoryImp:
                 }
         }
     }
-
 }

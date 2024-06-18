@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.ui.MainActivity
 import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertViewModel
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel

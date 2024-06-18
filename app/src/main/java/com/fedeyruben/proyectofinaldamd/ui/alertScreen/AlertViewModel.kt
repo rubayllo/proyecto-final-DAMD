@@ -15,31 +15,38 @@ import kotlinx.coroutines.tasks.await
 
 class AlertViewModel : ViewModel() {
 
+    // Instancias de Firebase Firestore y Firebase Auth
     private val firestore = Firebase.firestore
     private val auth = FirebaseAuth.getInstance()
 
+    // Flujos de estado para la alerta y cancelación
     private val _alertStatus = MutableStateFlow(mapOf<String, Boolean>())
     val alertStatus: StateFlow<Map<String, Boolean>> = _alertStatus
 
     private val _canceled = MutableStateFlow(false)
     val canceled: StateFlow<Boolean> = _canceled
 
+    // Inicialización de la clase
     init {
         _canceled.value = false
     }
 
+    // Restablece el estado de cancelación
     fun resetCanceled() {
         _canceled.value = false
     }
 
+    // Establece el estado de cancelación
     fun setCanceled(value: Boolean) {
         _canceled.value = value
     }
 
+    // Establece el estado de alerta
     fun setAlertStatus(alertLevel: String, value: Boolean) {
         _alertStatus.value = _alertStatus.value.toMutableMap().also { it[alertLevel] = value }
     }
 
+    // Envía una alerta con el nivel especificado
     fun sendAlert(level: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         viewModelScope.launch {
             try {
@@ -56,9 +63,11 @@ class AlertViewModel : ViewModel() {
 
                     val alertsRef = firestore.collection("Alerts").document(phoneNumber)
 
+                    // Verifica si el documento de alerta existe
                     alertsRef.get()
                         .addOnSuccessListener { document ->
                             if (document.exists()) {
+                                // Si existe, actualiza el documento
                                 alertsRef.update(alertData as Map<String, Any>)
                                     .addOnSuccessListener {
                                         onSuccess()
@@ -67,6 +76,7 @@ class AlertViewModel : ViewModel() {
                                         onFailure(e)
                                     }
                             } else {
+                                // Si no existe, crea el documento
                                 alertsRef.set(alertData)
                                     .addOnSuccessListener {
                                         onSuccess()
@@ -88,6 +98,7 @@ class AlertViewModel : ViewModel() {
         }
     }
 
+    // Cancela la alerta
     fun cancelAlert(alertLevel: String) {
         viewModelScope.launch {
             try {
@@ -115,7 +126,10 @@ class AlertViewModel : ViewModel() {
                                 Log.e("cancelAlert", "Error al cancelar la alerta: ${e.message}")
                             }
                     } else {
-                        Log.e("cancelAlert", "No se encontró el documento con el número de teléfono: $userPhoneNumber")
+                        Log.e(
+                            "cancelAlert",
+                            "No se encontró el documento con el número de teléfono: $userPhoneNumber"
+                        )
                     }
                 } else {
                     Log.e("cancelAlert", "Número de teléfono no disponible.")
