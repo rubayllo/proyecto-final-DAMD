@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.LoadingScreen
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 
@@ -27,21 +29,21 @@ fun DialogVerifyCode(registerViewModel: RegisterViewModel) {
             // No hacer nada
         },
         title = {
-            Text("Verificar número de teléfono")
+            Text(stringResource( R.string.confirm_phone_2))
         },
         text = {
             if (isLoading) {
                 LoadingScreen()
             } else {
                 Column {
-                    Text("Ingresa el código de verificación")
+                    Text(stringResource( R.string.permiss_text_2 ))
                     OutlinedTextField(
                         value = verifyCode,
                         onValueChange = { registerViewModel.onVerifyCodeChange(it) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         label = {
                             Text(
-                                text = "Codigo de verificación",
+                                text = stringResource( R.string.code ),
                             )
                         }
                     )
@@ -55,7 +57,7 @@ fun DialogVerifyCode(registerViewModel: RegisterViewModel) {
                 },
                 enabled = !isLoading
             ) {
-                Text("OK")
+                Text(stringResource( R.string.ok ))
             }
         },
         dismissButton = {
@@ -63,7 +65,7 @@ fun DialogVerifyCode(registerViewModel: RegisterViewModel) {
                 onClick = { registerViewModel.dialogCodeOpen(false) },
                 enabled = !isLoading
             ) {
-                Text("CANCELAR")
+                Text(stringResource( R.string.cancel ))
             }
         }
     )
@@ -78,7 +80,7 @@ fun DialogIncorrectCode(registerViewModel: RegisterViewModel) {
         onDismissRequest = {
         },
         title = {
-            Text("Código incorrecto, vuelva a intentarlo")
+            Text(stringResource( R.string.error_code ))
         },
         confirmButton = {
             TextButton(
@@ -87,7 +89,7 @@ fun DialogIncorrectCode(registerViewModel: RegisterViewModel) {
                     registerViewModel.cleanVerifyCode()
                 }
             ) {
-                Text("OK")
+                Text(stringResource( R.string.ok ))
             }
         },
     )

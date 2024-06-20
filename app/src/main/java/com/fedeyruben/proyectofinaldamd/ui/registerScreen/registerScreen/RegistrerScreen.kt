@@ -28,11 +28,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.ui.navigation.AppScreensRoutes
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs.DialogIncorrectCode
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.registerScreen.ComposableDialogs.DialogVerifyCode
@@ -123,7 +125,7 @@ fun BodyRegisterScreen(
     }
     Text(
         modifier = modifier.fillMaxWidth(),
-        text = "Ingresa tu número de teléfono",
+        text = stringResource(R.string.register_title),
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
@@ -133,7 +135,7 @@ fun BodyRegisterScreen(
 
     Text(
         modifier = modifier.fillMaxWidth(),
-        text = "Te enviaremos un mensaje SMS para verificar tu número de teléfono",
+        text = stringResource(R.string.register_subtitle),
         style = MaterialTheme.typography.bodyLarge,
         fontWeight = FontWeight.SemiBold,
         textAlign = TextAlign.Center
@@ -147,7 +149,7 @@ fun BodyRegisterScreen(
 
     Text(
         modifier = modifier,
-        text = "Puede que tu operador te cobre servicios adicionales por el envío de este SMS",
+        text = stringResource(R.string.register_subtitle_phone),
         style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
     )
@@ -155,7 +157,7 @@ fun BodyRegisterScreen(
     Spacer(modifier = Modifier.size(50.dp))
 
     ButtonStyle(
-        textButton = "Continuar",
+        textButton = stringResource(R.string.continue_button),
         loginEnable = enableButton,
         modifier = modifier,
         onClickAction = { dialogConfirmPhone.value = true }
@@ -221,9 +223,7 @@ fun NumberPhone(numberPhone: String, onValueChange: (numberPhone: String) -> Uni
         onValueChange = { onValueChange(it) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         label = {
-            Text(
-                text = "Número de teléfono"
-            )
+            Text(stringResource(R.string.phone_number))
         }
     )
 }
@@ -237,7 +237,7 @@ fun SelectCountry(selectedCountry: String, onValueChange: (country: CountriesMod
             .fillMaxWidth()
             .clickable { expanded = true },
         value = selectedCountry,
-        label = "País",
+        label = stringResource(R.string.country),
         keyboardType = KeyboardType.Text,
         onValueChange = null,
         enabled = false,

@@ -84,26 +84,6 @@ class RegisterViewModel @Inject constructor(
         _isLoading.value = isLoading
     }
 
-//    private fun saveNewUser(onSuccess: () -> Unit){
-//        viewModelScope.launch(Dispatchers.IO) {
-//            try {
-//                val user = hashMapOf(
-//                    "phoneUser" to auth.currentUser?.phoneNumber
-//                )
-//
-//                firestore.collection("users").add(user)
-//                    .addOnSuccessListener {
-//                        onSuccess()
-//                    }
-//                    .addOnFailureListener {
-//                        Log.d("ERROR SAVE USER 1", it.message.toString())
-//                    }
-//            } catch (e: Exception) {
-//                Log.d("ERROR SAVE USER 2", "Error al guardar Usuario")
-//            }
-//        }
-//    }
-
     private fun saveNewUser(onSuccess: () -> Unit) {
         val phoneUser = auth.currentUser?.phoneNumber
 

@@ -38,11 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
-import com.fedeyruben.proyectofinaldamd.data.room.model.UserProtected
 import com.fedeyruben.proyectofinaldamd.ui.navigation.bottomNavigation.bottomBarHeight
 import com.fedeyruben.proyectofinaldamd.ui.theme.AlertCriticalColor
 import com.fedeyruben.proyectofinaldamd.ui.theme.AlertHighColor
@@ -56,7 +57,7 @@ fun SettingsScreenInit(settingsViewModel: SettingsViewModel) {
     val settingsList = remember {
         mutableStateListOf(
             "Configura tus guardianes:" to listOf(
-                SettingsItem("Modo Siempre en Alerta", null, Icons.Default.Warning, null, true),
+//                SettingsItem("Modo Siempre en Alerta", null, Icons.Default.Warning, null, true),
                 SettingsItem(
                     "Nivel de Alerta Bajo",
                     "LowGuardian",
@@ -196,7 +197,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
         "ProtectTo" -> {
             if (requests == 0) {
                 Text(
-                    text = "No tienes solicitudes de protección",
+                    text = stringResource(id = R.string.no_requests_protected),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)
@@ -223,7 +224,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
         "ListProtect" -> {
             if (protected == 0) {
                 Text(
-                    text = "No tienes protegidos",
+                    text = stringResource(R.string.no_protegidos),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)
@@ -252,7 +253,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
             val noTrueLow = hasNoTrue(guardianAlertLevelList) { it.low }
             if (noTrueLow) {
                 Text(
-                    text = "No tienes guardianes en este nivel",
+                    text = stringResource(id = R.string.no_guardianes_level),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)
@@ -270,7 +271,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
             val noTrueMedium = hasNoTrue(guardianAlertLevelList) { it.medium }
             if (noTrueMedium) {
                 Text(
-                    text = "No tienes guardianes en este nivel",
+                    text = stringResource(id = R.string.no_guardianes_level),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)                )
@@ -287,7 +288,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
             val noTrueHigh = hasNoTrue(guardianAlertLevelList) { it.high }
             if (noTrueHigh) {
                 Text(
-                    text = "No tienes guardianes en este nivel",
+                    text = stringResource(id = R.string.no_guardianes_level),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)                )
@@ -304,7 +305,7 @@ private fun DropDown(type: String?, settingsViewModel: SettingsViewModel) {
             val noTrueCritical = hasNoTrue(guardianAlertLevelList) { it.critical }
             if (noTrueCritical) {
                 Text(
-                    text = "No tienes guardianes en este nivel",
+                    text = stringResource(id = R.string.no_guardianes_level),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier
                         .padding(start = 26.dp, end = 16.dp, top = 0.dp, bottom = 16.dp)                )
@@ -364,7 +365,8 @@ fun ExpandMenuProtect(
                 }
             ) {
                 Text(
-                    text = if (isProtected) "Quitar" else "Aceptar",
+                    text = if (isProtected) stringResource(id = R.string.remove)
+                    else stringResource(id = R.string.accept),
                     color = if (isProtected) AlertHighColor else AlertLowColor
                 )
             }
@@ -426,7 +428,7 @@ private fun ExpandMenuLevelGuardianAlert(
                 }
             ) {
                 Text(
-                    text = "Quitar",
+                    text = stringResource(id = R.string.remove),
                     color = Color.Red
                 )
             }
@@ -456,7 +458,7 @@ private fun ExpandMenuLevelGuardianAlert(
                 }
             ) {
                 Text(
-                    text = "Quitar",
+                    text = stringResource(id = R.string.remove),
                     color = Color.Red
                 )
             }

@@ -30,11 +30,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.ui.friendsScreen.FriendsViewModel
 import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertScreenInit
 import com.fedeyruben.proyectofinaldamd.ui.alertScreen.AlertViewModel
@@ -64,22 +66,22 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
 
     // Definir los ítems de la barra de navegación
     val alertTab = TabBarItem(
-        title = "Alert",
+        title = stringResource(id = R.string.alert),
         selectedIcon = Icons.Filled.CrisisAlert,
         unselectedIcon = Icons.Outlined.CrisisAlert
     )
     val friendsTab = TabBarItem(
-        title = "Friends",
+        title = stringResource(id = R.string.guards),
         selectedIcon = Icons.Filled.People,
         unselectedIcon = Icons.Outlined.People
     )
     val mapsTab = TabBarItem(
-        title = "Maps",
+        title = stringResource(id = R.string.maps),
         selectedIcon = Icons.Filled.LocationOn,
         unselectedIcon = Icons.Outlined.LocationOn
     )
     val settingsTab = TabBarItem(
-        title = "Settings",
+        title = stringResource(id = R.string.settings),
         selectedIcon = Icons.Filled.Settings,
         unselectedIcon = Icons.Outlined.Settings
     )
@@ -90,8 +92,6 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
 
     // Estado para mostrar el FloatingActionButton en la pantalla de amigos
     val showFab = remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
 
     // Escucha cambios en la pantalla actual y actualiza showFab
     LaunchedEffect(navController.currentBackStackEntry) {
@@ -109,7 +109,7 @@ fun HomeScreenInit(pickContactResultLauncher: ActivityResultLauncher<Void?>, fri
                         pickContactResultLauncher.launch(null)
                     }
                     }) {
-                    Icon(Icons.Filled.Add, contentDescription = "Agregar amigo")
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(id = R.string.add_friend))
                 }
             }
         }
