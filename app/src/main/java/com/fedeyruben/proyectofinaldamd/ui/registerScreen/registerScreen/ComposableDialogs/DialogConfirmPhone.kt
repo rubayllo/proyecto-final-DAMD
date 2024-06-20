@@ -11,7 +11,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.ui.customStyleComponents.LoadingScreen
 import com.fedeyruben.proyectofinaldamd.ui.registerScreen.viewModel.RegisterViewModel
 
@@ -31,7 +33,7 @@ fun OpenConfirmPhoneDialog(
         onDismissRequest = { dialogConfirmPhone.value = false },
         title = {
             Text(
-                text = "Vamos a verificar el número de teléfono",
+                text = stringResource(id = R.string.confirm_phone),
                 textAlign = TextAlign.Center, // Alinea el texto al centro
             )
         },
@@ -40,7 +42,7 @@ fun OpenConfirmPhoneDialog(
                 LoadingScreen()
             } else {
                 Text(
-                    text = "+$codePhone $phone \n ¿Es correcto o quieres modificarlo?",
+                    text = "+$codePhone $phone \n"+ stringResource(id = R.string.confirm_phone_text),
                     textAlign = TextAlign.Center, // Alinea el texto al centro
                 )
             }
@@ -57,7 +59,7 @@ fun OpenConfirmPhoneDialog(
                 },
                 enabled = !isLoading
             ) {
-                Text("OK")
+                Text(text = stringResource(id = R.string.ok))
             }
         },
         dismissButton = {
@@ -65,7 +67,7 @@ fun OpenConfirmPhoneDialog(
                 onClick = { dialogConfirmPhone.value = false },
                 enabled = !isLoading
             ) {
-                Text("EDITAR")
+                Text(text = stringResource(id = R.string.edit))
             }
         }
     )

@@ -154,7 +154,7 @@ fun MapScreenInit(mapViewModel: MapViewModel) {
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                Text("Iniciar Navegación")
+                R.string.start_navigation
             }
         }
         NavigationInfo(distance, duration, Modifier.padding(bottom = 56.dp))

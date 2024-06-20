@@ -23,7 +23,8 @@ class ListOfCountries {
             CountriesModel(country = "India", codePhone = 91),
             CountriesModel(country = "Australia", codePhone = 61),
             CountriesModel(country = "South Africa", codePhone = 27),
-            CountriesModel(country = "New Zealand", codePhone = 64),
+            CountriesModel(country = "New Zealand", codePhone = 64)
+
         )
     }
 }

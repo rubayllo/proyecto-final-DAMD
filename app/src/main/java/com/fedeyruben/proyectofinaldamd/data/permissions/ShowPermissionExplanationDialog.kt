@@ -8,19 +8,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.fedeyruben.proyectofinaldamd.R
 
 @Composable
     fun ShowPermissionExplanationDialog() {
         val context = LocalContext.current
         AlertDialog(
             onDismissRequest = { /* No hacer nada */ },
-            title = { Text("Permisos necesarios") },
-            text = {
-                Text(
-                    "Necesitamos acceso a tu ubicación, contactos y al estado de tú dispositivo móvil para proporcionarte una mejor experiencia. " +
-                            "Por favor, concede los permisos en la configuración de la aplicación. Una vez concedidos podrás seguir disfrutando de la aplicación."
-                )
-            },
+            title = { stringResource(id = R.string.permiss_tittle )},
+            text = { stringResource(id = R.string.permiss_text) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -32,7 +29,7 @@ import androidx.compose.ui.platform.LocalContext
                         context.startActivity(settingsIntent)
                     }
                 ) {
-                    Text("Abrir configuración")
+                   Text(text = stringResource(id = R.string.open_settings))
                 }
             }
         )

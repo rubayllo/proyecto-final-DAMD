@@ -5,10 +5,13 @@ import android.content.Context
 import android.database.Cursor
 import android.provider.ContactsContract
 import android.util.Log
+import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat.getString
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fedeyruben.proyectofinaldamd.R
 import com.fedeyruben.proyectofinaldamd.data.room.UserDatabaseDaoRepositoryImp
 import com.fedeyruben.proyectofinaldamd.data.room.model.GuardianAlertLevel
 import com.fedeyruben.proyectofinaldamd.data.room.model.UserGuardiansContacts
@@ -204,7 +207,9 @@ class SettingsViewModel @Inject constructor(private val userDatabaseDaoRepositor
         }
 
         if(contactName == userPhoneProtected) {
-            contactName = "Desconocido $userPhoneProtected"
+            val unknownString = getString(context,R.string.unknown)
+            contactName = "$unknownString $userPhoneProtected"
+
         }
 
         return contactName
