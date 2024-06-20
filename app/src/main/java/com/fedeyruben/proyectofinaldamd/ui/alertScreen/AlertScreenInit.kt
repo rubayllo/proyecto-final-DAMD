@@ -45,10 +45,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun AlertScreenInit(alertViewModel: AlertViewModel ) {
     val alerts = listOf(
-        "Nivel de alerta bajo" to Icons.Default.Warning,
-        "Nivel de alerta medio" to Icons.Default.Warning,
-        "Nivel de alerta alto" to Icons.Default.Warning,
-        "Nivel de alerta máximo" to Icons.Default.Warning,
+        stringResource(id = R.string.nivel_alerta_bajo) to Icons.Default.Warning,
+        stringResource(id = R.string.nivel_alerta_medio) to Icons.Default.Warning,
+        stringResource(id = R.string.nivel_alerta_alto) to Icons.Default.Warning,
+        stringResource(id = R.string.nivel_alerta_critico) to Icons.Default.Warning
     )
 
     val alertStatus by alertViewModel.alertStatus.collectAsState()
@@ -69,7 +69,7 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
             val alertSent = alertStatus[alert.first] ?: false
             AlertButton(
                 // TODO comprobar posible error
-                text = (if (alertSent) R.string.alert_sent else alert.first).toString(),
+                text = (if (alertSent) stringResource(id = R.string.alert_sent) else alert.first),
                 icon = alert.second,
                 color = getIconColor(index),
                 onClick = {
