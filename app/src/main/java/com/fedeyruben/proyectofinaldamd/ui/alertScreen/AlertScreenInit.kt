@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -86,15 +87,15 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
     if (showAlertConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showAlertConfirmDialog = false },
-            title = { R.string.alert_confirm_title },
-            text = { R.string.alert_confirm_text.toString() + " $currentAlert."},
+            title = { Text(text = stringResource(id = R.string.alert_confirm_title ))},
+            text = { Text(stringResource(id = R.string.alert_confirm_text)+ " $currentAlert.")},
             confirmButton = {
                 Button(onClick = {
                     showAlertConfirmDialog = false
                     showCountdownDialog = true
                     alertViewModel.resetCanceled()  // Reset canceled state
                 }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
-                    R.string.confirm
+                    Text(text = stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
@@ -102,7 +103,7 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
                     onClick = { showAlertConfirmDialog = false },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
                 ) {
-                    R.string.cancel
+                   Text(text = stringResource(id = R.string.cancel))
                 }
             }
         )
@@ -115,8 +116,8 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
     if (showCancelAlertDialog) {
         AlertDialog(
             onDismissRequest = { showCancelAlertDialog = false },
-            title = { R.string.cancel_alert_title },
-            text = { R.string.cancel_alert_text.toString() + " $currentAlert." },
+            title = { Text(stringResource(id =R.string.cancel_alert_title ))},
+            text = { Text(stringResource(id = R.string.cancel_alert_text) + " $currentAlert.") },
             confirmButton = {
                 Button(onClick = {
                     alertViewModel.setAlertStatus(currentAlert, false)
@@ -131,7 +132,7 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
                     onClick = { showCancelAlertDialog = false },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
                 ) {
-                    R.string.no
+                    Text(stringResource(id = R.string.no))
                 }
             }
         )
@@ -168,8 +169,10 @@ fun CountdownDialog(alertViewModel: AlertViewModel, alertLevel: String, onDismis
     } else {
         AlertDialog(
             onDismissRequest = { alertViewModel.setCanceled(true); onDismiss() },
-            title = { R.string.alert_sending_title },
-            text = { R.string.alert_sending_text.toString() + " $countdown segundos." },
+            title = {
+                Text(text = stringResource(id = R.string.alert_sending_title))},
+            text = {
+                Text(stringResource(id =R.string.alert_sending_text) + " $countdown segundos.") },
             confirmButton = {
                 Button(
                     onClick = {
@@ -177,7 +180,7 @@ fun CountdownDialog(alertViewModel: AlertViewModel, alertLevel: String, onDismis
                         onDismiss()
                     }
                 ) {
-                    R.string.cancel
+                    Text( stringResource(id = R.string.cancel))
                 }
             }
         )
@@ -228,11 +231,14 @@ fun getIconColor(index: Int): Color {
 fun AlertSentDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { R.string.alert_sent_title },
-        text = { R.string.alert_sent_text.toString() },
+        title = {
+            Text(
+                text = stringResource(id = R.string.alert_sent_title),)
+             },
+        text = { Text(stringResource(id = R.string.alert_sent_text)) },
         confirmButton = {
             Button(onClick = onDismiss) {
-                R.string.close
+                Text(stringResource(id = R.string.close))
             }
         },
         dismissButton = { },
