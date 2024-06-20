@@ -62,4 +62,8 @@
     <string name="delete_confirmation_text">¿Está seguro que quiere eliminar al usuario</string>
     <string name="duplicate_number_title">El usuario con el número de teléfono</string>
     <string name="duplicate_number_title2">ya está insertado.</string>
+    <string name="nivel_alerta_bajo">Nivel de alerta bajo</string>
+    <string name="nivel_alerta_medio">Nivel de alerta medio</string>
+    <string name="nivel_alerta_alto">Nivel de alerta alto</string>
+    <string name="nivel_alerta_critico">Nivel de alerta máximo</string>
 </resources>
