@@ -12,9 +12,12 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
@@ -64,14 +67,6 @@ class MainActivity : ComponentActivity() {
                 val friendAlertPhone by mapViewModel.friendAlertPhone.observeAsState()
                 val context = LocalContext.current
 
-                LaunchedEffect(mapViewModel.friendAlertLocation) {
-                    mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
-                        if (alertLocation != null) {
-                            friendName = settingsViewModel.recuperarNombreTelefono(context,friendAlertPhone!!)
-                            showDialog = true
-                        }
-                    }
-                }
 
                 if (showDialog) {
                     AlertFriendDialog(
@@ -83,6 +78,39 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
+
+
+
+                val permissionState =
+                    rememberMultiplePermissionsState(permissions = permissionsList)
+                var isDialogShown by rememberSaveable { mutableStateOf(false) }
+
+
+                if (!permissionState.allPermissionsGranted && isUserRegistered!!) {
+                    requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
+                    if (!permissionState.shouldShowRationale) {
+                        ShowPermissionExplanationDialog()
+                    }
+                }
+                else if (permissionState.allPermissionsGranted && !isDialogShown) {
+                    isDialogShown = true
+                    startLocationService()
+
+                    LaunchedEffect(mapViewModel.friendAlertLocation) {
+                        mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
+                            if (alertLocation != null) {
+                                friendName = settingsViewModel.recuperarNombreTelefono(
+                                    context,
+                                    friendAlertPhone!!
+                                )
+                                showDialog = true
+                            }
+                        }
+                    }
+                }
+
+
+
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -100,21 +128,8 @@ class MainActivity : ComponentActivity() {
                             alertViewModel,
                             mapViewModel
                         )
-                        val permissionState =
-                            rememberMultiplePermissionsState(permissions = permissionsList)
-                        var isDialogShown by rememberSaveable { mutableStateOf(false) }
-                        if (!permissionState.allPermissionsGranted && registered) {
-                            if (!isDialogShown) {
-                                requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
-                                isDialogShown = true
-                            } else if (!permissionState.shouldShowRationale) {
-                                ShowPermissionExplanationDialog()
-                            }
-                        } else if (permissionState.allPermissionsGranted && !isDialogShown) {
-                            isDialogShown = true
-                            startLocationService()
-                        }
                     }
+
                 }
             }
         }
@@ -127,12 +142,21 @@ class MainActivity : ComponentActivity() {
 
     private val requestMultiplePermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach {
-                Log.d("Permission", "${it.key} = ${it.value}")
+            val allPermissionsGranted = permissions.all { isGranted ->
+                isGranted.value
             }
-            if (permissions.entries.all { it.value }) {
+            if (allPermissionsGranted) {
                 startLocationService()
             }
         }
-}
 
+//    private val requestMultiplePermissionsLauncher =
+//        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+//            permissions.entries.forEach {
+//                Log.d("Permission", "${it.key} = ${it.value}")
+//            }
+//            if (permissions.entries.all { it.value }) {
+//                startLocationService()
+//            }
+//        }
+}

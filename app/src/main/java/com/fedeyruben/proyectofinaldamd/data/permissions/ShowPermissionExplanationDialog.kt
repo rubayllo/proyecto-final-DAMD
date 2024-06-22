@@ -12,25 +12,25 @@ import androidx.compose.ui.res.stringResource
 import com.fedeyruben.proyectofinaldamd.R
 
 @Composable
-    fun ShowPermissionExplanationDialog() {
-        val context = LocalContext.current
-        AlertDialog(
-            onDismissRequest = { /* No hacer nada */ },
-            title = { stringResource(id = R.string.permiss_tittle )},
-            text = { stringResource(id = R.string.permiss_text) },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        // Abrir la configuración de la aplicación
-                        val settingsIntent = Intent().apply {
-                            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                            data = Uri.fromParts("package", context.packageName, null)
-                        }
-                        context.startActivity(settingsIntent)
+fun ShowPermissionExplanationDialog() {
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = { /* No hacer nada */ },
+        title ={ Text(stringResource(id = R.string.permiss_tittle))} ,
+        text = { Text(stringResource(id = R.string.permiss_text)) },
+        confirmButton = {
+            Button(
+                onClick = {
+                    // Abrir la configuración de la aplicación
+                    val settingsIntent = Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = Uri.fromParts("package", context.packageName, null)
                     }
-                ) {
-                   Text(text = stringResource(id = R.string.open_settings))
+                    context.startActivity(settingsIntent)
                 }
+            ) {
+                Text(text = stringResource(id = R.string.open_settings))
             }
-        )
-    }
+        }
+    )
+}

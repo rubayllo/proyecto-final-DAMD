@@ -6,7 +6,7 @@
     <string name="maps">Maps</string>
     <string name="friends">Friends</string>
     <string name="permiss_tittle">Permisos necesarios</string>
-    <string name="permiss_text">Necesitamos acceso a tu ubicación, contactos y al estado de tú dispositivo móvil para proporcionarte una mejor experiencia.\n                            Por favor, concede los permisos en la configuración de la aplicación. Una vez concedidos podrás seguir disfrutando de la aplicación.</string>
+    <string name="permiss_text">Necesitamos acceso a tu ubicación, contactos y al estado de tú dispositivo móvil para proporcionarte una mejor experiencia.\n Por favor, concede los permisos en la configuración de la aplicación. Una vez concedidos podrás seguir disfrutando de la aplicación.</string>
     <string name="open_settings">Abrir configuración</string>
     <string name="alert_sent">¡¡¡ALERTA EN CURSO!!!</string>
     <string name="alert_confirm_title">Confirmación</string>
