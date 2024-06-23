@@ -1,10 +1,7 @@
 package com.fedeyruben.proyectofinaldamd.ui
 
 
-import android.Manifest
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -13,17 +10,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils
 import com.fedeyruben.proyectofinaldamd.data.permissions.PermissionUtils.permissionsList
@@ -41,7 +37,6 @@ import com.fedeyruben.proyectofinaldamd.utils.LocationUpdateService
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -72,14 +67,6 @@ class MainActivity : ComponentActivity() {
                 val friendAlertPhone by mapViewModel.friendAlertPhone.observeAsState()
                 val context = LocalContext.current
 
-                LaunchedEffect(mapViewModel.friendAlertLocation) {
-                    mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
-                        if (alertLocation != null) {
-                            friendName = settingsViewModel.recuperarNombreTelefono(context, friendAlertPhone!!)
-                            showDialog = true
-                        }
-                    }
-                }
 
                 if (showDialog) {
                     AlertFriendDialog(
@@ -92,68 +79,59 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
+
+
+                val permissionState =
+                    rememberMultiplePermissionsState(permissions = permissionsList)
+                var isDialogShown by rememberSaveable { mutableStateOf(false) }
+
+
+                if (!permissionState.allPermissionsGranted && isUserRegistered!!) {
+                    requestMultiplePermissionsLauncher.launch(PermissionUtils.permissionsArray)
+                    if (!permissionState.shouldShowRationale) {
+                        ShowPermissionExplanationDialog()
+                    }
+                }
+                else if (permissionState.allPermissionsGranted && !isDialogShown) {
+                    isDialogShown = true
+                    startLocationService()
+
+                    LaunchedEffect(mapViewModel.friendAlertLocation) {
+                        mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
+                            if (alertLocation != null) {
+                                friendName = settingsViewModel.recuperarNombreTelefono(
+                                    context,
+                                    friendAlertPhone!!
+                                )
+                                showDialog = true
+                            }
+                        }
+                    }
+                }
+
+
+
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     isUserRegistered?.let { registered ->
-                        if (!allPermissionsGranted()) {
-                            RequestPermissionsDialog()
-                        } else {
-                            AppNavigation(
-                                navController,
-                                pickContactResultLauncher,
-                                friendsViewModel,
-                                settingsViewModel,
-                                registerViewModel,
-                                this@MainActivity,
-                                registered,
-                                alertViewModel,
-                                mapViewModel
-                            )
-                            startLocationService()
-                        }
+                        AppNavigation(
+                            navController,
+                            pickContactResultLauncher,
+                            friendsViewModel,
+                            settingsViewModel,
+                            registerViewModel,
+                            this@MainActivity,
+                            registered,
+                            alertViewModel,
+                            mapViewModel
+                        )
                     }
+
                 }
             }
-        }
-    }
-
-    private fun allPermissionsGranted(): Boolean {
-        val context = this
-        val requiredPermissions = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.WRITE_CONTACTS,
-            // Añadir otros permisos necesarios
-        )
-        return requiredPermissions.all {
-            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-        }
-    }
-
-    @OptIn(ExperimentalPermissionsApi::class)
-    @Composable
-    private fun RequestPermissionsDialog() {
-        val context = LocalContext.current
-        val permissionState = rememberMultiplePermissionsState(permissions = permissionsList)
-
-        LaunchedEffect(Unit) {
-            permissionState.launchMultiplePermissionRequest()
-        }
-
-        if (!permissionState.allPermissionsGranted) {
-            AlertDialog(
-                onDismissRequest = { /* No permitir que se dismissee el diálogo */ },
-                title = { Text("Permisos requeridos") },
-                text = { Text("Esta aplicación requiere permisos para funcionar correctamente. Por favor, otórguelos para continuar.") },
-                confirmButton = {
-                    Button(onClick = { permissionState.launchMultiplePermissionRequest() }) {
-                        Text("Otorgar permisos")
-                    }
-                }
-            )
         }
     }
 
@@ -164,12 +142,21 @@ class MainActivity : ComponentActivity() {
 
     private val requestMultiplePermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach {
-                Log.d("Permission", "${it.key} = ${it.value}")
+            val allPermissionsGranted = permissions.all { isGranted ->
+                isGranted.value
             }
-            if (permissions.entries.all { it.value }) {
+            if (allPermissionsGranted) {
                 startLocationService()
             }
         }
-}
 
+//    private val requestMultiplePermissionsLauncher =
+//        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+//            permissions.entries.forEach {
+//                Log.d("Permission", "${it.key} = ${it.value}")
+//            }
+//            if (permissions.entries.all { it.value }) {
+//                startLocationService()
+//            }
+//        }
+}

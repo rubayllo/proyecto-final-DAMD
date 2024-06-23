@@ -1,6 +1,5 @@
 package com.fedeyruben.proyectofinaldamd.ui.alertScreen
 
-
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -94,7 +93,8 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
                     showAlertConfirmDialog = false
                     showCountdownDialog = true
                     alertViewModel.resetCanceled()  // Reset canceled state
-                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
+                }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))
+                ) {
                     Text(text = stringResource(id = R.string.confirm))
                 }
             },
@@ -124,7 +124,7 @@ fun AlertScreenInit(alertViewModel: AlertViewModel ) {
                     alertViewModel.cancelAlert(currentAlert)
                     showCancelAlertDialog = false
                 }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))) {
-                    R.string.yes
+                    Text(stringResource(id = R.string.yes))
                 }
             },
             dismissButton = {
