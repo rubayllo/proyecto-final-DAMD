@@ -18,7 +18,7 @@
     <string name="yes">Sí</string>
     <string name="no">No</string>
     <string name="alert_sending_title">Enviando Alerta</string>
-    <string name="alert_sending_text">¡¡¡ESTÁ ENVIANDO UNA ALERTA!!!\\nEnviando en</string>
+    <string name="alert_sending_text">¡¡¡ESTÁ ENVIANDO UNA ALERTA!!! Enviando en</string>
     <string name="alert_sent_title">Alerta Enviada</string>
     <string name="alert_sent_text">La alerta ha sido enviada con éxito.</string>
     <string name="close">Cerrar</string>
@@ -68,6 +68,4 @@
     <string name="nivel_alerta_critico">Nivel de alerta máximo</string>
     <string name="msg_token_fmt">Token</string>
     <string name="notification_channel_id">0</string>
-
-
 </resources>

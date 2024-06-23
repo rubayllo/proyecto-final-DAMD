@@ -37,6 +37,8 @@ import com.fedeyruben.proyectofinaldamd.utils.LocationUpdateService
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -67,6 +69,8 @@ class MainActivity : ComponentActivity() {
                 val friendAlertPhone by mapViewModel.friendAlertPhone.observeAsState()
                 val context = LocalContext.current
 
+                // Obtener el número de teléfono del usuario actual
+                val currentUserPhone = Firebase.auth.currentUser?.phoneNumber
 
                 if (showDialog) {
                     AlertFriendDialog(
@@ -78,8 +82,6 @@ class MainActivity : ComponentActivity() {
                         }
                     )
                 }
-
-
 
                 val permissionState =
                     rememberMultiplePermissionsState(permissions = permissionsList)
@@ -98,7 +100,7 @@ class MainActivity : ComponentActivity() {
 
                     LaunchedEffect(mapViewModel.friendAlertLocation) {
                         mapViewModel.friendAlertLocation.observe(this@MainActivity) { alertLocation ->
-                            if (alertLocation != null) {
+                            if (alertLocation != null && friendAlertPhone != currentUserPhone) {
                                 friendName = settingsViewModel.recuperarNombreTelefono(
                                     context,
                                     friendAlertPhone!!
@@ -108,8 +110,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-
-
 
 
                 Surface(
